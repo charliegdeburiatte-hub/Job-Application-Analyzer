@@ -1,0 +1,46 @@
+{
+  "name": "job-application-analyzer",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Firefox extension that analyzes job postings against your CV and provides match scores and recommendations",
+  "author": "Charlie",
+  "license": "MIT",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:watch\" \"npm run dev:firefox\"",
+    "dev:watch": "vite build --watch --mode development",
+    "dev:firefox": "web-ext run --source-dir=dist --browser-console --start-url about:debugging#/runtime/this-firefox",
+    "build": "tsc && vite build",
+    "package": "node package-extension.js",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "firefox-extension",
+    "job-search",
+    "cv-analysis",
+    "linkedin",
+    "indeed",
+    "reed"
+  ],
+  "dependencies": {
+    "mammoth": "^1.11.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "zustand": "^5.0.10"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.18",
+    "@types/chrome": "^0.1.33",
+    "@types/firefox-webext-browser": "^143.0.0",
+    "@types/node": "^25.0.9",
+    "@types/react": "^19.2.8",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.2",
+    "autoprefixer": "^10.4.23",
+    "concurrently": "^9.2.1",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.18",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1",
+    "web-ext": "^9.2.0"
+  }
+}

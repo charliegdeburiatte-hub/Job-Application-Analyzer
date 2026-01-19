@@ -1,0 +1,466 @@
+@import "tailwindcss";
+
+/* ============================================================================
+   Tailwind 4 Theme Configuration
+   ============================================================================ */
+
+@theme {
+  /* Black Sabbath Purple Theme Colors */
+  --color-sabbath-50: #F3E8FF;
+  --color-sabbath-100: #E9D5FF;
+  --color-sabbath-200: #D8B4FE;
+  --color-sabbath-300: #C084FC;
+  --color-sabbath-400: #A855F7;
+  --color-sabbath-500: #8B35D9;
+  --color-sabbath-600: #6B21A8;
+  --color-sabbath-700: #581C87;
+  --color-sabbath-800: #3B0764;
+  --color-sabbath-900: #2E0854;
+  --color-sabbath-950: #1A0433;
+
+  /* Professional Purple Theme Colors */
+  --color-professional-50: #FAF5FF;
+  --color-professional-100: #F3E8FF;
+  --color-professional-200: #E9D5FF;
+  --color-professional-300: #D8B4FE;
+  --color-professional-400: #C084FC;
+  --color-professional-500: #A855F7;
+  --color-professional-600: #9333EA;
+  --color-professional-700: #7C3AED;
+  --color-professional-800: #6D28D9;
+  --color-professional-900: #5B21B6;
+
+  /* Success Colors */
+  --color-success-50: #ECFDF5;
+  --color-success-100: #D1FAE5;
+  --color-success-500: #10B981;
+  --color-success-600: #059669;
+  --color-success-700: #047857;
+  --color-success-800: #065F46;
+  --color-success-900: #064E3B;
+
+  /* Warning Colors */
+  --color-warning-50: #FFFBEB;
+  --color-warning-100: #FEF3C7;
+  --color-warning-500: #F59E0B;
+  --color-warning-600: #D97706;
+  --color-warning-700: #B45309;
+  --color-warning-800: #92400E;
+  --color-warning-900: #78350F;
+
+  /* Danger/Error Colors */
+  --color-danger-50: #FEF2F2;
+  --color-danger-100: #FEE2E2;
+  --color-danger-500: #EF4444;
+  --color-danger-600: #DC2626;
+  --color-danger-700: #B91C1C;
+  --color-danger-800: #991B1B;
+  --color-danger-900: #7F1D1D;
+
+  /* Info Colors */
+  --color-info-50: #EFF6FF;
+  --color-info-100: #DBEAFE;
+  --color-info-500: #3B82F6;
+  --color-info-600: #2563EB;
+  --color-info-700: #1D4ED8;
+  --color-info-800: #1E40AF;
+  --color-info-900: #1E3A8A;
+
+  /* Custom animations */
+  --animate-pulse-slow: pulse-slow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-slide-in: slide-in 0.2s ease-out;
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes slide-in {
+  0% { transform: translateY(-10px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* ============================================================================
+   Base Styles
+   ============================================================================ */
+
+@layer base {
+  html {
+    height: 100%;
+  }
+
+  body {
+    height: 100%;
+    background-color: white;
+    color: rgb(17 24 39);
+    font-family: system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    margin: 0;
+    padding: 0;
+    width: 400px;
+    min-height: 600px;
+    box-sizing: border-box;
+  }
+
+  body.dark {
+    background-color: rgb(17 24 39);
+    color: rgb(249 250 251);
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+}
+
+/* ============================================================================
+   Component Styles
+   ============================================================================ */
+
+@layer components {
+  /* Primary Button - Uses theme colors */
+  .btn-primary {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition: colors 200ms;
+    outline: none;
+  }
+  .btn-primary:focus {
+    ring: 2px;
+    ring-offset: 2px;
+  }
+
+  /* Black Sabbath Theme Primary Button */
+  [data-theme='sabbath'] .btn-primary {
+    background-color: var(--color-sabbath-600);
+    color: white;
+  }
+  [data-theme='sabbath'] .btn-primary:hover {
+    background-color: var(--color-sabbath-700);
+  }
+  [data-theme='sabbath'] .btn-primary:focus {
+    ring-color: var(--color-sabbath-500);
+  }
+  [data-theme='sabbath'] .dark .btn-primary {
+    background-color: var(--color-sabbath-500);
+  }
+  [data-theme='sabbath'] .dark .btn-primary:hover {
+    background-color: var(--color-sabbath-600);
+  }
+
+  /* Professional Theme Primary Button */
+  [data-theme='professional'] .btn-primary {
+    background-color: var(--color-professional-600);
+    color: white;
+  }
+  [data-theme='professional'] .btn-primary:hover {
+    background-color: var(--color-professional-700);
+  }
+  [data-theme='professional'] .btn-primary:focus {
+    ring-color: var(--color-professional-500);
+  }
+  [data-theme='professional'] .dark .btn-primary {
+    background-color: var(--color-professional-500);
+  }
+  [data-theme='professional'] .dark .btn-primary:hover {
+    background-color: var(--color-professional-600);
+  }
+
+  /* Secondary Button */
+  .btn-secondary {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    background-color: white;
+    border: 1px solid rgb(209 213 219);
+    color: rgb(55 65 81);
+    transition: colors 200ms;
+    outline: none;
+  }
+  .btn-secondary:hover {
+    background-color: rgb(249 250 251);
+  }
+  .btn-secondary:focus {
+    ring: 2px;
+    ring-offset: 2px;
+    ring-color: rgb(156 163 175);
+  }
+  .dark .btn-secondary {
+    background-color: rgb(31 41 55);
+    border-color: rgb(75 85 99);
+    color: rgb(209 213 219);
+  }
+  .dark .btn-secondary:hover {
+    background-color: rgb(55 65 81);
+  }
+
+  /* Danger Button */
+  .btn-danger {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    background-color: var(--color-danger-500);
+    color: white;
+    transition: colors 200ms;
+    outline: none;
+  }
+  .btn-danger:hover {
+    background-color: var(--color-danger-600);
+  }
+  .btn-danger:focus {
+    ring: 2px;
+    ring-offset: 2px;
+    ring-color: var(--color-danger-500);
+  }
+
+  /* Card */
+  .card {
+    background-color: white;
+    border: 1px solid rgb(229 231 235);
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    padding: 1rem;
+    transition: box-shadow 200ms;
+  }
+  .card:hover {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  }
+  .dark .card {
+    background-color: rgb(31 41 55);
+    border-color: rgb(55 65 81);
+  }
+
+  /* Input */
+  .input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    background-color: white;
+    border: 1px solid rgb(209 213 219);
+    color: rgb(17 24 39);
+    transition: colors 200ms;
+    outline: none;
+  }
+  .input::placeholder {
+    color: rgb(156 163 175);
+  }
+  .input:focus {
+    ring: 2px;
+    ring-offset: 0;
+  }
+  .dark .input {
+    background-color: rgb(31 41 55);
+    border-color: rgb(75 85 99);
+    color: rgb(243 244 246);
+  }
+  .dark .input::placeholder {
+    color: rgb(107 114 128);
+  }
+
+  [data-theme='sabbath'] .input:focus {
+    ring-color: var(--color-sabbath-500);
+    border-color: var(--color-sabbath-500);
+  }
+  [data-theme='professional'] .input:focus {
+    ring-color: var(--color-professional-500);
+    border-color: var(--color-professional-500);
+  }
+
+  /* Badge */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-radius: 9999px;
+  }
+
+  .badge-success {
+    background-color: var(--color-success-100);
+    color: var(--color-success-800);
+  }
+  .dark .badge-success {
+    background-color: var(--color-success-900);
+    color: var(--color-success-200);
+  }
+
+  .badge-warning {
+    background-color: var(--color-warning-100);
+    color: var(--color-warning-800);
+  }
+  .dark .badge-warning {
+    background-color: var(--color-warning-900);
+    color: var(--color-warning-200);
+  }
+
+  .badge-danger {
+    background-color: var(--color-danger-100);
+    color: var(--color-danger-800);
+  }
+  .dark .badge-danger {
+    background-color: var(--color-danger-900);
+    color: var(--color-danger-200);
+  }
+
+  .badge-info {
+    background-color: var(--color-info-100);
+    color: var(--color-info-800);
+  }
+  .dark .badge-info {
+    background-color: var(--color-info-900);
+    color: var(--color-info-200);
+  }
+
+  /* Skill Tag */
+  .skill-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 0.25rem;
+    border: 1px solid;
+  }
+
+  .skill-tag-matched {
+    background-color: var(--color-success-50);
+    color: var(--color-success-700);
+    border-color: var(--color-success-300);
+  }
+  .dark .skill-tag-matched {
+    background-color: var(--color-success-900);
+    color: var(--color-success-200);
+    border-color: var(--color-success-700);
+  }
+
+  .skill-tag-missing {
+    background-color: var(--color-danger-50);
+    color: var(--color-danger-700);
+    border-color: var(--color-danger-300);
+  }
+  .dark .skill-tag-missing {
+    background-color: var(--color-danger-900);
+    color: var(--color-danger-200);
+    border-color: var(--color-danger-700);
+  }
+
+  /* Tab Button */
+  .tab-btn {
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+    transition: colors 200ms;
+    border-bottom: 2px solid transparent;
+  }
+
+  [data-theme='sabbath'] .tab-btn-active {
+    border-color: var(--color-sabbath-600);
+    color: var(--color-sabbath-600);
+  }
+  [data-theme='sabbath'] .dark .tab-btn-active {
+    border-color: var(--color-sabbath-400);
+    color: var(--color-sabbath-400);
+  }
+
+  [data-theme='professional'] .tab-btn-active {
+    border-color: var(--color-professional-600);
+    color: var(--color-professional-600);
+  }
+  [data-theme='professional'] .dark .tab-btn-active {
+    border-color: var(--color-professional-400);
+    color: var(--color-professional-400);
+  }
+
+  .tab-btn-inactive {
+    color: rgb(75 85 99);
+  }
+  .tab-btn-inactive:hover {
+    color: rgb(17 24 39);
+  }
+  .dark .tab-btn-inactive {
+    color: rgb(156 163 175);
+  }
+  .dark .tab-btn-inactive:hover {
+    color: rgb(229 231 235);
+  }
+}
+
+/* ============================================================================
+   Utility Classes
+   ============================================================================ */
+
+@layer utilities {
+  /* Scrollbar styling */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background-color: rgb(243 244 246);
+  }
+  .dark .scrollbar-thin::-webkit-scrollbar-track {
+    background-color: rgb(31 41 55);
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: rgb(209 213 219);
+    border-radius: 9999px;
+  }
+  .dark .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: rgb(75 85 99);
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(156 163 175);
+  }
+  .dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(107 114 128);
+  }
+
+  /* Custom animations */
+  .animate-spin-slow {
+    animation: spin 2s linear infinite;
+  }
+}
+
+/* ============================================================================
+   Circular Progress Ring (for match score)
+   ============================================================================ */
+
+.progress-ring-circle {
+  transition: stroke-dashoffset 0.5s ease-out;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
+
+/* ============================================================================
+   Loading Spinner
+   ============================================================================ */
+
+.spinner {
+  @apply inline-block w-5 h-5 border-2 border-current border-t-transparent;
+  @apply rounded-full animate-spin;
+}
+
+/* ============================================================================
+   Empty State
+   ============================================================================ */
+
+.empty-state {
+  @apply flex flex-col items-center justify-center;
+  @apply py-12 text-center;
+}
+
+.empty-state-icon {
+  @apply text-4xl mb-4 text-gray-400 dark:text-gray-600;
+}
+
+.empty-state-text {
+  @apply text-gray-600 dark:text-gray-400;
+}
