@@ -1,95 +1,11 @@
-import { useState } from 'react';
 import { usePopupStore } from '../store';
-import mammoth from 'mammoth';
-import { fileToBase64, formatDateShort } from '@/shared';
-import { CVDocument, CVProfile } from '@/shared/types';
-import LoadingSpinner from './LoadingSpinner';
+import { formatDateShort } from '@/shared';
 
 export default function CVView() {
-  const { cvDocument, cvProfile, saveCVData, setError } = usePopupStore();
-  const [isUploading, setIsUploading] = useState(false);
+  const { cvDocument, cvProfile } = usePopupStore();
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    // Validate file type
-    if (!file.name.endsWith('.docx')) {
-      setError('Please upload a .docx file');
-      return;
-    }
-
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      setError('File is too large. Maximum size is 5MB');
-      return;
-    }
-
-    setIsUploading(true);
-    setError(null);
-
-    try {
-      // Convert file to base64
-      const base64 = await fileToBase64(file);
-
-      // Parse DOCX with mammoth.js
-      const arrayBuffer = await file.arrayBuffer();
-      const textResult = await mammoth.extractRawText({ arrayBuffer });
-      const extractedText = textResult.value;
-
-      if (!extractedText || extractedText.trim().length < 50) {
-        throw new Error('CV appears to be empty or too short');
-      }
-
-      // Create CV document
-      const cvDoc: CVDocument = {
-        fileName: file.name,
-        uploadDate: new Date().toISOString(),
-        docxBase64: base64,
-        extractedText,
-        fileSize: file.size,
-      };
-
-      // Basic skill extraction (improved in Phase 2)
-      const skills = extractSkillsFromText(extractedText);
-
-      // Create basic CV profile
-      const cvProf: CVProfile = {
-        personalInfo: {},
-        skills,
-        experience: [],
-        education: [],
-      };
-
-      // Save to storage
-      await saveCVData(cvDoc, cvProf);
-
-      // Reset file input
-      event.target.value = '';
-    } catch (error) {
-      console.error('Error uploading CV:', error);
-      setError(
-        error instanceof Error ? error.message : 'Failed to upload CV. Please try again.'
-      );
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  // Basic skill extraction function
-  const extractSkillsFromText = (text: string): string[] => {
-    // Import the skills list
-    const { COMMON_SKILLS } = require('@/shared/constants');
-    const skills = new Set<string>();
-
-    for (const skill of COMMON_SKILLS) {
-      const regex = new RegExp(`\\b${skill.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
-      if (regex.test(text)) {
-        skills.add(skill);
-      }
-    }
-
-    return Array.from(skills);
+  const openSettings = () => {
+    browser.runtime.openOptionsPage();
   };
 
   return (
@@ -106,21 +22,15 @@ export default function CVView() {
             Upload your CV in .docx format to start analyzing jobs
           </p>
 
-          {isUploading ? (
-            <LoadingSpinner text="Parsing CV..." />
-          ) : (
-            <label className="block">
-              <input
-                type="file"
-                accept=".docx"
-                onChange={handleFileUpload}
-                className="hidden"
-              />
-              <div className="btn-primary cursor-pointer text-center">
-                📄 Choose DOCX File
-              </div>
-            </label>
-          )}
+          <button
+            onClick={openSettings}
+            className="btn-primary w-full"
+          >
+            📄 Upload CV in Settings
+          </button>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
+            Opens in a new tab for better file upload support
+          </p>
         </div>
       ) : (
         <>
@@ -141,21 +51,12 @@ export default function CVView() {
             </div>
 
             <div className="mt-4">
-              {isUploading ? (
-                <LoadingSpinner text="Uploading new CV..." />
-              ) : (
-                <label className="block">
-                  <input
-                    type="file"
-                    accept=".docx"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                  />
-                  <div className="btn-secondary cursor-pointer text-center w-full">
-                    Upload New CV
-                  </div>
-                </label>
-              )}
+              <button
+                onClick={openSettings}
+                className="btn-secondary w-full"
+              >
+                Upload New CV
+              </button>
             </div>
           </div>
 

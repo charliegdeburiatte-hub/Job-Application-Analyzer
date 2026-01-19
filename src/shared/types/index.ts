@@ -122,6 +122,7 @@ export interface UserSettings {
   retentionDays: number;
   colorTheme: ColorTheme;
   themeMode: ThemeMode;
+  popupSize: 'small' | 'medium' | 'large';
 }
 
 // ============================================================================

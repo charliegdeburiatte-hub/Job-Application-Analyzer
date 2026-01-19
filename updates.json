@@ -5,6 +5,10 @@
         {
           "version": "1.0.0",
           "update_link": "https://github.com/charliegdeburiatte-hub/Job-Application-Analyzer/releases/download/v1.0.0/job-application-analyzer-v1.0.0-signed.xpi"
+        },
+        {
+          "version": "1.0.1",
+          "update_link": "https://github.com/charliegdeburiatte-hub/Job-Application-Analyzer/releases/download/v1.0.1/job-application-analyzer-v1.0.1-signed.xpi"
         }
       ]
     }

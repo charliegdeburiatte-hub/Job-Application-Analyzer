@@ -190,6 +190,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   retentionDays: 90,
   colorTheme: 'sabbath',
   themeMode: 'light',
+  popupSize: 'medium',
 };
 
 // ============================================================================

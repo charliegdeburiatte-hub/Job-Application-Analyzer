@@ -12,13 +12,24 @@ import LoadingSpinner from './components/LoadingSpinner';
 import ErrorBanner from './components/ErrorBanner';
 
 function App() {
-  const { currentTab, isLoading, error, init } = usePopupStore();
+  const { currentTab, isLoading, error, init, settings } = usePopupStore();
   const { colorTheme } = useTheme();
 
   // Initialize store on mount
   useEffect(() => {
     init();
   }, [init]);
+
+  // Apply popup size
+  useEffect(() => {
+    const root = document.documentElement;
+    const sizes = {
+      small: '400px',
+      medium: '500px',
+      large: '600px',
+    };
+    root.style.setProperty('--popup-width', sizes[settings.popupSize]);
+  }, [settings.popupSize]);
 
   return (
     <div className="flex flex-col h-full">

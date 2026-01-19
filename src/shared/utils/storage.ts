@@ -152,3 +152,34 @@ export async function cleanOldJobs(retentionDays: number): Promise<number> {
 
   return deletedCount;
 }
+
+/**
+ * Get CV document
+ */
+export async function getCVDocument(): Promise<LocalStorage['cvDocument'] | null> {
+  const { cvDocument } = await getLocalStorage();
+  return cvDocument || null;
+}
+
+/**
+ * Get CV profile
+ */
+export async function getCVProfile(): Promise<SyncStorage['cvProfile'] | null> {
+  const { cvProfile } = await getSyncStorage();
+  return cvProfile || null;
+}
+
+/**
+ * Get user settings
+ */
+export async function getUserSettings(): Promise<SyncStorage['settings'] | null> {
+  const { settings } = await getSyncStorage();
+  return settings || null;
+}
+
+/**
+ * Save user settings
+ */
+export async function saveUserSettings(settings: SyncStorage['settings']): Promise<void> {
+  await browser.storage.sync.set({ [STORAGE_KEYS.SETTINGS]: settings });
+}

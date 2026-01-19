@@ -1,6 +1,6 @@
 {
   "name": "job-application-analyzer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "description": "Firefox extension that analyzes job postings against your CV and provides match scores and recommendations",
   "author": "Charlie",
@@ -11,6 +11,7 @@
     "dev:firefox": "web-ext run --source-dir=dist --browser-console --start-url about:debugging#/runtime/this-firefox",
     "build": "tsc && vite build",
     "package": "node package-extension.js",
+    "package:source": "node package-source.js",
     "preview": "vite preview"
   },
   "keywords": [
