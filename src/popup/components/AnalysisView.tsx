@@ -29,15 +29,63 @@ export default function AnalysisView() {
 
   // No current job analysis
   if (!currentAnalysis || !currentJob) {
+    const handleManualAnalysis = async () => {
+      try {
+        // Query the active tab
+        const tabs = await browser.tabs.query({ active: true, currentWindow: true });
+        if (!tabs[0]?.id) {
+          usePopupStore.getState().setError('Could not access current tab');
+          return;
+        }
+
+        usePopupStore.getState().setLoading(true);
+        usePopupStore.getState().setError(null);
+
+        // Send message to content script to extract job data
+        const response = await browser.tabs.sendMessage(tabs[0].id, {
+          type: 'GET_CURRENT_JOB',
+        });
+
+        if (response?.success && response.jobData) {
+          // Send to background for analysis
+          const analysisResponse = await browser.runtime.sendMessage({
+            type: 'ANALYZE_JOB',
+            payload: { jobData: response.jobData },
+          });
+
+          if (analysisResponse?.success) {
+            // Update store with job and analysis
+            usePopupStore.getState().setCurrentJob(response.jobData);
+            usePopupStore.getState().setCurrentAnalysis(analysisResponse.analysis);
+          } else {
+            throw new Error('Analysis failed');
+          }
+        } else {
+          throw new Error(response?.error || 'Could not extract job data from this page');
+        }
+      } catch (error) {
+        console.error('Manual analysis error:', error);
+        usePopupStore.getState().setError(
+          error instanceof Error ? error.message : 'Failed to analyze page'
+        );
+      } finally {
+        usePopupStore.getState().setLoading(false);
+      }
+    };
+
     return (
       <div className="empty-state">
         <div className="empty-state-icon">🔍</div>
         <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
           No Job Detected
         </h3>
-        <p className="empty-state-text max-w-xs mx-auto">
-          Visit a job posting on LinkedIn, Indeed, or Reed to see analysis
+        <p className="empty-state-text max-w-xs mx-auto mb-4">
+          Visit a job posting on LinkedIn, Indeed, or Reed for automatic analysis
         </p>
+        <div className="text-xs text-gray-500 dark:text-gray-400 mb-3">or</div>
+        <button onClick={handleManualAnalysis} className="btn-primary">
+          📄 Analyze This Page
+        </button>
       </div>
     );
   }

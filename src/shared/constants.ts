@@ -5,9 +5,9 @@ import { UserSettings } from './types';
 // ============================================================================
 
 export const JOB_PATTERNS = {
-  linkedin: /linkedin\.com\/jobs\/(view|collections)\/\d+/,
-  indeed: /indeed\.com\/viewjob/,
-  reed: /reed\.co\.uk\/jobs\/[^\/]+\/\d+/,
+  linkedin: /linkedin\.com\/jobs\/(view\/\d+|collections\/\d+|search\/.*[?&]currentJobId=\d+)/,
+  indeed: /([a-z]{2}\.)?indeed\.com\/(viewjob|.*[?&]vjk=)/,
+  reed: /reed\.co\.uk\/jobs\/([^\/]+\/\d+|.*[?&]jobId=\d+)/,
 } as const;
 
 // ============================================================================

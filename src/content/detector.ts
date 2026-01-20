@@ -79,6 +79,77 @@ function extractReedJob(): Partial<JobData> {
 }
 
 /**
+ * Generic job extraction - tries to extract from any page
+ */
+function extractGenericJob(): Partial<JobData> {
+  // Try to find job title
+  let title = '';
+  const titleSelectors = [
+    'h1',
+    '[class*="job-title" i]',
+    '[class*="jobtitle" i]',
+    '[id*="job-title" i]',
+    '[data-testid*="title" i]',
+  ];
+
+  for (const selector of titleSelectors) {
+    const element = document.querySelector(selector);
+    if (element?.textContent?.trim()) {
+      title = element.textContent.trim();
+      break;
+    }
+  }
+
+  // Try to find company name
+  let company = '';
+  const companySelectors = [
+    '[class*="company" i]',
+    '[data-company-name]',
+    '[class*="employer" i]',
+    '[itemprop="hiringOrganization"]',
+  ];
+
+  for (const selector of companySelectors) {
+    const element = document.querySelector(selector);
+    if (element?.textContent?.trim()) {
+      company = element.textContent.trim();
+      break;
+    }
+  }
+
+  // Try to find job description
+  let description = '';
+  const descriptionSelectors = [
+    '[class*="job-description" i]',
+    '[class*="description" i]',
+    '[id*="description" i]',
+    '[itemprop="description"]',
+    'main',
+    'article',
+  ];
+
+  for (const selector of descriptionSelectors) {
+    const element = document.querySelector(selector);
+    if (element?.textContent?.trim() && element.textContent.trim().length > 100) {
+      description = element.textContent.trim();
+      break;
+    }
+  }
+
+  // If no description found, try to get all visible text as fallback
+  if (!description) {
+    description = document.body.innerText;
+  }
+
+  return {
+    title: title || document.title || 'Unknown Title',
+    company: company || 'Unknown Company',
+    description: description || '',
+    source: 'linkedin', // Default to linkedin for now
+  };
+}
+
+/**
  * Extract job data based on current site
  */
 function extractJobData(): JobData | null {
@@ -119,6 +190,31 @@ function extractJobData(): JobData | null {
     location: jobData.location,
     description: jobData.description,
     source: detection.site,
+  };
+
+  return completeJobData;
+}
+
+/**
+ * Manually extract job data from current page (for non-detected sites)
+ */
+function extractManualJobData(): JobData | null {
+  const url = window.location.href;
+  const jobData = extractGenericJob();
+
+  // Validate required fields
+  if (!jobData.title || !jobData.description || jobData.description.length < 50) {
+    console.warn('[Job Analyzer] Could not extract enough data from page');
+    return null;
+  }
+
+  const completeJobData: JobData = {
+    url,
+    title: jobData.title,
+    company: jobData.company || 'Unknown Company',
+    location: jobData.location,
+    description: jobData.description,
+    source: jobData.source as any,
   };
 
   return completeJobData;
@@ -228,4 +324,22 @@ observer.observe(document.body, {
 window.addEventListener('popstate', () => {
   lastAnalyzedUrl = null;
   analyzeCurrentPage();
+});
+
+// Listen for manual analysis requests from popup
+browser.runtime.onMessage.addListener((message: ExtensionMessage, _sender, sendResponse) => {
+  if (message.type === 'GET_CURRENT_JOB') {
+    // Try to extract job data from current page
+    const jobData = extractManualJobData();
+
+    if (jobData) {
+      console.log('[Job Analyzer] Manual extraction successful:', jobData);
+      sendResponse({ success: true, jobData });
+    } else {
+      console.warn('[Job Analyzer] Manual extraction failed');
+      sendResponse({ success: false, error: 'Could not extract job data from this page' });
+    }
+
+    return true; // Keep message channel open for async response
+  }
 });
