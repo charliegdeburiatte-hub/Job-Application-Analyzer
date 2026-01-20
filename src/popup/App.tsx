@@ -13,7 +13,7 @@ import ErrorBanner from './components/ErrorBanner';
 
 function App() {
   const { currentTab, isLoading, error, init, settings } = usePopupStore();
-  const { colorTheme } = useTheme();
+  useTheme();
 
   // Initialize store on mount
   useEffect(() => {
@@ -39,9 +39,6 @@ function App() {
           <h1 className="text-lg font-bold text-gray-900 dark:text-gray-100">
             Job Analyzer
           </h1>
-          <div className="text-xs text-gray-500 dark:text-gray-400">
-            {colorTheme === 'sabbath' ? '🤘' : '💼'}
-          </div>
         </div>
       </header>
 

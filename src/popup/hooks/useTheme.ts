@@ -2,13 +2,13 @@ import { useEffect } from 'react';
 import { usePopupStore } from '../store';
 
 /**
- * Hook to manage theme (color + dark/light mode)
+ * Hook to manage theme (light/dark mode only)
  */
 export function useTheme() {
   const { settings, updateUserSettings } = usePopupStore();
-  const { colorTheme, themeMode } = settings;
+  const { themeMode } = settings;
 
-  // Apply theme classes to document
+  // Apply theme class to document
   useEffect(() => {
     const html = document.documentElement;
 
@@ -18,25 +18,16 @@ export function useTheme() {
     } else {
       html.classList.remove('dark');
     }
-
-    // Apply color theme class
-    html.setAttribute('data-theme', colorTheme);
-  }, [colorTheme, themeMode]);
+  }, [themeMode]);
 
   const toggleThemeMode = async () => {
     const newMode = themeMode === 'light' ? 'dark' : 'light';
     await updateUserSettings({ themeMode: newMode });
   };
 
-  const setColorTheme = async (theme: 'sabbath' | 'professional') => {
-    await updateUserSettings({ colorTheme: theme });
-  };
-
   return {
-    colorTheme,
     themeMode,
     toggleThemeMode,
-    setColorTheme,
     isDark: themeMode === 'dark',
   };
 }

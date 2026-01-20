@@ -19,66 +19,36 @@ body {
    ============================================================================ */
 
 @theme {
-  /* Black Sabbath Purple Theme Colors */
-  --color-sabbath-50: #F3E8FF;
-  --color-sabbath-100: #E9D5FF;
-  --color-sabbath-200: #D8B4FE;
-  --color-sabbath-300: #C084FC;
-  --color-sabbath-400: #A855F7;
-  --color-sabbath-500: #8B35D9;
-  --color-sabbath-600: #6B21A8;
-  --color-sabbath-700: #581C87;
-  --color-sabbath-800: #3B0764;
-  --color-sabbath-900: #2E0854;
-  --color-sabbath-950: #1A0433;
+  /* Grayscale Colors for Success/Warning/Danger States */
+  --color-success-50: #F9FAFB;
+  --color-success-100: #F3F4F6;
+  --color-success-200: #E5E7EB;
+  --color-success-700: #374151;
+  --color-success-800: #1F2937;
+  --color-success-900: #111827;
 
-  /* Professional Purple Theme Colors */
-  --color-professional-50: #FAF5FF;
-  --color-professional-100: #F3E8FF;
-  --color-professional-200: #E9D5FF;
-  --color-professional-300: #D8B4FE;
-  --color-professional-400: #C084FC;
-  --color-professional-500: #A855F7;
-  --color-professional-600: #9333EA;
-  --color-professional-700: #7C3AED;
-  --color-professional-800: #6D28D9;
-  --color-professional-900: #5B21B6;
+  --color-warning-50: #F9FAFB;
+  --color-warning-100: #F3F4F6;
+  --color-warning-200: #E5E7EB;
+  --color-warning-700: #374151;
+  --color-warning-800: #1F2937;
+  --color-warning-900: #111827;
 
-  /* Success Colors */
-  --color-success-50: #ECFDF5;
-  --color-success-100: #D1FAE5;
-  --color-success-500: #10B981;
-  --color-success-600: #059669;
-  --color-success-700: #047857;
-  --color-success-800: #065F46;
-  --color-success-900: #064E3B;
+  --color-danger-50: #F9FAFB;
+  --color-danger-100: #F3F4F6;
+  --color-danger-200: #E5E7EB;
+  --color-danger-500: #6B7280;
+  --color-danger-600: #4B5563;
+  --color-danger-700: #374151;
+  --color-danger-800: #1F2937;
+  --color-danger-900: #111827;
 
-  /* Warning Colors */
-  --color-warning-50: #FFFBEB;
-  --color-warning-100: #FEF3C7;
-  --color-warning-500: #F59E0B;
-  --color-warning-600: #D97706;
-  --color-warning-700: #B45309;
-  --color-warning-800: #92400E;
-  --color-warning-900: #78350F;
-
-  /* Danger/Error Colors */
-  --color-danger-50: #FEF2F2;
-  --color-danger-100: #FEE2E2;
-  --color-danger-500: #EF4444;
-  --color-danger-600: #DC2626;
-  --color-danger-700: #B91C1C;
-  --color-danger-800: #991B1B;
-  --color-danger-900: #7F1D1D;
-
-  /* Info Colors */
-  --color-info-50: #EFF6FF;
-  --color-info-100: #DBEAFE;
-  --color-info-500: #3B82F6;
-  --color-info-600: #2563EB;
-  --color-info-700: #1D4ED8;
-  --color-info-800: #1E40AF;
-  --color-info-900: #1E3A8A;
+  --color-info-50: #F9FAFB;
+  --color-info-100: #F3F4F6;
+  --color-info-200: #E5E7EB;
+  --color-info-700: #374151;
+  --color-info-800: #1F2937;
+  --color-info-900: #111827;
 
   /* Custom animations */
   --animate-pulse-slow: pulse-slow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
@@ -132,53 +102,30 @@ body {
    ============================================================================ */
 
 @layer components {
-  /* Primary Button - Uses theme colors */
+  /* Primary Button - Black and White */
   .btn-primary {
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
     font-weight: 500;
-    transition: colors 200ms;
+    transition: all 200ms;
     outline: none;
+    background-color: rgb(17 24 39);
+    color: white;
+  }
+  .btn-primary:hover {
+    background-color: rgb(31 41 55);
   }
   .btn-primary:focus {
     ring: 2px;
     ring-offset: 2px;
+    ring-color: rgb(75 85 99);
   }
-
-  /* Black Sabbath Theme Primary Button */
-  [data-theme='sabbath'] .btn-primary {
-    background-color: var(--color-sabbath-600);
-    color: white;
+  .dark .btn-primary {
+    background-color: rgb(243 244 246);
+    color: rgb(17 24 39);
   }
-  [data-theme='sabbath'] .btn-primary:hover {
-    background-color: var(--color-sabbath-700);
-  }
-  [data-theme='sabbath'] .btn-primary:focus {
-    ring-color: var(--color-sabbath-500);
-  }
-  [data-theme='sabbath'] .dark .btn-primary {
-    background-color: var(--color-sabbath-500);
-  }
-  [data-theme='sabbath'] .dark .btn-primary:hover {
-    background-color: var(--color-sabbath-600);
-  }
-
-  /* Professional Theme Primary Button */
-  [data-theme='professional'] .btn-primary {
-    background-color: var(--color-professional-600);
-    color: white;
-  }
-  [data-theme='professional'] .btn-primary:hover {
-    background-color: var(--color-professional-700);
-  }
-  [data-theme='professional'] .btn-primary:focus {
-    ring-color: var(--color-professional-500);
-  }
-  [data-theme='professional'] .dark .btn-primary {
-    background-color: var(--color-professional-500);
-  }
-  [data-theme='professional'] .dark .btn-primary:hover {
-    background-color: var(--color-professional-600);
+  .dark .btn-primary:hover {
+    background-color: rgb(229 231 235);
   }
 
   /* Secondary Button */
@@ -272,13 +219,9 @@ body {
     color: rgb(107 114 128);
   }
 
-  [data-theme='sabbath'] .input:focus {
-    ring-color: var(--color-sabbath-500);
-    border-color: var(--color-sabbath-500);
-  }
-  [data-theme='professional'] .input:focus {
-    ring-color: var(--color-professional-500);
-    border-color: var(--color-professional-500);
+  .input:focus {
+    ring-color: rgb(107 114 128);
+    border-color: rgb(107 114 128);
   }
 
   /* Badge */
@@ -365,26 +308,17 @@ body {
     padding: 0.5rem 1rem;
     font-weight: 500;
     font-size: 0.875rem;
-    transition: colors 200ms;
+    transition: all 200ms;
     border-bottom: 2px solid transparent;
   }
 
-  [data-theme='sabbath'] .tab-btn-active {
-    border-color: var(--color-sabbath-600);
-    color: var(--color-sabbath-600);
+  .tab-btn-active {
+    border-color: rgb(17 24 39);
+    color: rgb(17 24 39);
   }
-  [data-theme='sabbath'] .dark .tab-btn-active {
-    border-color: var(--color-sabbath-400);
-    color: var(--color-sabbath-400);
-  }
-
-  [data-theme='professional'] .tab-btn-active {
-    border-color: var(--color-professional-600);
-    color: var(--color-professional-600);
-  }
-  [data-theme='professional'] .dark .tab-btn-active {
-    border-color: var(--color-professional-400);
-    color: var(--color-professional-400);
+  .dark .tab-btn-active {
+    border-color: rgb(243 244 246);
+    color: rgb(243 244 246);
   }
 
   .tab-btn-inactive {

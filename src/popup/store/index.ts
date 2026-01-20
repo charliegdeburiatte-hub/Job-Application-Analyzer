@@ -87,7 +87,6 @@ export const usePopupStore = create<PopupStore>((set, get) => ({
     analysisDetail: 'detailed',
     showNotifications: true,
     retentionDays: 90,
-    colorTheme: 'sabbath',
     themeMode: 'light',
     popupSize: 'medium',
   },

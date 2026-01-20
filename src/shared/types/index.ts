@@ -109,7 +109,6 @@ export interface AnalyzedJob {
 
 export type PopupBehavior = 'badge' | 'auto-popup' | 'icon-only';
 export type AnalysisDetail = 'quick' | 'detailed';
-export type ColorTheme = 'sabbath' | 'professional';
 export type ThemeMode = 'light' | 'dark';
 
 export interface UserSettings {
@@ -120,7 +119,6 @@ export interface UserSettings {
   analysisDetail: AnalysisDetail;
   showNotifications: boolean;
   retentionDays: number;
-  colorTheme: ColorTheme;
   themeMode: ThemeMode;
   popupSize: 'small' | 'medium' | 'large';
 }

@@ -270,21 +270,6 @@ function OptionsPage() {
             Other Settings
           </h2>
 
-          {/* Theme */}
-          <div className="mb-6">
-            <label className="block text-gray-700 dark:text-gray-300 mb-2">
-              Color Theme
-            </label>
-            <select
-              value={settings.colorTheme}
-              onChange={(e) => handleSettingChange('colorTheme', e.target.value as 'sabbath' | 'professional')}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-            >
-              <option value="sabbath">Black Sabbath Purple 🤘</option>
-              <option value="professional">Professional Purple 💼</option>
-            </select>
-          </div>
-
           {/* Dark Mode */}
           <div className="mb-6">
             <label className="block text-gray-700 dark:text-gray-300 mb-2">

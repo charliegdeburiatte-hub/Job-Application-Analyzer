@@ -188,7 +188,6 @@ export const DEFAULT_SETTINGS: UserSettings = {
   analysisDetail: 'detailed',
   showNotifications: true,
   retentionDays: 90,
-  colorTheme: 'sabbath',
   themeMode: 'light',
   popupSize: 'medium',
 };
