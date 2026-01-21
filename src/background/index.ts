@@ -8,6 +8,7 @@ import {
   getSyncStorage,
   saveAnalyzedJob,
   analyzeJob,
+  isJobPage,
 } from '../shared';
 
 // ============================================================================
@@ -221,7 +222,7 @@ browser.runtime.onInstalled.addListener((details: any) => {
 browser.tabs.onUpdated.addListener((tabId: any, changeInfo: any, tab: any) => {
   // Reset badge when navigating to new page
   if (changeInfo.status === 'complete' && tab.url) {
-    const { isJob } = require('../shared/utils/helpers').isJobPage(tab.url);
+    const { isJob } = isJobPage(tab.url);
 
     if (!isJob) {
       // Clear badge if not on job page
