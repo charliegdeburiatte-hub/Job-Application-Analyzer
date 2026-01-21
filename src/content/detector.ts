@@ -67,13 +67,51 @@ function extractLinkedInJob(): Partial<JobData> {
   const titleElement = document.querySelector('.job-details-jobs-unified-top-card__job-title');
   const companyElement = document.querySelector('.job-details-jobs-unified-top-card__company-name');
   const locationElement = document.querySelector('.job-details-jobs-unified-top-card__bullet');
-  const descriptionElement = document.querySelector('.jobs-description__content');
+
+  // Try multiple selectors for description - LinkedIn changes these frequently
+  let description = '';
+  const descriptionSelectors = [
+    '.jobs-description__content',
+    '.jobs-description',
+    '.jobs-box__html-content',
+    '.job-view-layout .jobs-description',
+    '[class*="jobs-description"]',
+    '[class*="job-details-jobs-unified-top-card__job-description"]',
+  ];
+
+  for (const selector of descriptionSelectors) {
+    const element = document.querySelector(selector);
+    if (element?.textContent && element.textContent.trim().length > description.length) {
+      description = element.textContent.trim();
+    }
+  }
+
+  // If still too short, try to find "Show more" button and click it
+  if (description.length < 500) {
+    const showMoreButton = document.querySelector('.jobs-description__footer-button, [aria-label*="Show more"], [aria-label*="See more"]');
+    if (showMoreButton instanceof HTMLElement) {
+      console.log('[Job Analyzer] Clicking "Show more" button to expand description');
+      showMoreButton.click();
+
+      // Wait a bit for content to load, then try again
+      setTimeout(() => {
+        for (const selector of descriptionSelectors) {
+          const element = document.querySelector(selector);
+          if (element?.textContent && element.textContent.trim().length > description.length) {
+            description = element.textContent.trim();
+          }
+        }
+      }, 500);
+    }
+  }
+
+  console.log('[Job Analyzer] LinkedIn description length:', description.length);
 
   return {
     title: titleElement?.textContent?.trim() || 'Unknown Title',
     company: companyElement?.textContent?.trim() || 'Unknown Company',
     location: locationElement?.textContent?.trim(),
-    description: descriptionElement?.textContent?.trim() || '',
+    description: description || '',
     source: 'linkedin',
   };
 }
@@ -236,11 +274,36 @@ function extractJobData(): JobData | null {
  */
 function extractManualJobData(): JobData | null {
   const url = window.location.href;
-  const jobData = extractGenericJob();
+  const detection = isJobPage(url);
+
+  let jobData: Partial<JobData>;
+
+  // Try site-specific extraction first
+  if (detection.isJob && detection.site) {
+    console.log('[Job Analyzer] Using site-specific extraction for:', detection.site);
+    switch (detection.site) {
+      case 'linkedin':
+        jobData = extractLinkedInJob();
+        break;
+      case 'indeed':
+        jobData = extractIndeedJob();
+        break;
+      case 'reed':
+        jobData = extractReedJob();
+        break;
+      default:
+        jobData = extractGenericJob();
+    }
+  } else {
+    // Fall back to generic extraction for unknown sites
+    console.log('[Job Analyzer] Using generic extraction');
+    jobData = extractGenericJob();
+  }
 
   // Validate required fields
   if (!jobData.title || !jobData.description || jobData.description.length < 50) {
     console.warn('[Job Analyzer] Could not extract enough data from page');
+    console.warn('[Job Analyzer] Description length:', jobData.description?.length || 0);
     return null;
   }
 
@@ -250,7 +313,7 @@ function extractManualJobData(): JobData | null {
     company: jobData.company || 'Unknown Company',
     location: jobData.location,
     description: jobData.description,
-    source: jobData.source as any,
+    source: (detection.site || jobData.source || 'unknown') as any,
   };
 
   return completeJobData;
