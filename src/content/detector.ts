@@ -1,5 +1,41 @@
 import { JobData, ExtensionMessage } from '../shared/types';
-import { isJobPage } from '../shared/utils/helpers';
+
+// ============================================================================
+// Inlined isJobPage - NO EXTERNAL IMPORTS to avoid code splitting in Firefox
+// ============================================================================
+
+const JOB_PATTERNS_INLINE = {
+  linkedin: /linkedin\.com\/jobs\/view\/\d+/i,
+  indeed: /indeed\.(com|co\.uk)\/viewjob/i,
+  reed: /reed\.co\.uk\/jobs\//i,
+};
+
+type JobSource = 'linkedin' | 'indeed' | 'reed';
+type DetectionResult = {
+  isJob: boolean;
+  confidence: number;
+  method: string;
+  site?: JobSource;
+};
+
+function isJobPage(url: string): DetectionResult {
+  for (const [site, pattern] of Object.entries(JOB_PATTERNS_INLINE)) {
+    if (pattern.test(url)) {
+      return {
+        isJob: true,
+        confidence: 1,
+        method: 'url-pattern',
+        site: site as JobSource,
+      };
+    }
+  }
+
+  return {
+    isJob: false,
+    confidence: 0,
+    method: 'url-pattern',
+  };
+}
 
 // ============================================================================
 // Job Page Detection
