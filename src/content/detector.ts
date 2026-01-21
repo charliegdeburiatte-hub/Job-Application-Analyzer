@@ -297,6 +297,37 @@ async function analyzeCurrentPage() {
 
 console.log('[Job Analyzer] Content script loaded');
 
+// ============================================================================
+// CRITICAL: Register message listener FIRST before any other code
+// This ensures the popup can always communicate even if other code fails
+// ============================================================================
+
+browser.runtime.onMessage.addListener((message: ExtensionMessage, _sender, sendResponse) => {
+  if (message.type === 'GET_CURRENT_JOB') {
+    try {
+      // Try to extract job data from current page
+      const jobData = extractManualJobData();
+
+      if (jobData) {
+        console.log('[Job Analyzer] Manual extraction successful:', jobData);
+        sendResponse({ success: true, jobData });
+      } else {
+        console.warn('[Job Analyzer] Manual extraction failed');
+        sendResponse({ success: false, error: 'Could not extract job data from this page' });
+      }
+    } catch (error) {
+      console.error('[Job Analyzer] Manual extraction error:', error);
+      sendResponse({ success: false, error: 'Failed to extract job data' });
+    }
+
+    return true; // Keep message channel open for async response
+  }
+});
+
+// ============================================================================
+// Auto-Analysis Setup
+// ============================================================================
+
 // Run initial analysis
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', analyzeCurrentPage);
@@ -304,42 +335,30 @@ if (document.readyState === 'loading') {
   analyzeCurrentPage();
 }
 
-// Watch for URL changes (SPA navigation)
-let lastUrl = window.location.href;
-const observer = new MutationObserver(() => {
-  const currentUrl = window.location.href;
-  if (currentUrl !== lastUrl) {
-    lastUrl = currentUrl;
-    lastAnalyzedUrl = null; // Reset so we can analyze new page
-    analyzeCurrentPage();
-  }
-});
+// Watch for URL changes (SPA navigation) - only if document.body exists
+if (document.body) {
+  let lastUrl = window.location.href;
+  const observer = new MutationObserver(() => {
+    const currentUrl = window.location.href;
+    if (currentUrl !== lastUrl) {
+      lastUrl = currentUrl;
+      lastAnalyzedUrl = null; // Reset so we can analyze new page
+      analyzeCurrentPage();
+    }
+  });
 
-observer.observe(document.body, {
-  childList: true,
-  subtree: true,
-});
+  try {
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+  } catch (error) {
+    console.warn('[Job Analyzer] Could not set up MutationObserver:', error);
+  }
+}
 
 // Also listen for popstate events
 window.addEventListener('popstate', () => {
   lastAnalyzedUrl = null;
   analyzeCurrentPage();
-});
-
-// Listen for manual analysis requests from popup
-browser.runtime.onMessage.addListener((message: ExtensionMessage, _sender, sendResponse) => {
-  if (message.type === 'GET_CURRENT_JOB') {
-    // Try to extract job data from current page
-    const jobData = extractManualJobData();
-
-    if (jobData) {
-      console.log('[Job Analyzer] Manual extraction successful:', jobData);
-      sendResponse({ success: true, jobData });
-    } else {
-      console.warn('[Job Analyzer] Manual extraction failed');
-      sendResponse({ success: false, error: 'Could not extract job data from this page' });
-    }
-
-    return true; // Keep message channel open for async response
-  }
 });
