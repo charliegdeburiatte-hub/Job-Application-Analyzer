@@ -29,7 +29,14 @@ export default function HistoryView() {
       </h2>
 
       {jobsArray.map((job) => (
-        <div key={job.jobId} className="card hover:shadow-lg cursor-pointer">
+        <div
+          key={job.jobId}
+          className="card hover:shadow-lg cursor-pointer transition-all"
+          onClick={() => {
+            // Open job URL in new tab
+            browser.tabs.create({ url: job.url });
+          }}
+        >
           <div className="flex items-start justify-between mb-2">
             <div className="flex-1">
               <h4 className="font-semibold text-gray-900 dark:text-gray-100">
@@ -56,6 +63,11 @@ export default function HistoryView() {
           <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
             <span className="badge badge-info">{job.status}</span>
             <span>{formatDate(job.analyzedDate)}</span>
+          </div>
+
+          {/* Click hint */}
+          <div className="mt-2 text-xs text-gray-400 dark:text-gray-500 italic">
+            Click to open job →
           </div>
         </div>
       ))}

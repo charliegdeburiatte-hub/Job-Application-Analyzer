@@ -282,11 +282,22 @@ export function analyzeJob(jobData: JobData, cvProfile: CVProfile): Analysis {
   // Normalize CV skills
   const cvSkills = cvProfile.skills.map(s => s.trim());
 
+  // DEBUG LOGGING
+  console.log('=== ANALYSIS DEBUG ===');
+  console.log('Job description length:', jobData.description.length);
+  console.log('Job skills found:', jobSkills.length, jobSkills);
+  console.log('CV skills:', cvSkills.length, cvSkills);
+  console.log('Required skills:', requiredSkills);
+
   // Match skills
   const { matched: matchedSkills, missing: missingSkills } = matchSkills(jobSkills, cvSkills);
 
   // Find missing required skills specifically
   const { missing: missingRequired } = matchSkills(requiredSkills, cvSkills);
+
+  console.log('Matched skills:', matchedSkills);
+  console.log('Missing skills:', missingSkills);
+  console.log('=== END DEBUG ===');
 
   // Calculate match score
   const matchScore =

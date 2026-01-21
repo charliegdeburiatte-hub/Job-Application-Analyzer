@@ -93,7 +93,12 @@ export default function AnalysisView() {
   const { matchScore, recommendation, matchDetails } = currentAnalysis;
 
   return (
-    <div className="p-4 space-y-6">
+    <div className="p-4 space-y-6 pb-6">
+      {/* Saved to History Notice */}
+      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 text-sm text-blue-800 dark:text-blue-200">
+        ✓ Analysis saved to History tab
+      </div>
+
       {/* Match Score Circle */}
       <MatchScore score={matchScore} />
 
