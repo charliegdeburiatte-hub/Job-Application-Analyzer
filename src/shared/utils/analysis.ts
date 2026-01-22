@@ -7,6 +7,7 @@ import {
 } from '../types';
 import { COMMON_SKILLS, MATCH_THRESHOLDS, REQUIREMENT_KEYWORDS } from '../constants';
 import { generateJobId } from './helpers';
+import { calculateWeightedTotal } from '../constants/skillCategories';
 
 // ============================================================================
 // Skill Extraction
@@ -214,9 +215,11 @@ function generateStrengths(matchedSkills: string[], cvProfile: CVProfile): strin
     strengths.push('Cloud and DevOps experience');
   }
 
-  // Add experience years if available
-  if (cvProfile.experience.length > 0) {
-    const totalYears = cvProfile.experience.length * 1.5; // Rough estimate
+  // Add experience years if available (use actual calculated years)
+  if (cvProfile.totalExperienceYears && cvProfile.totalExperienceYears >= 2) {
+    strengths.push(`${cvProfile.totalExperienceYears}+ years of professional experience`);
+  } else if (cvProfile.experience.length > 0) {
+    const totalYears = cvProfile.experience.length * 1.5; // Fallback estimate
     if (totalYears >= 3) {
       strengths.push(`${Math.floor(totalYears)}+ years of professional experience`);
     }
@@ -266,6 +269,48 @@ function calculateConfidence(jobData: JobData, cvProfile: CVProfile): number {
   return Math.max(0, Math.min(1, confidence));
 }
 
+/**
+ * Calculate weighted match score
+ * Required skills weighted 3x, preferred skills 1x, plus skill category weights
+ */
+function calculateWeightedScore(
+  matchedRequired: string[],
+  totalRequired: string[],
+  matchedPreferred: string[],
+  totalPreferred: string[]
+): number {
+  // Calculate weighted totals for required skills (3x multiplier)
+  const matchedRequiredWeight = calculateWeightedTotal(matchedRequired) * 3;
+  const totalRequiredWeight = calculateWeightedTotal(totalRequired) * 3;
+
+  // Calculate weighted totals for preferred skills (1x multiplier)
+  const matchedPreferredWeight = calculateWeightedTotal(matchedPreferred);
+  const totalPreferredWeight = calculateWeightedTotal(totalPreferred);
+
+  // Combined weighted score
+  const totalMatchedWeight = matchedRequiredWeight + matchedPreferredWeight;
+  const totalPossibleWeight = totalRequiredWeight + totalPreferredWeight;
+
+  // Avoid division by zero
+  if (totalPossibleWeight === 0) return 0;
+
+  // Calculate percentage (0-100)
+  return Math.round((totalMatchedWeight / totalPossibleWeight) * 100);
+}
+
+/**
+ * Calculate experience bonus based on years of experience
+ * +5 points per year, max +20 points
+ */
+function calculateExperienceBonus(cvProfile: CVProfile): number {
+  const years = cvProfile.totalExperienceYears || 0;
+
+  // +5 points per year, capped at 20 points
+  const bonus = Math.min(20, years * 5);
+
+  return Math.round(bonus);
+}
+
 // ============================================================================
 // Main Analysis Function
 // ============================================================================
@@ -277,33 +322,53 @@ export function analyzeJob(jobData: JobData, cvProfile: CVProfile): Analysis {
   // Extract skills from job description
   const jobSkills = extractSkills(jobData.description);
   const requiredSkills = extractRequiredSkills(jobData.description);
-  // const preferredSkills = extractPreferredSkills(jobData.description); // Phase 2
+  const preferredSkills = extractPreferredSkills(jobData.description);
 
   // Normalize CV skills
   const cvSkills = cvProfile.skills.map(s => s.trim());
 
   // DEBUG LOGGING
-  console.log('=== ANALYSIS DEBUG ===');
+  console.log('=== ANALYSIS DEBUG (v1.2.0 Weighted Scoring) ===');
   console.log('Job description length:', jobData.description.length);
   console.log('Job skills found:', jobSkills.length, jobSkills);
+  console.log('Required skills:', requiredSkills.length, requiredSkills);
+  console.log('Preferred skills:', preferredSkills.length, preferredSkills);
   console.log('CV skills:', cvSkills.length, cvSkills);
-  console.log('Required skills:', requiredSkills);
 
-  // Match skills
-  const { matched: matchedSkills, missing: missingSkills } = matchSkills(jobSkills, cvSkills);
+  // Match required skills
+  const { matched: matchedRequired, missing: missingRequired } = matchSkills(
+    requiredSkills,
+    cvSkills
+  );
 
-  // Find missing required skills specifically
-  const { missing: missingRequired } = matchSkills(requiredSkills, cvSkills);
+  // Match preferred skills
+  const { matched: matchedPreferred } = matchSkills(preferredSkills, cvSkills);
 
-  console.log('Matched skills:', matchedSkills);
-  console.log('Missing skills:', missingSkills);
+  // Combine all matched skills for display
+  const matchedSkills = [...matchedRequired, ...matchedPreferred];
+  const missingSkills = missingRequired; // Only show missing required skills as gaps
+
+  console.log('Matched required:', matchedRequired.length, '/', requiredSkills.length);
+  console.log('Matched preferred:', matchedPreferred.length, '/', preferredSkills.length);
+
+  // Calculate weighted base score
+  const weightedScore = calculateWeightedScore(
+    matchedRequired,
+    requiredSkills,
+    matchedPreferred,
+    preferredSkills
+  );
+
+  // Calculate experience bonus
+  const experienceBonus = calculateExperienceBonus(cvProfile);
+
+  // Final match score (base + bonus, capped at 100)
+  const matchScore = Math.min(100, weightedScore + experienceBonus);
+
+  console.log('Weighted base score:', weightedScore);
+  console.log('Experience bonus:', experienceBonus);
+  console.log('Final match score:', matchScore);
   console.log('=== END DEBUG ===');
-
-  // Calculate match score
-  const matchScore =
-    jobSkills.length > 0
-      ? Math.round((matchedSkills.length / jobSkills.length) * 100)
-      : 0;
 
   // Generate recommendation
   const recommendation = getRecommendation(
@@ -321,14 +386,24 @@ export function analyzeJob(jobData: JobData, cvProfile: CVProfile): Analysis {
     weakAreas: generateWeaknesses(missingRequired),
   };
 
-  // Generate analysis
+  // Generate analysis with scoring breakdown
   const analysis: Analysis = {
     jobId: generateJobId(jobData.url),
     analyzedDate: new Date().toISOString(),
     matchScore,
+    baseScore: weightedScore,
+    bonusPoints: experienceBonus,
     recommendation,
     matchDetails,
     confidence: calculateConfidence(jobData, cvProfile),
+    scoringBreakdown: {
+      requiredMatched: matchedRequired.length,
+      requiredTotal: requiredSkills.length,
+      preferredMatched: matchedPreferred.length,
+      preferredTotal: preferredSkills.length,
+      experienceBonus,
+      weightedScore,
+    },
   };
 
   return analysis;

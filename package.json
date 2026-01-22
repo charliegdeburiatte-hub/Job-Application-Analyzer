@@ -1,6 +1,6 @@
 {
   "name": "job-application-analyzer",
-  "version": "1.1.2",
+  "version": "1.2.0-alpha",
   "type": "module",
   "description": "Firefox extension that analyzes job postings against your CV and provides match scores and recommendations",
   "author": "Charlie",
@@ -24,6 +24,7 @@
   ],
   "dependencies": {
     "mammoth": "^1.11.0",
+    "pdfjs-dist": "^4.0.379",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "zustand": "^5.0.10"

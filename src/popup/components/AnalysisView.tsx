@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { usePopupStore } from '../store';
 import { getRecommendationText, getRecommendationEmoji } from '@/shared';
 import MatchScore from './MatchScore';
@@ -5,6 +6,7 @@ import SkillsList from './SkillsList';
 
 export default function AnalysisView() {
   const { currentAnalysis, currentJob, cvProfile } = usePopupStore();
+  const [showScoringDetails, setShowScoringDetails] = useState(false);
 
   // No CV uploaded yet
   if (!cvProfile) {
@@ -146,6 +148,75 @@ export default function AnalysisView() {
           </p>
         )}
       </div>
+
+      {/* Scoring Details (v1.2.0 Weighted Scoring) */}
+      {currentAnalysis.scoringBreakdown && (
+        <div className="card bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+          <button
+            onClick={() => setShowScoringDetails(!showScoringDetails)}
+            className="w-full flex items-center justify-between text-left"
+          >
+            <h4 className="font-semibold text-blue-900 dark:text-blue-100">
+              📊 Scoring Details
+            </h4>
+            <span className="text-blue-600 dark:text-blue-300">
+              {showScoringDetails ? '▼' : '▶'}
+            </span>
+          </button>
+
+          {showScoringDetails && (
+            <div className="mt-3 space-y-2 text-sm">
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <p className="text-blue-700 dark:text-blue-300 font-medium">Base Score</p>
+                  <p className="text-blue-900 dark:text-blue-100 text-lg font-bold">
+                    {currentAnalysis.baseScore}%
+                  </p>
+                </div>
+                <div>
+                  <p className="text-blue-700 dark:text-blue-300 font-medium">Experience Bonus</p>
+                  <p className="text-blue-900 dark:text-blue-100 text-lg font-bold">
+                    +{currentAnalysis.scoringBreakdown.experienceBonus}
+                  </p>
+                </div>
+              </div>
+
+              <hr className="border-blue-200 dark:border-blue-700" />
+
+              <div>
+                <p className="text-blue-700 dark:text-blue-300 font-medium mb-1">
+                  Required Skills (3x weight)
+                </p>
+                <p className="text-blue-800 dark:text-blue-200">
+                  {currentAnalysis.scoringBreakdown.requiredMatched} / {currentAnalysis.scoringBreakdown.requiredTotal} matched
+                </p>
+              </div>
+
+              <div>
+                <p className="text-blue-700 dark:text-blue-300 font-medium mb-1">
+                  Preferred Skills (1x weight)
+                </p>
+                <p className="text-blue-800 dark:text-blue-200">
+                  {currentAnalysis.scoringBreakdown.preferredMatched} / {currentAnalysis.scoringBreakdown.preferredTotal} matched
+                </p>
+              </div>
+
+              <hr className="border-blue-200 dark:border-blue-700" />
+
+              <div className="text-xs text-blue-700 dark:text-blue-300">
+                <p className="mb-1">
+                  <strong>How scoring works:</strong>
+                </p>
+                <ul className="space-y-1 list-disc list-inside">
+                  <li>Required skills weighted 3x more than preferred</li>
+                  <li>Technical skills (languages, frameworks) weighted 2x</li>
+                  <li>Experience bonus: +5 points per year (max +20)</li>
+                </ul>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Matched Skills */}
       {matchDetails.matchedSkills.length > 0 && (

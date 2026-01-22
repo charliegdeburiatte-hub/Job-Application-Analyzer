@@ -17,6 +17,7 @@ export interface CVProfile {
     phone?: string;
     location?: string;
   };
+  summary?: string;
   skills: string[];
   experience: Array<{
     title: string;
@@ -31,8 +32,9 @@ export interface CVProfile {
     year: string;
     grade?: string;
   }>;
-  certifications?: string[];
+  certifications: string[];
   languages?: string[];
+  totalExperienceYears?: number;
 }
 
 // ============================================================================
@@ -72,9 +74,19 @@ export interface Analysis {
   jobId: string;
   analyzedDate: string;
   matchScore: number;
+  baseScore?: number;
+  bonusPoints?: number;
   recommendation: Recommendation;
   matchDetails: MatchDetails;
   confidence: number;
+  scoringBreakdown?: {
+    requiredMatched: number;
+    requiredTotal: number;
+    preferredMatched: number;
+    preferredTotal: number;
+    experienceBonus: number;
+    weightedScore: number;
+  };
 }
 
 // ============================================================================

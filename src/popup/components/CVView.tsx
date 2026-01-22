@@ -19,7 +19,7 @@ export default function CVView() {
             Upload Your CV
           </h3>
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-            Upload your CV in .docx format to start analyzing jobs
+            Upload your CV in .docx or .pdf format to start analyzing jobs
           </p>
 
           <button
@@ -59,6 +59,51 @@ export default function CVView() {
               </button>
             </div>
           </div>
+
+          {/* CV Profile Summary */}
+          {cvProfile && (
+            <div className="card">
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">
+                CV Profile
+              </h3>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <p className="text-gray-600 dark:text-gray-400">Skills</p>
+                  <p className="font-semibold text-gray-900 dark:text-gray-100">
+                    {cvProfile.skills.length}
+                  </p>
+                </div>
+                {cvProfile.totalExperienceYears !== undefined && (
+                  <div>
+                    <p className="text-gray-600 dark:text-gray-400">Experience</p>
+                    <p className="font-semibold text-gray-900 dark:text-gray-100">
+                      {cvProfile.totalExperienceYears} years
+                    </p>
+                  </div>
+                )}
+                <div>
+                  <p className="text-gray-600 dark:text-gray-400">Positions</p>
+                  <p className="font-semibold text-gray-900 dark:text-gray-100">
+                    {cvProfile.experience.length}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-gray-600 dark:text-gray-400">Education</p>
+                  <p className="font-semibold text-gray-900 dark:text-gray-100">
+                    {cvProfile.education.length}
+                  </p>
+                </div>
+                {cvProfile.certifications && cvProfile.certifications.length > 0 && (
+                  <div>
+                    <p className="text-gray-600 dark:text-gray-400">Certifications</p>
+                    <p className="font-semibold text-gray-900 dark:text-gray-100">
+                      {cvProfile.certifications.length}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Extracted Skills */}
           {cvProfile && cvProfile.skills.length > 0 && (

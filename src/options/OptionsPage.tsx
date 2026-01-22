@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
-import mammoth from 'mammoth';
 import '../popup/index.css';
 import { getCVDocument, getCVProfile, saveCVDocument, saveCVProfile, getUserSettings, saveUserSettings } from '@/shared/utils/storage';
 import { CVDocument, CVProfile, UserSettings } from '@/shared/types';
 import { fileToBase64, formatDateShort } from '@/shared/utils/helpers';
-import { COMMON_SKILLS, DEFAULT_SETTINGS } from '@/shared/constants';
+import { DEFAULT_SETTINGS } from '@/shared/constants';
+import { parseCV } from '@/shared/utils/cvParser';
 
 function OptionsPage() {
   const [cvDocument, setCvDocument] = useState<CVDocument | null>(null);
@@ -38,9 +38,12 @@ function OptionsPage() {
     setError(null);
     setSuccess(null);
 
-    // Validate file type
-    if (!file.name.endsWith('.docx')) {
-      setError('Please upload a .docx file');
+    // Validate file type - now accepts both .docx and .pdf
+    const isDocx = file.name.endsWith('.docx');
+    const isPdf = file.name.endsWith('.pdf');
+
+    if (!isDocx && !isPdf) {
+      setError('Please upload a .docx or .pdf file');
       return;
     }
 
@@ -53,17 +56,11 @@ function OptionsPage() {
     setIsUploading(true);
 
     try {
+      // Parse CV with enhanced parser (handles both DOCX and PDF)
+      const { text: extractedText, profile: cvProf } = await parseCV(file);
+
       // Convert file to base64
       const base64 = await fileToBase64(file);
-
-      // Parse DOCX with mammoth.js
-      const arrayBuffer = await file.arrayBuffer();
-      const textResult = await mammoth.extractRawText({ arrayBuffer });
-      const extractedText = textResult.value;
-
-      if (!extractedText || extractedText.trim().length < 50) {
-        throw new Error('CV appears to be empty or too short');
-      }
 
       // Create CV document
       const cvDoc: CVDocument = {
@@ -74,24 +71,22 @@ function OptionsPage() {
         fileSize: file.size,
       };
 
-      // Extract skills
-      const skills = extractSkillsFromText(extractedText);
-
-      // Create CV profile
-      const cvProf: CVProfile = {
-        personalInfo: {},
-        skills,
-        experience: [],
-        education: [],
-      };
-
       // Save to storage
       await saveCVDocument(cvDoc);
       await saveCVProfile(cvProf);
 
       setCvDocument(cvDoc);
       setCvProfile(cvProf);
-      setSuccess('CV uploaded successfully!');
+
+      // Success message with details
+      const details = [
+        `${cvProf.skills.length} skills`,
+        cvProf.totalExperienceYears ? `${cvProf.totalExperienceYears} years experience` : null,
+        `${cvProf.experience.length} jobs`,
+        `${cvProf.education.length} degrees`,
+      ].filter(Boolean).join(', ');
+
+      setSuccess(`CV uploaded successfully! Extracted: ${details}`);
 
       // Reset file input
       event.target.value = '';
@@ -103,19 +98,6 @@ function OptionsPage() {
     } finally {
       setIsUploading(false);
     }
-  };
-
-  const extractSkillsFromText = (text: string): string[] => {
-    const skills = new Set<string>();
-
-    for (const skill of COMMON_SKILLS) {
-      const regex = new RegExp(`\\b${skill.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
-      if (regex.test(text)) {
-        skills.add(skill);
-      }
-    }
-
-    return Array.from(skills);
   };
 
   const handleSettingChange = async (key: keyof UserSettings, value: any) => {
