@@ -235,6 +235,7 @@ export function extractPersonalInfo(text: string): CVProfile['personalInfo'] {
 
 /**
  * Extract experience entries from experience section
+ * Handles both single-line (pipe-separated) and multi-line formats
  */
 export function extractExperience(experienceText: string): CVProfile['experience'] {
   if (!experienceText) return [];
@@ -246,14 +247,11 @@ export function extractExperience(experienceText: string): CVProfile['experience
   let descriptionLines: string[] = [];
 
   for (const line of lines) {
-    // Check if line looks like a job title or company (often in bold/caps)
-    const isTitle = /^[A-Z][a-z]+(\s+[A-Z][a-z]+)*$/.test(line) ||
-                    /^[A-Z\s]+$/.test(line);
-
-    // Check if line contains date range
+    // Check if line contains pipe-separated format: "Title | Company | Location | Dates"
+    const hasPipes = line.includes('|');
     const hasDateRange = DATE_PATTERNS.DATE_RANGE.test(line);
 
-    if (isTitle || hasDateRange) {
+    if (hasPipes && hasDateRange) {
       // Save previous experience
       if (currentExperience && currentExperience.title && currentExperience.company) {
         currentExperience.description = descriptionLines.join(' ').trim();
@@ -261,26 +259,64 @@ export function extractExperience(experienceText: string): CVProfile['experience
         descriptionLines = [];
       }
 
-      // Start new experience
-      if (!currentExperience || (currentExperience.title && currentExperience.company)) {
-        currentExperience = {
-          title: '',
-          company: '',
-          duration: '',
-          description: '',
-        };
+      // Parse pipe-separated format
+      const parts = line.split('|').map(p => p.trim());
+
+      // Extract dates from the last part (or any part with dates)
+      let duration = '';
+      let titlePart = '';
+      let companyPart = '';
+
+      for (let i = 0; i < parts.length; i++) {
+        if (DATE_PATTERNS.DATE_RANGE.test(parts[i]) || DATE_PATTERNS.MONTH_YEAR.test(parts[i])) {
+          duration = parts[i];
+        } else if (!titlePart) {
+          titlePart = parts[i];
+        } else if (!companyPart) {
+          companyPart = parts[i];
+        }
       }
 
-      if (hasDateRange) {
-        currentExperience.duration = line;
-      } else if (!currentExperience.title) {
-        currentExperience.title = line;
-      } else if (!currentExperience.company) {
-        currentExperience.company = line;
+      currentExperience = {
+        title: titlePart || parts[0],
+        company: companyPart || (parts[1] || ''),
+        duration: duration,
+        description: '',
+      };
+    } else {
+      // Multi-line format (original logic)
+      const isTitle = /^[A-Z][a-z]+(\s+[A-Z][a-z]+)*$/.test(line) ||
+                      /^[A-Z\s]+$/.test(line);
+
+      if (isTitle || hasDateRange) {
+        // Save previous experience
+        if (currentExperience && currentExperience.title && currentExperience.company) {
+          currentExperience.description = descriptionLines.join(' ').trim();
+          experiences.push(currentExperience as CVProfile['experience'][0]);
+          descriptionLines = [];
+        }
+
+        // Start new experience
+        if (!currentExperience || (currentExperience.title && currentExperience.company)) {
+          currentExperience = {
+            title: '',
+            company: '',
+            duration: '',
+            description: '',
+          };
+        }
+
+        if (hasDateRange) {
+          currentExperience.duration = line;
+        } else if (!currentExperience.title) {
+          currentExperience.title = line;
+        } else if (!currentExperience.company) {
+          currentExperience.company = line;
+        }
+      } else if (currentExperience) {
+        // Add to description
+        descriptionLines.push(line);
       }
-    } else if (currentExperience) {
-      // Add to description
-      descriptionLines.push(line);
     }
   }
 
@@ -427,13 +463,22 @@ export function extractCertifications(certificationsText: string): string[] {
 
 /**
  * Calculate total years of experience from experience entries
+ * Excludes self-employment/independent work by default
  */
 export function calculateExperienceYears(experiences: CVProfile['experience']): number {
   if (!experiences || experiences.length === 0) return 0;
 
+  // Filter out independent/freelance work
+  const employmentKeywords = ['independent', 'freelance', 'self-employed', 'consulting', 'contract'];
+  const employedExperiences = experiences.filter(exp => {
+    const title = exp.title.toLowerCase();
+    const company = exp.company.toLowerCase();
+    return !employmentKeywords.some(keyword => title.includes(keyword) || company.includes(keyword));
+  });
+
   let totalMonths = 0;
 
-  for (const exp of experiences) {
+  for (const exp of employedExperiences) {
     const duration = exp.duration;
     if (!duration) continue;
 
