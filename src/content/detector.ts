@@ -5,9 +5,9 @@ import { JobData, ExtensionMessage } from '../shared/types';
 // ============================================================================
 
 const JOB_PATTERNS_INLINE = {
-  linkedin: /linkedin\.com\/jobs\/view\/\d+/i,
-  indeed: /indeed\.(com|co\.uk)\/viewjob/i,
-  reed: /reed\.co\.uk\/jobs\//i,
+  linkedin: /linkedin\.com\/jobs\/(view\/\d+|collections\/\d+|search\/.*[?&]currentJobId=\d+)/i,
+  indeed: /([a-z]{2}\.)?indeed\.com\/(viewjob|.*[?&]vjk=)/i,
+  reed: /reed\.co\.uk\/jobs\/([^\/]+\/\d+|.*[?&]jobId=\d+)/i,
 };
 
 type JobSource = 'linkedin' | 'indeed' | 'reed';

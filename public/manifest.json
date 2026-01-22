@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Job Application Analyzer",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Analyzes job postings against your CV and provides intelligent match scores and application recommendations",
   "browser_specific_settings": {
     "gecko": {
