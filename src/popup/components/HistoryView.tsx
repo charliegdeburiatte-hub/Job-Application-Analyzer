@@ -1,14 +1,71 @@
+import { useState, useMemo } from 'react';
 import { usePopupStore } from '../store';
 import { formatDate } from '@/shared';
+import { ExportMenu } from './ExportMenu';
+import { Toast } from './Toast';
+import type { JobStatus } from '../../shared/types';
+
+type DateFilter = 'all' | '7days' | '30days' | '90days';
+type SortBy = 'date' | 'score' | 'status';
 
 export default function HistoryView() {
   const { analyzedJobs } = usePopupStore();
+  const [statusFilter, setStatusFilter] = useState<JobStatus | 'all'>('all');
+  const [dateFilter, setDateFilter] = useState<DateFilter>('all');
+  const [sortBy, setSortBy] = useState<SortBy>('date');
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const jobsArray = Object.values(analyzedJobs).sort(
-    (a, b) => new Date(b.analyzedDate).getTime() - new Date(a.analyzedDate).getTime()
-  );
+  // Convert jobs object to array
+  const allJobs = useMemo(() => Object.values(analyzedJobs), [analyzedJobs]);
 
-  if (jobsArray.length === 0) {
+  // Apply filters
+  const filteredJobs = useMemo(() => {
+    let filtered = [...allJobs];
+
+    // Status filter
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(job => job.status === statusFilter);
+    }
+
+    // Date filter
+    if (dateFilter !== 'all') {
+      const now = new Date();
+      const daysAgo = {
+        '7days': 7,
+        '30days': 30,
+        '90days': 90
+      }[dateFilter];
+
+      if (daysAgo) {
+        const cutoffDate = new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000);
+        filtered = filtered.filter(job =>
+          new Date(job.analyzedDate).getTime() >= cutoffDate.getTime()
+        );
+      }
+    }
+
+    // Sort
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'date':
+          return new Date(b.analyzedDate).getTime() - new Date(a.analyzedDate).getTime();
+        case 'score':
+          return b.matchScore - a.matchScore;
+        case 'status':
+          return a.status.localeCompare(b.status);
+        default:
+          return 0;
+      }
+    });
+
+    return filtered;
+  }, [allJobs, statusFilter, dateFilter, sortBy]);
+
+  const handleExportComplete = (message: string) => {
+    setToastMessage(message);
+  };
+
+  if (allJobs.length === 0) {
     return (
       <div className="empty-state">
         <div className="empty-state-icon">📝</div>
@@ -24,11 +81,113 @@ export default function HistoryView() {
 
   return (
     <div className="p-4 space-y-3">
-      <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">
-        Job History ({jobsArray.length})
-      </h2>
+      {/* Header with Export Button */}
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+          Job History ({filteredJobs.length}/{allJobs.length})
+        </h2>
+        <ExportMenu
+          jobs={filteredJobs}
+          onExportComplete={handleExportComplete}
+        />
+      </div>
 
-      {jobsArray.map((job) => (
+      {/* Filters Section */}
+      <div className="card bg-gray-50 dark:bg-gray-800/50 space-y-3">
+        {/* Status Filter */}
+        <div>
+          <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Status
+          </label>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setStatusFilter('all')}
+              className={`filter-chip ${statusFilter === 'all' ? 'filter-chip-active' : ''}`}
+            >
+              All
+            </button>
+            {(['analyzed', 'applied', 'rejected', 'interviewing', 'offer', 'accepted'] as JobStatus[]).map(status => (
+              <button
+                key={status}
+                onClick={() => setStatusFilter(status)}
+                className={`filter-chip ${statusFilter === status ? 'filter-chip-active' : ''}`}
+              >
+                {status.charAt(0).toUpperCase() + status.slice(1)}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Date Range Filter */}
+        <div>
+          <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Date Range
+          </label>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setDateFilter('all')}
+              className={`filter-chip ${dateFilter === 'all' ? 'filter-chip-active' : ''}`}
+            >
+              All Time
+            </button>
+            <button
+              onClick={() => setDateFilter('7days')}
+              className={`filter-chip ${dateFilter === '7days' ? 'filter-chip-active' : ''}`}
+            >
+              Last 7 Days
+            </button>
+            <button
+              onClick={() => setDateFilter('30days')}
+              className={`filter-chip ${dateFilter === '30days' ? 'filter-chip-active' : ''}`}
+            >
+              Last 30 Days
+            </button>
+            <button
+              onClick={() => setDateFilter('90days')}
+              className={`filter-chip ${dateFilter === '90days' ? 'filter-chip-active' : ''}`}
+            >
+              Last 90 Days
+            </button>
+          </div>
+        </div>
+
+        {/* Sort Options */}
+        <div>
+          <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Sort By
+          </label>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setSortBy('date')}
+              className={`filter-chip ${sortBy === 'date' ? 'filter-chip-active' : ''}`}
+            >
+              📅 Date
+            </button>
+            <button
+              onClick={() => setSortBy('score')}
+              className={`filter-chip ${sortBy === 'score' ? 'filter-chip-active' : ''}`}
+            >
+              🎯 Score
+            </button>
+            <button
+              onClick={() => setSortBy('status')}
+              className={`filter-chip ${sortBy === 'status' ? 'filter-chip-active' : ''}`}
+            >
+              📊 Status
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* No Results Message */}
+      {filteredJobs.length === 0 && (
+        <div className="card text-center text-gray-500 dark:text-gray-400">
+          <p>No jobs match the selected filters</p>
+        </div>
+      )}
+
+      {/* Job Cards */}
+      {filteredJobs.map((job) => (
         <div
           key={job.jobId}
           className="card hover:shadow-lg cursor-pointer transition-all"
@@ -71,6 +230,15 @@ export default function HistoryView() {
           </div>
         </div>
       ))}
+
+      {/* Toast Notifications */}
+      {toastMessage && (
+        <Toast
+          message={toastMessage}
+          onDismiss={() => setToastMessage(null)}
+          type="success"
+        />
+      )}
     </div>
   );
 }

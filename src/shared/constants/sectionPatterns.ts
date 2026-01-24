@@ -104,6 +104,9 @@ export const DATE_PATTERNS = {
   // Date range (2019-2021, 2019-Present)
   DATE_RANGE: /\b(19|20)\d{2}\s*[-–—]\s*((19|20)\d{2}|Present|Current|Now)\b/gi,
 
+  // Month-Year range (Sep 2021 – Mar 2022, Jan 2020 – Present)
+  MONTH_YEAR_RANGE: /\b(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+\d{4}\s*[-–—]\s*((Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+\d{4}|Present|Current|Now)\b/gi,
+
   // Present/Current indicators
   PRESENT: /\b(Present|Current|Now|Today)\b/i,
 };

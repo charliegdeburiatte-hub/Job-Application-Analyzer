@@ -328,7 +328,7 @@ export function analyzeJob(jobData: JobData, cvProfile: CVProfile): Analysis {
   const cvSkills = cvProfile.skills.map(s => s.trim());
 
   // DEBUG LOGGING
-  console.log('=== ANALYSIS DEBUG (v1.2.0 Weighted Scoring) ===');
+  console.log('=== ANALYSIS DEBUG (v1.3.0 Enhanced CV Parser + Export) ===');
   console.log('Job description length:', jobData.description.length);
   console.log('Job skills found:', jobSkills.length, jobSkills);
   console.log('Required skills:', requiredSkills.length, requiredSkills);

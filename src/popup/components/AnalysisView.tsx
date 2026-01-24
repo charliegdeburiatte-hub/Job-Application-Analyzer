@@ -5,8 +5,12 @@ import MatchScore from './MatchScore';
 import SkillsList from './SkillsList';
 
 export default function AnalysisView() {
-  const { currentAnalysis, currentJob, cvProfile } = usePopupStore();
+  const { currentAnalysis, currentJob, cvProfile, settings } = usePopupStore();
   const [showScoringDetails, setShowScoringDetails] = useState(false);
+  const [showAllMatchedSkills, setShowAllMatchedSkills] = useState(false);
+  const [showAllMissingSkills, setShowAllMissingSkills] = useState(false);
+
+  const isQuickView = settings.analysisDetail === 'quick';
 
   // No CV uploaded yet
   if (!cvProfile) {
@@ -94,8 +98,25 @@ export default function AnalysisView() {
 
   const { matchScore, recommendation, matchDetails } = currentAnalysis;
 
+  // Skills to display based on view mode
+  const matchedSkillsToShow = isQuickView && !showAllMatchedSkills
+    ? matchDetails.matchedSkills.slice(0, 5)
+    : matchDetails.matchedSkills;
+
+  const missingSkillsToShow = isQuickView && !showAllMissingSkills
+    ? matchDetails.missingSkills.slice(0, 3)
+    : matchDetails.missingSkills;
+
+  const strengthsToShow = isQuickView
+    ? matchDetails.strengthAreas.slice(0, 2)
+    : matchDetails.strengthAreas;
+
+  const gapsToShow = isQuickView
+    ? matchDetails.weakAreas.slice(0, 2)
+    : matchDetails.weakAreas;
+
   return (
-    <div className="p-4 space-y-6 pb-6">
+    <div className={`p-4 space-y-6 pb-6 ${isQuickView ? 'analysis-quick-view' : 'analysis-detailed-view'}`}>
       {/* Saved to History Notice */}
       <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 text-sm text-blue-800 dark:text-blue-200">
         ✓ Analysis saved to History tab
@@ -149,8 +170,8 @@ export default function AnalysisView() {
         )}
       </div>
 
-      {/* Scoring Details (v1.2.0 Weighted Scoring) */}
-      {currentAnalysis.scoringBreakdown && (
+      {/* Scoring Details (v1.2.0 Weighted Scoring) - Hidden by default in Quick View */}
+      {currentAnalysis.scoringBreakdown && (!isQuickView || showScoringDetails) && (
         <div className="card bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
           <button
             onClick={() => setShowScoringDetails(!showScoringDetails)}
@@ -218,13 +239,33 @@ export default function AnalysisView() {
         </div>
       )}
 
+      {/* Quick View Toggle for Scoring Details */}
+      {isQuickView && currentAnalysis.scoringBreakdown && !showScoringDetails && (
+        <button
+          onClick={() => setShowScoringDetails(true)}
+          className="w-full text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+        >
+          📊 Show Scoring Details
+        </button>
+      )}
+
       {/* Matched Skills */}
       {matchDetails.matchedSkills.length > 0 && (
         <div>
           <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
             ✓ Matched Skills ({matchDetails.matchedSkills.length})
           </h4>
-          <SkillsList skills={matchDetails.matchedSkills} type="matched" />
+          <SkillsList skills={matchedSkillsToShow} type="matched" />
+
+          {/* Show All button in Quick View */}
+          {isQuickView && matchDetails.matchedSkills.length > 5 && !showAllMatchedSkills && (
+            <button
+              onClick={() => setShowAllMatchedSkills(true)}
+              className="mt-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+            >
+              + Show {matchDetails.matchedSkills.length - 5} more
+            </button>
+          )}
         </div>
       )}
 
@@ -234,7 +275,17 @@ export default function AnalysisView() {
           <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
             ✗ Missing Skills ({matchDetails.missingSkills.length})
           </h4>
-          <SkillsList skills={matchDetails.missingSkills} type="missing" />
+          <SkillsList skills={missingSkillsToShow} type="missing" />
+
+          {/* Show All button in Quick View */}
+          {isQuickView && matchDetails.missingSkills.length > 3 && !showAllMissingSkills && (
+            <button
+              onClick={() => setShowAllMissingSkills(true)}
+              className="mt-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+            >
+              + Show {matchDetails.missingSkills.length - 3} more
+            </button>
+          )}
         </div>
       )}
 
@@ -245,7 +296,7 @@ export default function AnalysisView() {
             💪 Your Strengths
           </h4>
           <ul className="space-y-1">
-            {matchDetails.strengthAreas.map((strength, index) => (
+            {strengthsToShow.map((strength, index) => (
               <li
                 key={index}
                 className="text-sm text-success-800 dark:text-success-200"
@@ -254,6 +305,11 @@ export default function AnalysisView() {
               </li>
             ))}
           </ul>
+          {isQuickView && matchDetails.strengthAreas.length > 2 && (
+            <p className="text-xs text-success-700 dark:text-success-300 mt-2">
+              + {matchDetails.strengthAreas.length - 2} more (switch to Detailed view)
+            </p>
+          )}
         </div>
       )}
 
@@ -264,7 +320,7 @@ export default function AnalysisView() {
             ⚠️ Gaps
           </h4>
           <ul className="space-y-1">
-            {matchDetails.weakAreas.map((weakness, index) => (
+            {gapsToShow.map((weakness, index) => (
               <li
                 key={index}
                 className="text-sm text-warning-800 dark:text-warning-200"
@@ -273,6 +329,11 @@ export default function AnalysisView() {
               </li>
             ))}
           </ul>
+          {isQuickView && matchDetails.weakAreas.length > 2 && (
+            <p className="text-xs text-warning-700 dark:text-warning-300 mt-2">
+              + {matchDetails.weakAreas.length - 2} more (switch to Detailed view)
+            </p>
+          )}
         </div>
       )}
 

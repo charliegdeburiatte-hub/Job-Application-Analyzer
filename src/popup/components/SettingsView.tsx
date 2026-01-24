@@ -1,9 +1,24 @@
+import { useState } from 'react';
 import { usePopupStore } from '../store';
 import { useTheme } from '../hooks/useTheme';
+import { StorageInfo } from './StorageInfo';
+import { ConfirmDialog } from './ConfirmDialog';
+import { clearAllStorage } from '../../shared/utils/storage';
 
 export default function SettingsView() {
-  const { settings, updateUserSettings } = usePopupStore();
+  const { settings, updateUserSettings, loadAnalyzedJobs } = usePopupStore();
   const { themeMode, toggleThemeMode } = useTheme();
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+
+  const handleClearAllHistory = async () => {
+    try {
+      await clearAllStorage();
+      // Reload jobs to refresh UI (will be empty after clearing)
+      await loadAnalyzedJobs();
+    } catch (error) {
+      console.error('[SettingsView] Failed to clear history:', error);
+    }
+  };
 
   return (
     <div className="p-4 space-y-6">
@@ -188,13 +203,33 @@ export default function SettingsView() {
           />
         </div>
 
-        <button className="btn-danger w-full">Clear All History</button>
+        <button
+          onClick={() => setShowClearConfirm(true)}
+          className="btn-danger w-full"
+        >
+          Clear All History
+        </button>
       </div>
+
+      {/* Storage Usage */}
+      <StorageInfo />
 
       {/* Version Info */}
       <div className="text-center text-xs text-gray-500 dark:text-gray-400">
-        Job Application Analyzer v1.0.0
+        Job Application Analyzer v1.3.0
       </div>
+
+      {/* Clear History Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showClearConfirm}
+        title="Clear All History?"
+        message="This will permanently delete all analyzed jobs. Your CV and settings will be preserved. This action cannot be undone."
+        confirmText="Clear History"
+        cancelText="Cancel"
+        type="danger"
+        onConfirm={handleClearAllHistory}
+        onCancel={() => setShowClearConfirm(false)}
+      />
     </div>
   );
 }

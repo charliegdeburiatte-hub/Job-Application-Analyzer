@@ -249,7 +249,8 @@ export function extractExperience(experienceText: string): CVProfile['experience
   for (const line of lines) {
     // Check if line contains pipe-separated format: "Title | Company | Location | Dates"
     const hasPipes = line.includes('|');
-    const hasDateRange = DATE_PATTERNS.DATE_RANGE.test(line);
+    const hasDateRange = DATE_PATTERNS.DATE_RANGE.test(line) ||
+                        DATE_PATTERNS.MONTH_YEAR_RANGE.test(line);
 
     if (hasPipes && hasDateRange) {
       // Save previous experience
@@ -268,7 +269,9 @@ export function extractExperience(experienceText: string): CVProfile['experience
       let companyPart = '';
 
       for (let i = 0; i < parts.length; i++) {
-        if (DATE_PATTERNS.DATE_RANGE.test(parts[i]) || DATE_PATTERNS.MONTH_YEAR.test(parts[i])) {
+        if (DATE_PATTERNS.DATE_RANGE.test(parts[i]) ||
+            DATE_PATTERNS.MONTH_YEAR_RANGE.test(parts[i]) ||
+            DATE_PATTERNS.MONTH_YEAR.test(parts[i])) {
           duration = parts[i];
         } else if (!titlePart) {
           titlePart = parts[i];
@@ -482,23 +485,54 @@ export function calculateExperienceYears(experiences: CVProfile['experience']): 
     const duration = exp.duration;
     if (!duration) continue;
 
-    // Extract start and end years
-    const yearMatches = duration.match(/\b(19|20)\d{2}\b/g);
-    if (!yearMatches || yearMatches.length === 0) continue;
+    // Try to parse month-year format first for more accurate calculation
+    const monthYearMatches = duration.match(/\b(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+(\d{4})\b/gi);
 
-    const startYear = parseInt(yearMatches[0]);
-    let endYear: number;
+    if (monthYearMatches && monthYearMatches.length >= 1) {
+      // Parse start date
+      const startMatch = monthYearMatches[0].match(/\b(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+(\d{4})\b/i);
+      if (!startMatch) continue;
 
-    if (DATE_PATTERNS.PRESENT.test(duration)) {
-      endYear = new Date().getFullYear();
-    } else if (yearMatches.length > 1) {
-      endYear = parseInt(yearMatches[1]);
+      const startMonth = parseMonth(startMatch[1]);
+      const startYear = parseInt(startMatch[2]);
+      const startDate = new Date(startYear, startMonth);
+
+      // Parse end date
+      let endDate: Date;
+      if (DATE_PATTERNS.PRESENT.test(duration)) {
+        endDate = new Date();
+      } else if (monthYearMatches.length > 1) {
+        const endMatch = monthYearMatches[1].match(/\b(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+(\d{4})\b/i);
+        if (!endMatch) continue;
+        const endMonth = parseMonth(endMatch[1]);
+        const endYear = parseInt(endMatch[2]);
+        endDate = new Date(endYear, endMonth);
+      } else {
+        endDate = startDate;
+      }
+
+      // Calculate months between dates
+      const months = Math.max(0, (endDate.getFullYear() - startDate.getFullYear()) * 12 + (endDate.getMonth() - startDate.getMonth()));
+      totalMonths += months;
     } else {
-      endYear = startYear;
-    }
+      // Fallback to year-only extraction
+      const yearMatches = duration.match(/\b(19|20)\d{2}\b/g);
+      if (!yearMatches || yearMatches.length === 0) continue;
 
-    const years = Math.max(0, endYear - startYear);
-    totalMonths += years * 12;
+      const startYear = parseInt(yearMatches[0]);
+      let endYear: number;
+
+      if (DATE_PATTERNS.PRESENT.test(duration)) {
+        endYear = new Date().getFullYear();
+      } else if (yearMatches.length > 1) {
+        endYear = parseInt(yearMatches[1]);
+      } else {
+        endYear = startYear;
+      }
+
+      const years = Math.max(0, endYear - startYear);
+      totalMonths += years * 12;
+    }
   }
 
   // Convert to years, round to 1 decimal
@@ -564,4 +598,25 @@ export async function parseCV(file: File): Promise<{ text: string; profile: CVPr
  */
 function escapeRegex(str: string): string {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * Convert month name to number (0-11 for JavaScript Date)
+ */
+function parseMonth(monthStr: string): number {
+  const months: Record<string, number> = {
+    'jan': 0, 'january': 0,
+    'feb': 1, 'february': 1,
+    'mar': 2, 'march': 2,
+    'apr': 3, 'april': 3,
+    'may': 4,
+    'jun': 5, 'june': 5,
+    'jul': 6, 'july': 6,
+    'aug': 7, 'august': 7,
+    'sep': 8, 'september': 8,
+    'oct': 9, 'october': 9,
+    'nov': 10, 'november': 10,
+    'dec': 11, 'december': 11,
+  };
+  return months[monthStr.toLowerCase()] || 0;
 }
