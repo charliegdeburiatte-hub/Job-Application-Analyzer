@@ -216,7 +216,7 @@ export default function SettingsView() {
 
       {/* Version Info */}
       <div className="text-center text-xs text-gray-500 dark:text-gray-400">
-        Job Application Analyzer v1.3.0
+        Job Application Analyzer v1.3.1
       </div>
 
       {/* Clear History Confirmation Dialog */}
