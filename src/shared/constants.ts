@@ -313,6 +313,8 @@ export const STORAGE_KEYS = {
   CV_PROFILE: 'cvProfile',
   ANALYZED_JOBS: 'analyzedJobs',
   SETTINGS: 'settings',
+  CURRENT_JOB: 'currentJob',
+  CURRENT_ANALYSIS: 'currentAnalysis',
 } as const;
 
 // ============================================================================

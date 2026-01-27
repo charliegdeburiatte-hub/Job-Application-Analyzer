@@ -294,8 +294,9 @@ function calculateWeightedScore(
   // Avoid division by zero
   if (totalPossibleWeight === 0) return 0;
 
-  // Calculate percentage (0-100)
-  return Math.round((totalMatchedWeight / totalPossibleWeight) * 100);
+  // Calculate percentage (0-100) - keep decimal precision
+  // Rounding happens in final score calculation to avoid premature rounding bugs
+  return (totalMatchedWeight / totalPossibleWeight) * 100;
 }
 
 /**
@@ -305,10 +306,11 @@ function calculateWeightedScore(
 function calculateExperienceBonus(cvProfile: CVProfile): number {
   const years = cvProfile.totalExperienceYears || 0;
 
-  // +5 points per year, capped at 20 points
+  // +5 points per year, capped at 20 points - keep decimal precision
+  // Rounding happens in final score calculation to avoid premature rounding bugs
   const bonus = Math.min(20, years * 5);
 
-  return Math.round(bonus);
+  return bonus;
 }
 
 // ============================================================================
@@ -328,7 +330,7 @@ export function analyzeJob(jobData: JobData, cvProfile: CVProfile): Analysis {
   const cvSkills = cvProfile.skills.map(s => s.trim());
 
   // DEBUG LOGGING
-  console.log('=== ANALYSIS DEBUG (v1.3.0 Enhanced CV Parser + Export) ===');
+  console.log('=== ANALYSIS DEBUG (v1.3.2 Rounding Bug Fix) ===');
   console.log('Job description length:', jobData.description.length);
   console.log('Job skills found:', jobSkills.length, jobSkills);
   console.log('Required skills:', requiredSkills.length, requiredSkills);
@@ -363,11 +365,12 @@ export function analyzeJob(jobData: JobData, cvProfile: CVProfile): Analysis {
   const experienceBonus = calculateExperienceBonus(cvProfile);
 
   // Final match score (base + bonus, capped at 100)
-  const matchScore = Math.min(100, weightedScore + experienceBonus);
+  // Round ONLY at the end to maintain precision and avoid clustering
+  const matchScore = Math.round(Math.min(100, weightedScore + experienceBonus));
 
-  console.log('Weighted base score:', weightedScore);
-  console.log('Experience bonus:', experienceBonus);
-  console.log('Final match score:', matchScore);
+  console.log('Weighted base score:', weightedScore.toFixed(2), `(${Math.round(weightedScore)} when rounded)`);
+  console.log('Experience bonus:', experienceBonus.toFixed(2), `(${Math.round(experienceBonus)} when rounded)`);
+  console.log('Final match score:', matchScore, `(calculated from ${(weightedScore + experienceBonus).toFixed(2)})`);
   console.log('=== END DEBUG ===');
 
   // Generate recommendation
@@ -391,8 +394,8 @@ export function analyzeJob(jobData: JobData, cvProfile: CVProfile): Analysis {
     jobId: generateJobId(jobData.url),
     analyzedDate: new Date().toISOString(),
     matchScore,
-    baseScore: weightedScore,
-    bonusPoints: experienceBonus,
+    baseScore: Math.round(weightedScore), // Round for display
+    bonusPoints: Math.round(experienceBonus), // Round for display
     recommendation,
     matchDetails,
     confidence: calculateConfidence(jobData, cvProfile),
@@ -401,8 +404,8 @@ export function analyzeJob(jobData: JobData, cvProfile: CVProfile): Analysis {
       requiredTotal: requiredSkills.length,
       preferredMatched: matchedPreferred.length,
       preferredTotal: preferredSkills.length,
-      experienceBonus,
-      weightedScore,
+      experienceBonus: Math.round(experienceBonus), // Round for display
+      weightedScore: Math.round(weightedScore), // Round for display
     },
   };
 

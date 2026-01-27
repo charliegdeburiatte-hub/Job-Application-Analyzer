@@ -54,6 +54,7 @@ describe('Analysis - Weighted Scoring Algorithm', () => {
         title: 'IT Support Engineer',
         company: 'TechCorp',
         description: `
+      source: 'linkedin',
           Requirements:
           - Windows Server experience
           - Active Directory knowledge
@@ -79,6 +80,7 @@ describe('Analysis - Weighted Scoring Algorithm', () => {
         title: 'IT Support',
         company: 'Company',
         description: `
+      source: 'linkedin',
           Required: Windows, Active Directory
           Preferred: Linux, Python
         `,
@@ -89,6 +91,7 @@ describe('Analysis - Weighted Scoring Algorithm', () => {
         title: 'IT Support',
         company: 'Company',
         description: `
+      source: 'linkedin',
           Required: Linux, Python, AWS
           Preferred: Windows, Active Directory
         `,
@@ -109,6 +112,7 @@ describe('Analysis - Weighted Scoring Algorithm', () => {
         title: 'IT Support Engineer',
         company: 'TechCorp',
         description: 'Windows, Active Directory, Technical Support',
+      source: 'linkedin' as const,
       };
 
       const analysis = analyzeJob(job, mockCV);
@@ -131,6 +135,7 @@ describe('Analysis - Weighted Scoring Algorithm', () => {
         title: 'Senior IT Engineer',
         company: 'TechCorp',
         description: 'Windows, Active Directory, Technical Support',
+      source: 'linkedin' as const,
       };
 
       const analysis = analyzeJob(job, cvWith10Years);
@@ -151,6 +156,7 @@ describe('Analysis - Weighted Scoring Algorithm', () => {
         title: 'Junior IT Support',
         company: 'TechCorp',
         description: 'Windows, Active Directory',
+      source: 'linkedin' as const,
       };
 
       const analysis = analyzeJob(job, cvWithNoExperience);
@@ -168,18 +174,21 @@ describe('Analysis - Weighted Scoring Algorithm', () => {
           title: 'Senior DevOps Engineer',
           company: 'TechCorp',
           description: 'Kubernetes, Docker, AWS, Terraform, Python, Jenkins, CI/CD',
+      source: 'linkedin' as const,
         },
         {
           url: 'https://example.com/job2',
           title: 'IT Support Technician',
           company: 'LocalCo',
           description: 'Windows, Active Directory, IT Support, Technical Support',
+      source: 'linkedin' as const,
         },
         {
           url: 'https://example.com/job3',
           title: 'Data Scientist',
           company: 'DataCorp',
           description: 'Python, Machine Learning, TensorFlow, R, Statistics',
+      source: 'linkedin' as const,
         },
       ];
 
@@ -200,6 +209,7 @@ describe('Analysis - Weighted Scoring Algorithm', () => {
         title: 'IT Support',
         company: 'Company',
         description: 'Windows, Active Directory, Technical Support',
+      source: 'linkedin' as const,
       };
 
       const analysis = analyzeJob(job, mockCV);
@@ -214,6 +224,7 @@ describe('Analysis - Weighted Scoring Algorithm', () => {
         title: 'Underwater Basket Weaver',
         company: 'BasketsRUs',
         description: 'Basket weaving, Underwater diving, Marine biology, Scuba certification',
+      source: 'linkedin' as const,
       };
 
       const analysis = analyzeJob(unrealatedJob, mockCV);
@@ -228,6 +239,7 @@ describe('Analysis - Weighted Scoring Algorithm', () => {
         title: 'IT Support Technician',
         company: 'TechCorp',
         description: `
+      source: 'linkedin',
           Required:
           - Windows administration
           - Active Directory experience
@@ -256,6 +268,7 @@ describe('Analysis - Weighted Scoring Algorithm', () => {
         title: 'IT Support',
         company: 'Company',
         description: 'Windows, Active Directory, Technical Support, IT Support, Networking',
+      source: 'linkedin' as const,
       };
 
       const analysis = analyzeJob(goodMatch, mockCV);
@@ -271,6 +284,7 @@ describe('Analysis - Weighted Scoring Algorithm', () => {
         title: 'IT Support',
         company: 'Company',
         description: 'Windows, Active Directory, Linux, Python',
+      source: 'linkedin' as const,
       };
 
       const analysis = analyzeJob(mediumMatch, mockCV);
@@ -286,6 +300,7 @@ describe('Analysis - Weighted Scoring Algorithm', () => {
         title: 'Senior DevOps Engineer',
         company: 'Company',
         description: 'Kubernetes, Docker, AWS, Terraform, Python, Jenkins, CI/CD, GitOps',
+      source: 'linkedin' as const,
       };
 
       const analysis = analyzeJob(poorMatch, mockCV);
@@ -303,6 +318,7 @@ describe('Analysis - Weighted Scoring Algorithm', () => {
         title: 'IT Support',
         company: 'Company',
         description: 'Required: Windows, Active Directory, Technical Support, Linux',
+      source: 'linkedin' as const,
       };
 
       const analysis = analyzeJob(job, mockCV);
@@ -318,6 +334,7 @@ describe('Analysis - Weighted Scoring Algorithm', () => {
         title: 'IT Support',
         company: 'Company',
         description: 'Required: Windows, Active Directory, Linux, Python, AWS',
+      source: 'linkedin' as const,
       };
 
       const analysis = analyzeJob(job, mockCV);
@@ -332,6 +349,7 @@ describe('Analysis - Weighted Scoring Algorithm', () => {
         title: 'IT Support',
         company: 'Company',
         description: 'Windows Windows Windows Active Directory Active Directory',
+      source: 'linkedin' as const,
       };
 
       const analysis = analyzeJob(job, mockCV);
@@ -350,6 +368,7 @@ describe('Analysis - Weighted Scoring Algorithm', () => {
         title: 'IT Support Engineer',
         company: 'Company',
         description: `
+      source: 'linkedin',
           Required:
           - Windows administration
           - Active Directory
@@ -370,6 +389,7 @@ describe('Analysis - Weighted Scoring Algorithm', () => {
         title: 'DevOps Engineer',
         company: 'Company',
         description: `
+      source: 'linkedin',
           Required:
           - Kubernetes
           - Docker
@@ -392,6 +412,7 @@ describe('Analysis - Weighted Scoring Algorithm', () => {
         title: 'IT Support',
         company: 'Company',
         description: '',
+      source: 'linkedin' as const,
       };
 
       const analysis = analyzeJob(emptyJob, mockCV);
@@ -412,6 +433,7 @@ describe('Analysis - Weighted Scoring Algorithm', () => {
         title: 'IT Support',
         company: 'Company',
         description: 'Windows, Active Directory',
+      source: 'linkedin' as const,
       };
 
       const analysis = analyzeJob(job, emptyCV);
@@ -428,6 +450,7 @@ describe('Analysis - Weighted Scoring Algorithm', () => {
         title: 'IT Support',
         company: 'Company',
         description: longDescription,
+      source: 'linkedin' as const,
       };
 
       const analysis = analyzeJob(job, mockCV);

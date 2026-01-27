@@ -36,7 +36,7 @@ export default function SettingsView() {
             <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Dark Mode
             </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400">
+            <div className="text-xs text-gray-500 dark:text-gray-300">
               {themeMode === 'dark' ? 'Enabled' : 'Disabled'}
             </div>
           </div>
@@ -215,8 +215,8 @@ export default function SettingsView() {
       <StorageInfo />
 
       {/* Version Info */}
-      <div className="text-center text-xs text-gray-500 dark:text-gray-400">
-        Job Application Analyzer v1.3.1
+      <div className="text-center text-xs text-gray-500 dark:text-gray-300">
+        Job Application Analyzer v1.4.0
       </div>
 
       {/* Clear History Confirmation Dialog */}

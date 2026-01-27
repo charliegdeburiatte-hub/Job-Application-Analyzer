@@ -253,16 +253,16 @@ body {
     background-color: transparent;
     border: none;
     cursor: pointer;
-    color: #333333;
+    color: #1f2937; /* gray-800 for light mode */
   }
   .export-menu-item:hover {
     background-color: #f3f4f6;
   }
   :root.dark .export-menu-item {
-    color: #e0e0e0;
+    color: #f3f4f6; /* Much lighter gray for dark mode - improved contrast */
   }
   :root.dark .export-menu-item:hover {
-    background-color: #333333;
+    background-color: #374151; /* gray-700 - lighter hover background */
   }
 
   /* Filter Chip */

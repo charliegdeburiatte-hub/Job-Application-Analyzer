@@ -3,7 +3,7 @@ import { usePopupStore } from '../store';
 import { formatDate } from '@/shared';
 import { ExportMenu } from './ExportMenu';
 import { Toast } from './Toast';
-import type { JobStatus } from '../../shared/types';
+import type { JobStatus, Recommendation, JobData, Analysis } from '../../shared/types';
 
 type DateFilter = 'all' | '7days' | '30days' | '90days';
 type SortBy = 'date' | 'score' | 'status';
@@ -192,8 +192,41 @@ export default function HistoryView() {
           key={job.jobId}
           className="card hover:shadow-lg cursor-pointer transition-all"
           onClick={() => {
-            // Open job URL in new tab
-            browser.tabs.create({ url: job.url });
+            const { setCurrentJob, setCurrentAnalysis, setCurrentTab } = usePopupStore.getState();
+
+            // Reconstruct JobData from AnalyzedJob
+            const jobData: JobData = {
+              url: job.url,
+              title: job.title,
+              company: job.company,
+              description: '', // Not stored in AnalyzedJob, but not used by AnalysisView
+              source: 'linkedin', // Default value
+            };
+
+            // Reconstruct Analysis from AnalyzedJob
+            // Calculate recommendation based on match score (simplified logic)
+            let recommendation: Recommendation;
+            if (job.matchScore >= 70) {
+              recommendation = 'apply';
+            } else if (job.matchScore >= 50) {
+              recommendation = 'maybe';
+            } else {
+              recommendation = 'pass';
+            }
+
+            const analysis: Analysis = {
+              jobId: job.jobId,
+              analyzedDate: job.analyzedDate,
+              matchScore: job.matchScore,
+              recommendation,
+              matchDetails: job.matchDetails,
+              confidence: 0.85, // Default confidence value
+            };
+
+            // Set the current job and analysis, then switch to analysis tab
+            setCurrentJob(jobData);
+            setCurrentAnalysis(analysis);
+            setCurrentTab('analysis');
           }}
         >
           <div className="flex items-start justify-between mb-2">
@@ -226,7 +259,7 @@ export default function HistoryView() {
 
           {/* Click hint */}
           <div className="mt-2 text-xs text-gray-400 dark:text-gray-500 italic">
-            Click to open job →
+            Click to view analysis →
           </div>
         </div>
       ))}

@@ -11,11 +11,15 @@ export async function getLocalStorage(): Promise<LocalStorage> {
   const result = await browser.storage.local.get([
     STORAGE_KEYS.CV_DOCUMENT,
     STORAGE_KEYS.ANALYZED_JOBS,
+    STORAGE_KEYS.CURRENT_JOB,
+    STORAGE_KEYS.CURRENT_ANALYSIS,
   ]);
 
   return {
     cvDocument: result[STORAGE_KEYS.CV_DOCUMENT] || null,
     analyzedJobs: result[STORAGE_KEYS.ANALYZED_JOBS] || {},
+    currentJob: result[STORAGE_KEYS.CURRENT_JOB] || null,
+    currentAnalysis: result[STORAGE_KEYS.CURRENT_ANALYSIS] || null,
   };
 }
 
@@ -107,6 +111,29 @@ export async function updateSettings(
 export async function clearAllStorage(): Promise<void> {
   await browser.storage.local.clear();
   await browser.storage.sync.clear();
+}
+
+/**
+ * Save current job and analysis to local storage
+ */
+export async function saveCurrentAnalysis(
+  currentJob: LocalStorage['currentJob'],
+  currentAnalysis: LocalStorage['currentAnalysis']
+): Promise<void> {
+  await browser.storage.local.set({
+    [STORAGE_KEYS.CURRENT_JOB]: currentJob,
+    [STORAGE_KEYS.CURRENT_ANALYSIS]: currentAnalysis,
+  });
+}
+
+/**
+ * Clear current job and analysis from local storage
+ */
+export async function clearCurrentAnalysis(): Promise<void> {
+  await browser.storage.local.set({
+    [STORAGE_KEYS.CURRENT_JOB]: null,
+    [STORAGE_KEYS.CURRENT_ANALYSIS]: null,
+  });
 }
 
 /**

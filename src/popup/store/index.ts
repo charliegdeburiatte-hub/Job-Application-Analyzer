@@ -18,6 +18,8 @@ import {
   updateSettings,
   getAnalyzedJobs,
   deleteAnalyzedJob,
+  saveCurrentAnalysis,
+  clearCurrentAnalysis as clearStoredAnalysis,
 } from '@/shared';
 
 // ============================================================================
@@ -51,6 +53,7 @@ interface PopupStore {
 
   setCurrentJob: (job: JobData | null) => void;
   setCurrentAnalysis: (analysis: Analysis | null) => void;
+  clearCurrentAnalysis: () => Promise<void>;
 
   saveCVData: (cvDoc: CVDocument, cvProf: CVProfile) => Promise<void>;
   loadCVData: () => Promise<void>;
@@ -99,9 +102,28 @@ export const usePopupStore = create<PopupStore>((set, get) => ({
   setLoading: (isLoading: boolean) => set({ isLoading }),
 
   // Job Analysis Actions
-  setCurrentJob: (job: JobData | null) => set({ currentJob: job }),
+  setCurrentJob: (job: JobData | null) => {
+    set({ currentJob: job });
+    const { currentAnalysis } = get();
+    // Persist to storage whenever currentJob is updated
+    saveCurrentAnalysis(job, currentAnalysis).catch(console.error);
+  },
 
-  setCurrentAnalysis: (analysis: Analysis | null) => set({ currentAnalysis: analysis }),
+  setCurrentAnalysis: (analysis: Analysis | null) => {
+    set({ currentAnalysis: analysis });
+    const { currentJob } = get();
+    // Persist to storage whenever currentAnalysis is updated
+    saveCurrentAnalysis(currentJob, analysis).catch(console.error);
+  },
+
+  clearCurrentAnalysis: async () => {
+    try {
+      await clearStoredAnalysis();
+      set({ currentJob: null, currentAnalysis: null });
+    } catch (error) {
+      console.error('[store] Failed to clear current analysis:', error);
+    }
+  },
 
   // CV Actions
   saveCVData: async (cvDoc: CVDocument, cvProf: CVProfile) => {
@@ -250,6 +272,8 @@ export const usePopupStore = create<PopupStore>((set, get) => ({
         cvProfile: syncStorage.cvProfile,
         settings: syncStorage.settings,
         analyzedJobs: jobs,
+        currentJob: localStorage.currentJob,
+        currentAnalysis: localStorage.currentAnalysis,
         isLoading: false,
       });
     } catch (error) {

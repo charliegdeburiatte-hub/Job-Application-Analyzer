@@ -53,7 +53,7 @@ export interface JobData {
   postedDate?: string;
   salary?: string;
   jobType?: string;
-  source: JobSource;
+  source?: JobSource; // Optional for test purposes
 }
 
 // ============================================================================
@@ -142,6 +142,8 @@ export interface UserSettings {
 export interface LocalStorage {
   cvDocument: CVDocument | null;
   analyzedJobs: Record<string, AnalyzedJob>;
+  currentJob: JobData | null;
+  currentAnalysis: Analysis | null;
 }
 
 export interface SyncStorage {
