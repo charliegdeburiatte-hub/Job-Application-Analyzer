@@ -69,6 +69,10 @@
         {
           "version": "1.4.0",
           "update_link": "https://github.com/charliegdeburiatte-hub/Job-Application-Analyzer/releases/download/v1.4.0/468717bb950d4b0a8ffd-1.4.0.xpi"
+        },
+        {
+          "version": "1.4.1",
+          "update_link": "https://github.com/charliegdeburiatte-hub/Job-Application-Analyzer/releases/download/v1.4.1/468717bb950d4b0a8ffd-1.4.1.xpi"
         }
       ]
     }
