@@ -30,7 +30,7 @@ export default function MatchScore({ score }: MatchScoreProps) {
   const color = getColor(score);
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center relative">
       <svg className="w-32 h-32 transform -rotate-90">
         {/* Background circle */}
         <circle
@@ -58,7 +58,7 @@ export default function MatchScore({ score }: MatchScoreProps) {
       </svg>
 
       {/* Score text in center */}
-      <div className="absolute mt-10">
+      <div className="absolute inset-0 flex items-center justify-center">
         <div className="text-center">
           <div className="text-4xl font-bold text-gray-900 dark:text-gray-100">
             {animatedScore}%

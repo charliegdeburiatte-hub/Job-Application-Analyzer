@@ -22,21 +22,21 @@ export default function SettingsView() {
 
   return (
     <div className="p-4 space-y-6">
-      <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Settings</h2>
+      <h2 className="text-lg font-bold text-gray-900 dark:text-white">Settings</h2>
 
       {/* Theme Settings */}
       <div className="card">
-        <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">
+        <h3 className="font-semibold text-gray-900 dark:text-white mb-4">
           🎨 Appearance
         </h3>
 
         {/* Dark Mode Toggle */}
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <div className="text-sm font-medium text-gray-700 dark:text-gray-100">
               Dark Mode
             </div>
-            <div className="text-xs text-gray-500 dark:text-gray-300">
+            <div className="text-xs text-gray-500 dark:text-gray-200">
               {themeMode === 'dark' ? 'Enabled' : 'Disabled'}
             </div>
           </div>
@@ -59,12 +59,12 @@ export default function SettingsView() {
 
       {/* Job Detection Settings */}
       <div className="card">
-        <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">
+        <h3 className="font-semibold text-gray-900 dark:text-white mb-4">
           🔍 Job Detection
         </h3>
 
         <label className="flex items-center justify-between mb-4">
-          <span className="text-sm text-gray-700 dark:text-gray-300">
+          <span className="text-sm text-gray-700 dark:text-gray-100">
             Auto-detect job pages
           </span>
           <input
@@ -76,7 +76,7 @@ export default function SettingsView() {
         </label>
 
         <label className="flex items-center justify-between">
-          <span className="text-sm text-gray-700 dark:text-gray-300">
+          <span className="text-sm text-gray-700 dark:text-gray-100">
             Show notifications
           </span>
           <input
@@ -92,12 +92,12 @@ export default function SettingsView() {
 
       {/* Analysis Settings */}
       <div className="card">
-        <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">
+        <h3 className="font-semibold text-gray-900 dark:text-white mb-4">
           📊 Analysis Settings
         </h3>
 
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-100 mb-2">
             Minimum match for "Apply": {settings.minimumMatchPercentage}%
           </label>
           <input
@@ -116,7 +116,7 @@ export default function SettingsView() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-100 mb-2">
             Detail Level
           </label>
           <div className="flex gap-2">
@@ -126,8 +126,8 @@ export default function SettingsView() {
                 flex-1 px-3 py-2 rounded-lg text-sm border transition-all
                 ${
                   settings.analysisDetail === 'quick'
-                    ? 'border-gray-900 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100'
-                    : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300'
+                    ? 'border-gray-900 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
+                    : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-100'
                 }
               `}
             >
@@ -139,8 +139,8 @@ export default function SettingsView() {
                 flex-1 px-3 py-2 rounded-lg text-sm border transition-all
                 ${
                   settings.analysisDetail === 'detailed'
-                    ? 'border-gray-900 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100'
-                    : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300'
+                    ? 'border-gray-900 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
+                    : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-100'
                 }
               `}
             >
@@ -152,14 +152,14 @@ export default function SettingsView() {
 
       {/* Enabled Job Sites */}
       <div className="card">
-        <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">
+        <h3 className="font-semibold text-gray-900 dark:text-white mb-4">
           🌐 Enabled Job Sites
         </h3>
 
         <div className="space-y-2">
           {['linkedin', 'indeed', 'reed'].map((site) => (
             <label key={site} className="flex items-center justify-between">
-              <span className="text-sm text-gray-700 dark:text-gray-300 capitalize">
+              <span className="text-sm text-gray-700 dark:text-gray-100 capitalize">
                 {site === 'linkedin' && '🔗 LinkedIn'}
                 {site === 'indeed' && '🔍 Indeed'}
                 {site === 'reed' && '📋 Reed'}
@@ -182,12 +182,12 @@ export default function SettingsView() {
 
       {/* Data Management */}
       <div className="card">
-        <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">
+        <h3 className="font-semibold text-gray-900 dark:text-white mb-4">
           🗑️ Data Management
         </h3>
 
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-100 mb-2">
             Auto-delete old jobs after: {settings.retentionDays} days
           </label>
           <input
@@ -215,7 +215,7 @@ export default function SettingsView() {
       <StorageInfo />
 
       {/* Version Info */}
-      <div className="text-center text-xs text-gray-500 dark:text-gray-300">
+      <div className="text-center text-xs text-gray-500 dark:text-gray-200">
         Job Application Analyzer v1.4.0
       </div>
 

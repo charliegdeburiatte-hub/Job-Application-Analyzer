@@ -63,7 +63,7 @@ function detectJobPage(): boolean {
 /**
  * Extract job data from LinkedIn
  */
-function extractLinkedInJob(): Partial<JobData> {
+async function extractLinkedInJob(): Promise<Partial<JobData>> {
   const titleElement = document.querySelector('.job-details-jobs-unified-top-card__job-title');
   const companyElement = document.querySelector('.job-details-jobs-unified-top-card__company-name');
   const locationElement = document.querySelector('.job-details-jobs-unified-top-card__bullet');
@@ -93,15 +93,17 @@ function extractLinkedInJob(): Partial<JobData> {
       console.log('[Job Analyzer] Clicking "Show more" button to expand description');
       showMoreButton.click();
 
-      // Wait a bit for content to load, then try again
-      setTimeout(() => {
-        for (const selector of descriptionSelectors) {
-          const element = document.querySelector(selector);
-          if (element?.textContent && element.textContent.trim().length > description.length) {
-            description = element.textContent.trim();
-          }
+      // ACTUALLY WAIT for content to load
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Try again with expanded content
+      for (const selector of descriptionSelectors) {
+        const element = document.querySelector(selector);
+        if (element?.textContent && element.textContent.trim().length > description.length) {
+          description = element.textContent.trim();
+          console.log('[Job Analyzer] Expanded description length:', description.length);
         }
-      }, 500);
+      }
     }
   }
 
@@ -226,7 +228,7 @@ function extractGenericJob(): Partial<JobData> {
 /**
  * Extract job data based on current site
  */
-function extractJobData(): JobData | null {
+async function extractJobData(): Promise<JobData | null> {
   const url = window.location.href;
   const detection = isJobPage(url);
 
@@ -238,7 +240,7 @@ function extractJobData(): JobData | null {
 
   switch (detection.site) {
     case 'linkedin':
-      jobData = extractLinkedInJob();
+      jobData = await extractLinkedInJob();
       break;
     case 'indeed':
       jobData = extractIndeedJob();
@@ -272,7 +274,7 @@ function extractJobData(): JobData | null {
 /**
  * Manually extract job data from current page (for non-detected sites)
  */
-function extractManualJobData(): JobData | null {
+async function extractManualJobData(): Promise<JobData | null> {
   const url = window.location.href;
   const detection = isJobPage(url);
 
@@ -283,7 +285,7 @@ function extractManualJobData(): JobData | null {
     console.log('[Job Analyzer] Using site-specific extraction for:', detection.site);
     switch (detection.site) {
       case 'linkedin':
-        jobData = extractLinkedInJob();
+        jobData = await extractLinkedInJob();
         break;
       case 'indeed':
         jobData = extractIndeedJob();
@@ -361,7 +363,7 @@ async function analyzeCurrentPage() {
   await new Promise(resolve => setTimeout(resolve, 1000));
 
   // Extract job data
-  const jobData = extractJobData();
+  const jobData = await extractJobData();
 
   if (!jobData) {
     console.warn('[Job Analyzer] Could not extract job data');
@@ -403,21 +405,24 @@ console.log('[Job Analyzer] Content script loaded');
 
 browser.runtime.onMessage.addListener((message: ExtensionMessage, _sender, sendResponse) => {
   if (message.type === 'GET_CURRENT_JOB') {
-    try {
-      // Try to extract job data from current page
-      const jobData = extractManualJobData();
+    // Handle async extraction
+    (async () => {
+      try {
+        // Try to extract job data from current page
+        const jobData = await extractManualJobData();
 
-      if (jobData) {
-        console.log('[Job Analyzer] Manual extraction successful:', jobData);
-        sendResponse({ success: true, jobData });
-      } else {
-        console.warn('[Job Analyzer] Manual extraction failed');
-        sendResponse({ success: false, error: 'Could not extract job data from this page' });
+        if (jobData) {
+          console.log('[Job Analyzer] Manual extraction successful:', jobData);
+          sendResponse({ success: true, jobData });
+        } else {
+          console.warn('[Job Analyzer] Manual extraction failed');
+          sendResponse({ success: false, error: 'Could not extract job data from this page' });
+        }
+      } catch (error) {
+        console.error('[Job Analyzer] Manual extraction error:', error);
+        sendResponse({ success: false, error: 'Failed to extract job data' });
       }
-    } catch (error) {
-      console.error('[Job Analyzer] Manual extraction error:', error);
-      sendResponse({ success: false, error: 'Failed to extract job data' });
-    }
+    })();
 
     return true; // Keep message channel open for async response
   }

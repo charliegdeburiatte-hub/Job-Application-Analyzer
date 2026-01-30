@@ -1,14 +1,17 @@
 import { useState } from 'react';
 import { usePopupStore } from '../store';
 import { getRecommendationText, getRecommendationEmoji } from '@/shared';
+import { JobData } from '@/shared/types';
 import MatchScore from './MatchScore';
 import SkillsList from './SkillsList';
+import ManualJobPaste from './ManualJobPaste';
 
 export default function AnalysisView() {
   const { currentAnalysis, currentJob, cvProfile, settings } = usePopupStore();
   const [showScoringDetails, setShowScoringDetails] = useState(false);
   const [showAllMatchedSkills, setShowAllMatchedSkills] = useState(false);
   const [showAllMissingSkills, setShowAllMissingSkills] = useState(false);
+  const [showManualPaste, setShowManualPaste] = useState(false);
 
   const isQuickView = settings.analysisDetail === 'quick';
 
@@ -79,20 +82,63 @@ export default function AnalysisView() {
       }
     };
 
+    const handleManualPasteSubmit = async (jobData: JobData) => {
+      try {
+        usePopupStore.getState().setLoading(true);
+        usePopupStore.getState().setError(null);
+
+        // Send to background for analysis
+        const analysisResponse = await browser.runtime.sendMessage({
+          type: 'ANALYZE_JOB',
+          payload: { jobData },
+        });
+
+        if (analysisResponse?.success) {
+          // Update store with job and analysis
+          usePopupStore.getState().setCurrentJob(jobData);
+          usePopupStore.getState().setCurrentAnalysis(analysisResponse.analysis);
+          setShowManualPaste(false);
+        } else {
+          throw new Error('Analysis failed');
+        }
+      } catch (error) {
+        console.error('Manual paste analysis error:', error);
+        usePopupStore.getState().setError(
+          error instanceof Error ? error.message : 'Failed to analyze job'
+        );
+      } finally {
+        usePopupStore.getState().setLoading(false);
+      }
+    };
+
     return (
-      <div className="empty-state">
-        <div className="empty-state-icon">🔍</div>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-          No Job Detected
-        </h3>
-        <p className="empty-state-text max-w-xs mx-auto mb-4">
-          Visit a job posting on LinkedIn, Indeed, or Reed for automatic analysis
-        </p>
-        <div className="text-xs text-gray-500 dark:text-gray-400 mb-3">or</div>
-        <button onClick={handleManualAnalysis} className="btn-primary">
-          📄 Analyze This Page
-        </button>
-      </div>
+      <>
+        <div className="empty-state">
+          <div className="empty-state-icon">🔍</div>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+            No Job Detected
+          </h3>
+          <p className="empty-state-text max-w-xs mx-auto mb-4">
+            Visit a job posting on LinkedIn, Indeed, or Reed for automatic analysis
+          </p>
+          <div className="text-xs text-gray-500 dark:text-gray-400 mb-3">or</div>
+          <div className="flex flex-col gap-2 w-full max-w-xs mx-auto">
+            <button onClick={handleManualAnalysis} className="btn-primary">
+              📄 Analyze This Page
+            </button>
+            <button onClick={() => setShowManualPaste(true)} className="btn-secondary">
+              📋 Paste Job Manually
+            </button>
+          </div>
+        </div>
+
+        {showManualPaste && (
+          <ManualJobPaste
+            onClose={() => setShowManualPaste(false)}
+            onSubmit={handleManualPasteSubmit}
+          />
+        )}
+      </>
     );
   }
 
@@ -124,7 +170,7 @@ export default function AnalysisView() {
     <div className={`p-4 space-y-6 pb-6 ${isQuickView ? 'analysis-quick-view' : 'analysis-detailed-view'}`}>
       {/* Header with Clear Button */}
       <div className="flex items-center justify-between">
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg px-3 py-2 text-sm text-blue-800 dark:text-blue-200 flex-1 mr-2">
+        <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-lg px-3 py-2 text-sm text-blue-800 dark:text-blue-100 flex-1 mr-2">
           ✓ Analysis saved to History tab
         </div>
         <button

@@ -110,7 +110,31 @@ matchScore = min(100, round(baseScore + experienceBonus))
 
 ## 📦 Release History
 
-### v1.4.0 (2026-01-27) - LIVE
+### v1.4.1 (2026-01-27) - LIVE
+**Critical Fixes:**
+- ✅ Fixed LinkedIn async extraction bug (8% scores on qualified jobs)
+- ✅ Fixed match score centering (percentage now properly centered in circle)
+- ✅ Fixed Settings dark mode contrast (white/gray-100 text on dark backgrounds)
+- ✅ Fixed blue banner contrast (Analysis saved message)
+- ✅ Updated debug string from v1.3.2 to v1.4.0
+
+**New Features:**
+- ✅ Manual job paste functionality (📋 button for when auto-detection fails)
+- ✅ ManualJobPaste component with form validation
+- ✅ Fallback for LinkedIn extraction failures
+
+**Technical:**
+- Made `extractLinkedInJob()` properly async with await
+- Changed setTimeout callback to `await new Promise(resolve => setTimeout(resolve, 1000))`
+- Made `extractJobData()` and `extractManualJobData()` async
+- Fixed MatchScore centering with flexbox (`inset-0 flex items-center justify-center`)
+- Global contrast fixes in SettingsView (dark:text-white, dark:text-gray-100)
+- Added ManualJobPaste.tsx (180 lines) - modal form for manual job entry
+
+**Root Cause - LinkedIn 8% Bug:**
+The setTimeout callback in extractLinkedInJob() was executing AFTER the function returned, so the description variable was never updated with expanded content. The function returned immediately with 132-character summary instead of waiting for the 1,500+ character full description. This caused 0 skills found → 0% base + 8% experience = 8% total.
+
+### v1.4.0 (2026-01-27)
 **Critical Fixes:**
 - ✅ Fixed 97% clustering bug (premature rounding in lines 298, 311)
 - ✅ Fixed dark mode contrast (Scoring Details, Settings, Export menu)
@@ -163,7 +187,7 @@ matchScore = min(100, round(baseScore + experienceBonus))
 
 ## 🐛 Known Issues & Solutions
 
-### Issue 1: LinkedIn 8% Scores (v1.4.1-dev - IN PROGRESS)
+### Issue 1: LinkedIn 8% Scores (v1.4.1 - FIXED ✅)
 **Problem:** Job descriptions scoring 8% when user is qualified.
 
 **Root Cause:**
@@ -171,7 +195,7 @@ matchScore = min(100, round(baseScore + experienceBonus))
 - Content script was returning 132-character summary instead of full 1,500+ char description
 - Algorithm found 0 skills → 0% base score + 8% experience = 8% total
 
-**Solution (v1.4.1-dev):**
+**Solution (v1.4.1):**
 ```typescript
 // Made extractLinkedInJob() properly async
 async function extractLinkedInJob(): Promise<Partial<JobData>> {
@@ -192,9 +216,9 @@ async function extractLinkedInJob(): Promise<Partial<JobData>> {
 - `src/content/detector.ts` - Made async: extractLinkedInJob(), extractJobData(), extractManualJobData()
 - Message listener wrapped in async IIFE to handle await
 
-**Status:** Built, ready for testing
+**Status:** ✅ Fixed in v1.4.1 + Added manual paste fallback
 
-### Issue 2: Match Score Not Centered (v1.4.1-dev - FIXED)
+### Issue 2: Match Score Not Centered (v1.4.1 - FIXED ✅)
 **Problem:** Percentage text "8%" floating outside/below circle instead of centered.
 
 **Solution:**
@@ -209,7 +233,7 @@ async function extractLinkedInJob(): Promise<Partial<JobData>> {
 
 **File:** `src/popup/components/MatchScore.tsx`
 
-### Issue 3: Dark Mode Settings Invisible Text (v1.4.1-dev - FIXED)
+### Issue 3: Dark Mode Settings Invisible Text (v1.4.1 - FIXED ✅)
 **Problem:** Black text on black background in Settings dark mode.
 
 **Solution:**
@@ -219,7 +243,7 @@ async function extractLinkedInJob(): Promise<Partial<JobData>> {
 
 **File:** `src/popup/components/SettingsView.tsx`
 
-### Issue 4: Blue Banner Text Unreadable (v1.4.1-dev - FIXED)
+### Issue 4: Blue Banner Text Unreadable (v1.4.1 - FIXED ✅)
 **Problem:** "✓ Analysis saved to History tab" hard to read in dark mode.
 
 **Solution:** Changed from `dark:text-blue-200` to `dark:text-blue-100`
@@ -390,20 +414,26 @@ npm run test:e2e         # Run Playwright E2E tests
 
 ## 🚀 Roadmap
 
-### v1.4.1 (Current Development) - Bug Fixes
-**Status:** Built, ready for testing
+### v1.4.1 (2026-01-27) - RELEASED ✅
+**Status:** Live and deployed
 
 **Fixes:**
-- LinkedIn 8% extraction issue (async await fix)
-- Match score centering (flexbox layout)
-- Dark mode Settings contrast (lighter text colors)
-- Blue banner contrast (lighter blue text)
-- Debug version string (v1.3.2 → v1.4.0)
+- ✅ LinkedIn 8% extraction issue (async await fix)
+- ✅ Match score centering (flexbox layout)
+- ✅ Dark mode Settings contrast (lighter text colors)
+- ✅ Blue banner contrast (lighter blue text)
+- ✅ Debug version string (v1.3.2 → v1.4.0)
 
-**Next Steps:**
-1. User tests LinkedIn job that scored 8%
-2. Console should show 1500+ char description, 10+ skills, 70-90% score
-3. If successful, release as v1.4.1
+**New Features:**
+- ✅ **Manual Job Description Paste** - Backup when auto-extraction fails
+  - Modal dialog (ManualJobPaste.tsx) with form validation
+  - Fields: Job title, company, location, URL, description
+  - "📋 Paste Job Manually" button in empty state
+  - Works for ANY job posting (email, PDF, screenshot, etc.)
+  - Form validation: 50 char minimum for description
+  - Auto-fills URL from current tab if not provided
+
+### v1.4.1 or v1.5.0 - Manual Job Description Paste
 
 ### v1.5.0 (Planned) - Multiple CV Profiles
 **User Request:** "I wanted to float the options of having a second CV option as some look for customer service and something else etc"
