@@ -110,7 +110,34 @@ matchScore = min(100, round(baseScore + experienceBonus))
 
 ## 📦 Release History
 
-### v1.4.1 (2026-01-27) - LIVE
+### v1.4.2 (2026-01-31) - IN REVIEW
+**Critical Fixes:**
+- ✅ Fixed ManualJobPaste dark mode contrast (horrid contrast → readable)
+- ✅ Simplified ManualJobPaste - only description required (no more data loss on window switch)
+- ✅ Improved LinkedIn extraction with more selectors and innerText fallback
+
+**ManualJobPaste UX Improvements:**
+- Only job description is required (50 char minimum)
+- Title defaults to "Manual Job Entry" if empty
+- Company defaults to "Unknown Company" if empty
+- All other fields optional (location, URL)
+- Better dark mode: gray-900 bg, white labels, gray-800 inputs
+- Explicit placeholder colors for visibility
+- Labels show "(optional)" for non-required fields
+
+**LinkedIn Extraction Improvements:**
+- Added more selectors: `#job-details`, `.jobs-description-content__text`, `article.jobs-description`
+- Try both `textContent` and `innerText` (innerText respects CSS/line breaks better)
+- More detailed console logging to debug extraction
+- Increased "Show more" wait time: 1000ms → 1500ms
+- Added `button[aria-expanded="false"]` selector for collapsed content
+
+**User Feedback Addressed:**
+- "Modal closes when you switch windows to copy/paste" → FIXED (only description required)
+- "Dark mode horrid contrast" → FIXED (gray-900, white text)
+- "LinkedIn can only parse certain number of lines" → IMPROVED (innerText + more selectors)
+
+### v1.4.1 (2026-01-27)
 **Critical Fixes:**
 - ✅ Fixed LinkedIn async extraction bug (8% scores on qualified jobs)
 - ✅ Fixed match score centering (percentage now properly centered in circle)
