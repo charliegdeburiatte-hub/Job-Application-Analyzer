@@ -77,37 +77,57 @@ async function extractLinkedInJob(): Promise<Partial<JobData>> {
     '.job-view-layout .jobs-description',
     '[class*="jobs-description"]',
     '[class*="job-details-jobs-unified-top-card__job-description"]',
+    '.jobs-description-content__text',
+    'article.jobs-description',
+    '#job-details',
   ];
 
+  // Try textContent first
   for (const selector of descriptionSelectors) {
     const element = document.querySelector(selector);
     if (element?.textContent && element.textContent.trim().length > description.length) {
       description = element.textContent.trim();
+      console.log(`[Job Analyzer] Found description with selector "${selector}": ${description.length} chars`);
+    }
+  }
+
+  // Try innerText as fallback (respects line breaks better)
+  if (description.length < 500) {
+    for (const selector of descriptionSelectors) {
+      const element = document.querySelector(selector);
+      if (element instanceof HTMLElement && element.innerText && element.innerText.trim().length > description.length) {
+        description = element.innerText.trim();
+        console.log(`[Job Analyzer] Found description via innerText with selector "${selector}": ${description.length} chars`);
+      }
     }
   }
 
   // If still too short, try to find "Show more" button and click it
   if (description.length < 500) {
-    const showMoreButton = document.querySelector('.jobs-description__footer-button, [aria-label*="Show more"], [aria-label*="See more"]');
+    const showMoreButton = document.querySelector('.jobs-description__footer-button, [aria-label*="Show more"], [aria-label*="See more"], button[aria-expanded="false"]');
     if (showMoreButton instanceof HTMLElement) {
       console.log('[Job Analyzer] Clicking "Show more" button to expand description');
       showMoreButton.click();
 
       // ACTUALLY WAIT for content to load
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1500));
 
-      // Try again with expanded content
+      // Try again with expanded content (both textContent and innerText)
       for (const selector of descriptionSelectors) {
         const element = document.querySelector(selector);
         if (element?.textContent && element.textContent.trim().length > description.length) {
           description = element.textContent.trim();
-          console.log('[Job Analyzer] Expanded description length:', description.length);
+          console.log('[Job Analyzer] Expanded description (textContent) length:', description.length);
+        }
+        if (element instanceof HTMLElement && element.innerText && element.innerText.trim().length > description.length) {
+          description = element.innerText.trim();
+          console.log('[Job Analyzer] Expanded description (innerText) length:', description.length);
         }
       }
     }
   }
 
-  console.log('[Job Analyzer] LinkedIn description length:', description.length);
+  console.log('[Job Analyzer] Final LinkedIn description length:', description.length);
 
   return {
     title: titleElement?.textContent?.trim() || 'Unknown Title',
