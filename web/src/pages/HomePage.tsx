@@ -83,7 +83,9 @@ export default function HomePage({ cvProfile, onCVUpload, onAnalyze }: HomePageP
             </p>
           </div>
           <div>
-            <div className="text-3xl mb-2">🎯</div>
+            <div className="mb-2">
+              <img src="/logo.jpeg" alt="Target" className="w-12 h-12 mx-auto" />
+            </div>
             <h3 className="font-semibold text-gray-900 dark:text-white mb-2">3. Get Your Match Score</h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Instantly see how well you match and what skills you're missing
