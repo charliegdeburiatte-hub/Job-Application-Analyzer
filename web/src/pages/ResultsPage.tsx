@@ -52,6 +52,27 @@ export default function ResultsPage({ analysis, jobData, cvProfile, onReset }: R
         </button>
       </div>
 
+      {/* Debug Summary */}
+      <div className="card bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex-1">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Debug Summary (copy to Claude):</p>
+            <code className="text-xs text-gray-700 dark:text-gray-300 font-mono break-all">
+              TEST|{new Date().toISOString().split('T')[0]}|{jobData.title}|{jobData.company}|{matchScore}%|{matchDetails.matchedSkills.length}matched|{matchDetails.missingSkills.length}missing|{recommendation}
+            </code>
+          </div>
+          <button
+            onClick={() => {
+              const debugString = `TEST|${new Date().toISOString().split('T')[0]}|${jobData.title}|${jobData.company}|${matchScore}%|${matchDetails.matchedSkills.length}matched|${matchDetails.missingSkills.length}missing|${recommendation}`;
+              navigator.clipboard.writeText(debugString);
+            }}
+            className="btn-secondary text-xs whitespace-nowrap"
+          >
+            📋 Copy
+          </button>
+        </div>
+      </div>
+
       {/* Match Score Circle */}
       <div className="card text-center">
         <MatchScore score={matchScore} />
