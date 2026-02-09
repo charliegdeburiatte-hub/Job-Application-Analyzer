@@ -14,8 +14,18 @@ function MainApp() {
   })
   const [cvProfile, setCVProfile] = useState<CVProfile | null>(() => {
     // Load CV from localStorage on mount
-    const saved = localStorage.getItem('cvProfile')
-    return saved ? JSON.parse(saved) : null
+    try {
+      const saved = localStorage.getItem('cvProfile')
+      if (saved) {
+        console.log('📦 Loaded CV from localStorage:', JSON.parse(saved).skills.length, 'skills')
+        return JSON.parse(saved)
+      }
+      console.log('📦 No CV found in localStorage')
+      return null
+    } catch (error) {
+      console.error('❌ Error loading CV from localStorage:', error)
+      return null
+    }
   })
   const [jobData, setJobData] = useState<JobData | null>(null)
   const [analysis, setAnalysis] = useState<Analysis | null>(null)
@@ -34,7 +44,12 @@ function MainApp() {
   // Persist CV profile to localStorage whenever it changes
   useEffect(() => {
     if (cvProfile) {
-      localStorage.setItem('cvProfile', JSON.stringify(cvProfile))
+      try {
+        localStorage.setItem('cvProfile', JSON.stringify(cvProfile))
+        console.log('💾 Saved CV to localStorage:', cvProfile.skills.length, 'skills')
+      } catch (error) {
+        console.error('❌ Error saving CV to localStorage:', error)
+      }
     }
   }, [cvProfile])
 
