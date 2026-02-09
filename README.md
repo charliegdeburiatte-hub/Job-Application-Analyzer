@@ -2,15 +2,15 @@
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/version-1.4.0-blue.svg)
+![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
-![Firefox](https://img.shields.io/badge/Firefox-Manifest%20V3-orange.svg)
-![Tests](https://img.shields.io/badge/tests-73%20passing-success.svg)
+![React](https://img.shields.io/badge/React-19.2.3-61dafb.svg)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9.3-blue.svg)
+![Deployed](https://img.shields.io/badge/deployed-Vercel-black.svg)
 
-**An intelligent Firefox extension that analyzes job postings against your CV using advanced weighted scoring algorithms.**
+**A web application that analyzes job postings against your CV using advanced weighted scoring algorithms.**
 
-[Features](#features) • [Installation](#installation) • [Tech Stack](#tech-stack) • [Architecture](#architecture) • [Development](#development)
+[Live Demo](https://your-vercel-url.vercel.app) • [Features](#features) • [How It Works](#how-it-works) • [Tech Stack](#tech-stack) • [Development](#development)
 
 </div>
 
@@ -18,15 +18,47 @@
 
 ## 🎯 Overview
 
-Job Application Analyzer is a production-ready browser extension that transforms the job application process through automated analysis and intelligent scoring. Built with modern web technologies and rigorous testing practices, it provides data-driven insights to help job seekers make informed decisions.
+Job Application Analyzer is a privacy-first web application that helps job seekers make data-driven decisions. Upload your CV once, paste any job description, and get an instant match score with detailed skill analysis.
 
-**Key Differentiators:**
+**Why This Tool?**
+- 🎯 **Objective Decision Making**: Stop guessing if you're qualified - get a data-driven match score
+- 🔒 **100% Private**: All processing happens in your browser - no data sent to servers
+- ⚡ **Instant Results**: Upload CV once, analyze unlimited jobs
+- 📊 **Transparent Scoring**: See exactly how your score is calculated
+- 💾 **Persistent Storage**: CV saved in browser - analyze jobs anytime
+
+**Key Features:**
 - 🧠 **Weighted Scoring Algorithm**: Required skills weighted 3x more than preferred skills
-- 📊 **Comprehensive Testing**: 73 unit tests with Vitest, E2E tests with Playwright
-- 🎨 **Professional UI/UX**: Dark mode support, responsive design, accessibility-focused
-- 💾 **Intelligent Caching**: Analysis results cached to minimize redundant computation
-- 🔄 **Real-time Detection**: Content scripts detect job pages on LinkedIn, Indeed, and Reed
-- 📈 **Export Functionality**: Export analysis history to JSON, CSV, or Markdown
+- 📈 **Experience Bonus**: Up to +20 points based on years of experience
+- 🎨 **Professional UI/UX**: Dark mode support, responsive design
+- 🔬 **Testing Tools**: Compressed debug strings for validation and testing
+- 🔓 **Decoder Tool**: View full analysis data from compressed strings
+
+---
+
+## 🚀 How It Works
+
+### 1. Upload Your CV
+- Upload your CV in `.docx` format
+- Automatically extracts skills, experience, and qualifications
+- CV is saved in your browser - no re-uploading needed
+
+### 2. Paste Job Description
+- Copy any job description from LinkedIn, Indeed, etc.
+- Paste into the text area
+- Optionally add job title and company name
+
+### 3. Get Instant Analysis
+- **Match Score**: 0-100% compatibility score
+- **Matched Skills**: Skills you have that match the job
+- **Missing Skills**: Skills the job requires that you don't have
+- **Recommendation**: Apply (≥70%), Maybe (50-69%), or Pass (<50%)
+- **Scoring Breakdown**: Transparent calculation details
+
+### 4. Track Your Tests (Optional)
+- Copy compressed debug string for each analysis
+- Use the decoder tool to view full data including job description
+- Perfect for validating scoring accuracy across multiple jobs
 
 ---
 
@@ -34,457 +66,323 @@ Job Application Analyzer is a production-ready browser extension that transforms
 
 ### Core Functionality
 
-#### 🤖 Automatic Job Detection
-- Real-time detection of job postings on major platforms (LinkedIn, Indeed, Reed)
-- Intelligent content extraction using site-specific selectors
-- Handles single-page application navigation and dynamic content loading
-- Debounced mutation observer to prevent redundant analysis
+#### 📄 CV Parsing
+- **DOCX Support**: Upload your CV in `.docx` format
+- **Automatic Extraction**: Parses skills, experience, education
+- **Persistent Storage**: CV saved in browser localStorage
+- **Skill Database**: Recognizes 200+ technical and soft skills
+- **Experience Calculation**: Filters self-employment, calculates total years
 
-#### 📄 CV Analysis
-- Upload CV in DOCX format with automatic skill extraction
-- Parses experience, education, and certifications
-- Filters self-employment periods for accurate experience calculation
-- Supports 200+ technical and soft skills from comprehensive skill database
+#### 🎯 Intelligent Scoring Algorithm
 
-#### 🎯 Intelligent Scoring
-```
+```typescript
 Match Score = (Weighted Skill Score + Experience Bonus)
+
+// Weighted Skill Matching
+Required Skills: 3x weight
+Preferred Skills: 1x weight
+
+// Experience Bonus
+Up to +20 points (2 points per year, capped at 10 years)
+
+// Final Score
+Capped at 100%, decimal precision maintained
 ```
-- **Weighted Skill Matching**: Required skills (3x weight) vs Preferred skills (1x weight)
-- **Experience Bonus**: Up to +20 points based on years of experience
-- **Precision Scoring**: Maintains decimal precision throughout calculation (v1.4.0 fix)
-- **Smart Recommendations**: Apply (≥70%), Maybe (50-69%), Pass (<50%)
 
-#### 📊 Analysis Results
-- **Match Percentage**: 0-100% score with visual circular progress indicator
-- **Skill Breakdown**:
-  - Matched skills (categorized by Frontend, Backend, Tools, Soft Skills)
-  - Missing required/preferred skills
-  - Strength areas and skill gaps
-- **Scoring Details**: Transparent breakdown of base score and bonuses
-- **Quick vs Detailed Views**: Toggle between compact and comprehensive analysis
+**Why Weighted Scoring?**
+- Required skills are 3x more important than preferred (realistic job market)
+- Experience bonus rewards proven track record
+- Prevents gaming the system (can't hit 100% on preferred skills alone)
 
-#### 📝 Application Tracking
-- Full history of analyzed jobs with filtering and sorting
-- Status tracking: Analyzed, Applied, Rejected, Interviewing, Offer, Accepted
-- Click jobs in history to view saved analysis (no re-fetching)
-- Export history to JSON, CSV, or Markdown for external tracking
+#### 📊 Detailed Analysis
 
-#### ⚙️ Advanced Settings
-- **Analysis Preferences**: Quick vs Detailed view modes
-- **Job Site Controls**: Enable/disable specific platforms
-- **Data Management**: Configurable retention period (30-365 days)
-- **Storage Monitoring**: Real-time usage breakdown with visual indicators
-- **Theme Support**: Full dark mode with WCAG-compliant contrast ratios
+- **Match Percentage**: Visual circular progress indicator
+- **Skill Categorization**: Frontend, Backend, Tools, Soft Skills
+- **Strength Areas**: What you excel at
+- **Skill Gaps**: Where you could improve
+- **Scoring Details**: Required vs Preferred matches, experience bonus
+
+#### 🔬 Testing & Validation Tools
+
+- **Compressed Debug Strings**: Uses LZ-String compression (60-80% size reduction)
+- **Includes Full Data**: Job description, all skills, scoring breakdown
+- **Decoder Tool**: `/decode` page to view compressed data
+- **Perfect for QA**: Track 20+ job analyses, validate scoring accuracy
+
+#### 🎨 User Experience
+
+- **Dark Mode**: Full dark theme with WCAG-compliant contrast
+- **Responsive Design**: Works on desktop, tablet, mobile
+- **Instant Feedback**: No loading screens, instant analysis
+- **Privacy First**: All processing in-browser, no tracking
+- **Clean UI**: Modern design with Tailwind CSS
 
 ---
 
 ## 🛠️ Tech Stack
 
 ### Frontend
-- **React 19.2.3** - Modern UI with hooks and context
+- **React 19.2.3** - Modern UI with hooks
 - **TypeScript 5.9.3** - Type-safe development
-- **Tailwind CSS 4** - Utility-first styling with custom theme
-- **Zustand 5.0.3** - Lightweight state management
+- **Tailwind CSS 4** - Utility-first styling
+- **React Router DOM** - Client-side routing
 
 ### Build & Development
-- **Vite 7.3.1** - Fast builds with HMR
-- **PostCSS 8.4.49** - CSS processing pipeline
-- **ESLint** - Code quality enforcement
+- **Vite 7.3.1** - Lightning-fast builds with HMR
+- **PostCSS** - CSS processing
+- **ESLint** - Code quality
 
-### Testing
-- **Vitest 4.0.18** - Unit testing framework (73 tests passing)
-- **Playwright 1.58.0** - E2E testing for browser automation
-- **@faker-js/faker 10.2.0** - Test data generation
-
-### Browser APIs & Libraries
-- **WebExtension API** - Firefox Manifest V3
-- **mammoth.js** - DOCX document parsing
+### Libraries
+- **mammoth.js** - DOCX parsing
+- **lz-string** - Compression/decompression for debug strings
 - **lucide-react** - Icon library
+
+### Deployment
+- **Vercel** - Serverless deployment
+- **GitHub Actions** - CI/CD (optional)
 
 ---
 
 ## 🏗️ Architecture
 
-### Component Overview
+### High-Level Flow
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                      Browser Extension                       │
-├─────────────────────────────────────────────────────────────┤
-│                                                               │
-│  ┌──────────────┐      ┌──────────────┐      ┌───────────┐ │
-│  │   Content    │      │  Background  │      │   Popup   │ │
-│  │   Scripts    │─────▶│   Worker     │◀─────│    UI     │ │
-│  └──────────────┘      └──────────────┘      └───────────┘ │
-│        │                      │                      │       │
-│        │                      ▼                      │       │
-│        │              ┌──────────────┐               │       │
-│        │              │   Storage    │               │       │
-│        │              │  (Local +    │◀──────────────┘       │
-│        │              │    Sync)     │                       │
-│        │              └──────────────┘                       │
-│        │                                                      │
-│        ▼                                                      │
-│  ┌──────────────────────────────────────────────────────┐   │
-│  │            Job Sites (LinkedIn, Indeed, Reed)         │   │
-│  └──────────────────────────────────────────────────────┘   │
-│                                                               │
-└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────┐
+│                     Web Application                      │
+├─────────────────────────────────────────────────────────┤
+│                                                           │
+│  ┌──────────────┐      ┌──────────────┐      ┌────────┐ │
+│  │   HomePage   │      │ ResultsPage  │      │ Decode │ │
+│  │              │─────▶│              │      │  Page  │ │
+│  │ - CV Upload  │      │ - Analysis   │      │        │ │
+│  │ - Job Paste  │      │ - Scoring    │      └────────┘ │
+│  └──────────────┘      │ - Debug Str  │                 │
+│         │              └──────────────┘                 │
+│         ▼                                                │
+│  ┌──────────────────────────────────────────┐           │
+│  │         Analysis Engine                   │           │
+│  │  - CV Parser (mammoth.js)                │           │
+│  │  - Skill Extractor                       │           │
+│  │  - Weighted Scoring Algorithm            │           │
+│  │  - Compression (lz-string)               │           │
+│  └──────────────────────────────────────────┘           │
+│         │                                                │
+│         ▼                                                │
+│  ┌──────────────────────────────────────────┐           │
+│  │         localStorage                      │           │
+│  │  - CV Profile (persisted)                │           │
+│  │  - Dark Mode Preference                  │           │
+│  └──────────────────────────────────────────┘           │
+│                                                           │
+└─────────────────────────────────────────────────────────┘
 ```
 
-### Core Modules
+### Scoring Algorithm Details
 
-#### 1. Content Script (`src/content/detector.ts`)
-**Responsibilities:**
-- Detect job postings using URL pattern matching
-- Extract job data (title, company, description, requirements)
-- Handle site-specific DOM structures and "Show More" buttons
-- Debounce rapid page changes to prevent duplicate analysis
-
-**Key Features:**
-- MutationObserver with 500ms debounce for SPA navigation
-- Exponential backoff retry for dynamic content loading
-- Site-specific extraction strategies for LinkedIn, Indeed, Reed
-
-#### 2. Background Service Worker (`src/background/index.ts`)
-**Responsibilities:**
-- Coordinate analysis workflow between content scripts and popup
-- Manage storage operations (CV, analyzed jobs, settings)
-- Update extension badge with match scores
-- Trigger browser notifications for new analyses
-
-**Message Flow:**
-```
-Content Script → ANALYZE_JOB → Background → Analysis → Storage
-                                    ↓
-                              UPDATE_BADGE
-                                    ↓
-                            ANALYSIS_COMPLETE → Popup UI
-```
-
-#### 3. Popup UI (`src/popup/`)
-**Component Hierarchy:**
-```
-App
-├── TabNavigation
-├── AnalysisView
-│   ├── MatchScore
-│   ├── SkillsList (with categorization)
-│   └── ExportMenu
-├── HistoryView
-│   ├── FilterControls (status, date, sort)
-│   └── JobCard[] (clickable)
-├── CVView
-│   └── FileUpload
-└── SettingsView
-    ├── ThemeToggle
-    ├── StorageInfo
-    └── ConfirmDialog
-```
-
-#### 4. Analysis Engine (`src/shared/utils/analysis.ts`)
-
-**Weighted Scoring Algorithm:**
+**Phase 1: Skill Extraction**
 ```typescript
-// Phase 1: Extract skills from job description
 requiredSkills = extractRequiredSkills(jobDescription)
 preferredSkills = extractPreferredSkills(jobDescription)
+```
 
-// Phase 2: Match against CV skills
+**Phase 2: Matching**
+```typescript
 requiredMatched = cvSkills ∩ requiredSkills
 preferredMatched = cvSkills ∩ preferredSkills
+```
 
-// Phase 3: Calculate weighted score
+**Phase 3: Weighted Score**
+```typescript
 requiredScore = (requiredMatched / requiredTotal) × 3  // 3x weight
 preferredScore = (preferredMatched / preferredTotal) × 1
 
-baseScore = ((requiredScore + preferredScore) / (requiredTotal×3 + preferredTotal)) × 100
-
-// Phase 4: Apply experience bonus
-experienceBonus = min(20, yearsOfExperience × 2)
-
-matchScore = min(100, round(baseScore + experienceBonus))
+baseScore = ((requiredScore + preferredScore) / totalWeight) × 100
 ```
 
-**Why This Algorithm:**
-- **Weighted Required Skills**: Employers prioritize required skills 3:1 over preferred
-- **Experience Matters**: Proven track record adds up to 20% boost
-- **Prevents Gaming**: Capped at 100%, normalized against total possible weight
-- **Decimal Precision**: v1.4.0 fix eliminates rounding errors throughout calculation
+**Phase 4: Experience Bonus**
+```typescript
+experienceBonus = min(20, yearsOfExperience × 2)
+```
+
+**Phase 5: Final Score**
+```typescript
+matchScore = min(100, Math.round(baseScore + experienceBonus))
+```
 
 ---
 
-## 📦 Installation
+## 📦 Installation & Development
 
-### For Users
-
-Install from [Firefox Add-ons](https://addons.mozilla.org/firefox/addon/job-application-analyzer/) (auto-updates enabled)
-
-### For Developers
-
-#### Prerequisites
+### Prerequisites
 - Node.js 18+ and npm
-- Firefox Browser 109+
+- Modern web browser
 
-#### Setup
+### Local Setup
+
 ```bash
 # Clone repository
 git clone https://github.com/charliegdeburiatte-hub/Job-Application-Analyzer.git
-cd Job-Application-Analyzer
+cd Job-Application-Analyzer/web
 
 # Install dependencies
 npm install
 
-# Build for production
-npm run build
-
-# Load in Firefox
-# 1. Open Firefox → about:debugging#/runtime/this-firefox
-# 2. Click "Load Temporary Add-on"
-# 3. Select any file from dist/ directory
-```
-
-#### Development Mode
-```bash
-# Watch mode with auto-rebuild
+# Start development server
 npm run dev
 
-# Run unit tests
-npm run test
-
-# Run tests with UI
-npm run test:ui
-
-# Run E2E tests
-npm run test:e2e
-
-# Run tests with coverage
-npm run test:coverage
+# Open browser to http://localhost:5173
 ```
 
----
+### Build for Production
 
-## 🧪 Testing
-
-### Unit Tests (73 passing)
-
-**Test Coverage:**
-- ✅ Analysis algorithm (weighted scoring, rounding precision)
-- ✅ CV parser (DOCX extraction, skill detection)
-- ✅ Storage utilities (save, retrieve, delete)
-- ✅ Bug regression tests (97% clustering bug, 8% scoring bug)
-- ✅ Edge cases (empty CV, malformed job descriptions)
-
-**Run Tests:**
 ```bash
-npm run test        # Watch mode
-npm run test:run    # Single run
-npm run test:ui     # Visual UI
+# Build optimized production bundle
+npm run build
+
+# Preview production build locally
+npm run preview
 ```
 
-**Example Test:**
-```typescript
-describe('Weighted Scoring Algorithm', () => {
-  it('should weight required skills 3x more than preferred', () => {
-    const job = createJobWithSkills({
-      required: ['Python', 'Linux'],
-      preferred: ['Windows', 'Active Directory']
-    });
-    const cv = createCVWithSkills(['Windows', 'Active Directory']); // Only preferred
-
-    const analysis = analyzeJob(job, cv);
-
-    // Should score lower due to missing high-weight required skills
-    expect(analysis.matchScore).toBeLessThan(50);
-  });
-});
-```
-
-### E2E Tests (Playwright)
-
-**Test Scenarios:**
-- Full user workflow (upload CV → analyze job → view history)
-- Cross-browser compatibility checks
-- Performance benchmarks
-
----
-
-## 📁 Project Structure
+### Project Structure
 
 ```
-Job-Application-Analyzer/
+web/
 ├── src/
-│   ├── background/
-│   │   └── index.ts              # Background service worker
-│   ├── content/
-│   │   └── detector.ts           # Job detection & extraction
-│   ├── popup/
-│   │   ├── components/
-│   │   │   ├── AnalysisView.tsx  # Match score display
-│   │   │   ├── HistoryView.tsx   # Job history with filters
-│   │   │   ├── CVView.tsx        # CV upload interface
-│   │   │   ├── SettingsView.tsx  # Settings & preferences
-│   │   │   ├── ExportMenu.tsx    # Export to JSON/CSV/MD
-│   │   │   ├── MatchScore.tsx    # Circular progress indicator
-│   │   │   └── SkillsList.tsx    # Categorized skill display
-│   │   ├── hooks/
-│   │   │   ├── useTheme.ts       # Dark mode management
-│   │   │   └── useMessaging.ts   # Extension messaging
-│   │   ├── store/
-│   │   │   └── index.ts          # Zustand state management
-│   │   ├── App.tsx
-│   │   ├── index.tsx
-│   │   └── index.css             # Tailwind + custom styles
+│   ├── pages/
+│   │   ├── HomePage.tsx          # CV upload & job paste
+│   │   ├── ResultsPage.tsx       # Analysis display
+│   │   └── DecodePage.tsx        # Debug string decoder
+│   ├── components/
+│   │   ├── MatchScore.tsx        # Circular progress indicator
+│   │   └── SkillsList.tsx        # Categorized skill display
 │   ├── shared/
 │   │   ├── types/
 │   │   │   └── index.ts          # TypeScript definitions
-│   │   ├── utils/
-│   │   │   ├── analysis.ts       # Scoring algorithm
-│   │   │   ├── cvParser.ts       # DOCX parsing
-│   │   │   ├── storage.ts        # Browser storage wrapper
-│   │   │   ├── exportAnalysis.ts # Export utilities
-│   │   │   └── __tests__/        # Unit tests (73 tests)
-│   │   ├── constants/
-│   │   │   ├── skillCategories.ts
-│   │   │   └── sectionPatterns.ts
-│   │   └── constants.ts          # 200+ skill database
-│   └── options/
-│       └── OptionsPage.tsx       # Full-page settings
+│   │   └── utils/
+│   │       ├── analysis.ts       # Scoring algorithm
+│   │       ├── cvParser.ts       # DOCX parsing
+│   │       └── skillExtractor.ts # Skill detection
+│   ├── App.tsx                   # Root component, routing
+│   └── index.css                 # Tailwind styles
 ├── public/
-│   ├── icons/                    # Extension icons (16/48/128)
-│   └── manifest.json             # Firefox Manifest V3
-├── packages/                     # Release artifacts
-├── tests/                        # E2E tests (Playwright)
+│   └── logo.jpeg                 # Branding
 ├── dist/                         # Build output
+├── package.json
 ├── vite.config.ts
-├── tsconfig.json
-├── vitest.config.ts
-├── playwright.config.ts
-└── package.json
+└── vercel.json                   # Vercel deployment config
 ```
 
 ---
 
-## 🚀 Release History
+## 🚀 Deployment
 
-### v1.4.0 (2026-01-27) - Critical Bug Fixes & UX Improvements
-**Critical Fixes:**
-- Fixed 97% score clustering bug caused by premature rounding
-- Fixed dark mode contrast issues (Scoring Details, Settings, Export menu)
-- Support Specialist 8% bug now scores correctly at 97%
+### Deploy to Vercel (Recommended)
 
-**New Features:**
-- History page: Click jobs to view saved analysis instead of opening URL
-- Analysis persistence: Current analysis persists across popup opens/closes
-- "New Job" button to clear current analysis and analyze new page
+1. **Push to GitHub**
+   ```bash
+   git push origin main
+   ```
 
-**Technical:**
-- Removed premature Math.round() from base score calculations (lines 298, 311)
-- Single final rounding at match score calculation (line 368)
-- Added storage persistence for currentJob and currentAnalysis
-- All 73 tests passing
+2. **Import to Vercel**
+   - Go to [vercel.com](https://vercel.com)
+   - Import your GitHub repository
+   - Set root directory to `web`
+   - Deploy!
 
-### v1.3.1 (2026-01-25) - LinkedIn Extraction Fix
-- Critical fix for LinkedIn job extraction failures
-- Improved content script loading and initialization
+3. **Automatic Deployments**
+   - Every push to `main` triggers a new deployment
+   - Preview deployments for pull requests
 
-### v1.3.0 (2026-01-24) - Export & Performance
-- Export history to JSON/CSV/Markdown
-- Analysis caching system
-- Quick vs Detailed view modes
-- Storage usage monitoring
+### Environment Configuration
 
-### v1.2.1 (2026-01-23) - Bug Fixes
-- Fixed pipe-separated CV parsing
-- Self-employment filter improvements
-
-### v1.2.0 (2026-01-22) - Weighted Scoring
-- Implemented weighted scoring algorithm (required 3x, preferred 1x)
-- Experience bonus system (+20 max)
-- Enhanced CV parser with section detection
+No environment variables needed - everything runs client-side!
 
 ---
 
-## 🔧 Development
+## 🔬 Testing Tools
 
-### Code Quality
+### Compressed Debug Strings
 
-**TypeScript Strict Mode:**
-```json
-{
-  "strict": true,
-  "noImplicitAny": true,
-  "strictNullChecks": true,
-  "noUnusedLocals": true,
-  "noUnusedParameters": true
-}
+Each analysis generates a compressed string containing:
+- Full job description
+- All matched/missing skills
+- Scoring breakdown
+- Recommendation
+
+**Usage:**
+1. Analyze a job
+2. Click "📋 Copy" in the debug section
+3. Paste to file for tracking or share with others
+4. Use `/decode` page to view full data
+
+**Example:**
 ```
-
-**Testing Standards:**
-- Minimum 70% code coverage
-- All PRs must include tests
-- E2E tests for critical user paths
-
-**Git Workflow:**
-```bash
-# Feature development
-git checkout -b feature/my-feature
-# ... make changes ...
-npm run test        # Ensure tests pass
-npm run build       # Ensure builds successfully
-git commit -m "feat: description"
-git push origin feature/my-feature
+N4IgdghgtgpiBcIDKBXAlgYwPYwJYBc0A7XAEzwGcsAnAGhEQHsBlCAOQEk...
 ```
-
-### Build & Package
-
-```bash
-# Production build
-npm run build
-
-# Create extension package (XPI)
-npm run package
-
-# Create source code package (for Mozilla review)
-npm run package:source
-```
-
-**Output:**
-- `packages/job-application-analyzer-v1.4.0.zip` - Extension XPI
-- `packages/job-application-analyzer-v1.4.0-source.zip` - Source code
+(Decompresses to full JSON with job description and all analysis data)
 
 ---
 
-## 🗺️ Roadmap
+## 📝 Version History
 
-### v1.5.0 (Planned) - Multiple CV Profiles
-- [ ] Store and manage multiple CV profiles
-- [ ] Switch between CVs based on job type (Technical, Customer Service, Management)
-- [ ] Track which CV was used for each analysis
-- [ ] Default CV per job site settings
+### v2.0.0 (2026-02-09) - Web Application Pivot
+**Major Changes:**
+- ✅ Complete pivot from Firefox extension to web application
+- ✅ Deployed on Vercel for universal access
+- ✅ CV persistence with localStorage (survives page refreshes)
+- ✅ Compressed debug strings with decoder tool
+- ✅ Dark mode preference persistence
+- ✅ Routing with React Router DOM
 
-### v1.6.0 (Planned) - Advanced Analytics
-- [ ] Match score trends over time
-- [ ] Skill gap analysis dashboard
-- [ ] Application success rate tracking
-- [ ] Interview stage management
+### v1.4.0 (2026-01-27) - Firefox Extension (Legacy)
+- Fixed 97% score clustering bug
+- Added weighted scoring algorithm
+- Improved dark mode contrast
+- 73 unit tests passing
 
-### v2.0.0 (Future) - AI Integration
-- [ ] Claude API integration for natural language job analysis
-- [ ] AI-powered CV optimization suggestions
-- [ ] Personalized cover letter generation
-- [ ] Interview preparation insights
+---
+
+## 🎯 Roadmap
+
+### Short Term
+- [ ] PDF CV support (in addition to DOCX)
+- [ ] Export analysis to PDF
+- [ ] Multiple CV profiles (Technical, Management, etc.)
+- [ ] Browser extension for auto-analysis on job sites
+
+### Medium Term
+- [ ] Analysis history with IndexedDB
+- [ ] Batch job analysis (paste 10 jobs, analyze all)
+- [ ] Skill gap learning recommendations
+- [ ] Cover letter suggestions based on gaps
+
+### Long Term
+- [ ] AI-powered job description parsing (Claude API)
+- [ ] Salary range estimation based on skills
+- [ ] Interview preparation based on missing skills
+- [ ] Chrome/Safari support
 
 ---
 
 ## 🐛 Known Issues
 
-- Chrome/Edge support pending (Manifest V3 compatibility layer needed)
-- PDF CV parsing not yet supported (DOCX only)
-- Large job descriptions (>10k chars) may cause slow extraction
+- Large CV files (>5MB) may be slow to parse
+- Some specialized skills may not be in the 200+ skill database
+- Job descriptions without clear "required" sections may not weight correctly
 
 **Report bugs:** [GitHub Issues](https://github.com/charliegdeburiatte-hub/Job-Application-Analyzer/issues)
+
+---
+
+## 🤝 Contributing
+
+Contributions welcome! Please:
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ---
 
@@ -498,15 +396,15 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 **Charlie de Buriatte**
 
-- Portfolio: [GitHub](https://github.com/charliegdeburiatte-hub)
-- Email: job-analyzer@charliegdeburiatte.com
+- GitHub: [@charliegdeburiatte-hub](https://github.com/charliegdeburiatte-hub)
+- Project: [Job Application Analyzer](https://github.com/charliegdeburiatte-hub/Job-Application-Analyzer)
 
 ---
 
 ## 🙏 Acknowledgments
 
 - Built with modern web technologies and best practices
-- Inspired by the need for data-driven job application strategies
+- Inspired by the need for objective, data-driven job application decisions
 - Thanks to the open-source community for excellent tooling
 
 ---
@@ -515,6 +413,10 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 **⭐ Star this repo if you find it useful!**
 
-[Report Bug](https://github.com/charliegdeburiatte-hub/Job-Application-Analyzer/issues) • [Request Feature](https://github.com/charliegdeburiatte-hub/Job-Application-Analyzer/issues) • [View Demo](#)
+[Try Live Demo](https://your-vercel-url.vercel.app) • [Report Bug](https://github.com/charliegdeburiatte-hub/Job-Application-Analyzer/issues) • [Request Feature](https://github.com/charliegdeburiatte-hub/Job-Application-Analyzer/issues)
+
+---
+
+**Privacy First** • **No Data Collection** • **Open Source**
 
 </div>
