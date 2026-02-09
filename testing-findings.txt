@@ -1,4 +1,8 @@
 Website Testing Findings - 2026-02-06
 ==========================================
 
-1. CV does not save after a refresh - major issue
+1. ✅ FIXED (2026-02-09): CV does not save after a refresh - major issue
+   - Fix: Added localStorage persistence in App.tsx
+   - CV now automatically saves and loads on page refresh
+   - Dark mode preference also persisted
+   - Added "Clear CV" button to remove saved data
