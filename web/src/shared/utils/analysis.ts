@@ -153,29 +153,33 @@ export function matchSkills(
 // ============================================================================
 
 /**
- * Generate recommendation based on match score and missing required skills
+ * Generate recommendation based on match score
+ *
+ * Thresholds:
+ * - Apply: >= 70% (strong match)
+ * - Maybe: 50-69% (decent match, consider applying)
+ * - Pass: < 50% (weak match, likely not worth applying)
  */
 export function getRecommendation(
   matchScore: number,
-  missingRequiredCount: number,
-  matchedSkillsCount: number
+  _missingRequiredCount: number,
+  _matchedSkillsCount: number
 ): Recommendation {
-  // If missing more than 3 required skills, likely not a good fit
-  if (missingRequiredCount > 3) {
-    return 'pass';
-  }
+  // Base recommendation purely on match score
+  // The score already incorporates required vs preferred weighting (3x vs 1x)
+  // and experience bonus, so it's the most accurate indicator of job fit
+  //
+  // Previous implementation had overly restrictive conditions (e.g., requiring 5+ matched skills)
+  // which caused 100% matches with 4 skills to incorrectly show "maybe" instead of "apply"
 
-  // Strong match: high score, few missing required skills
-  if (matchScore >= MATCH_THRESHOLDS.APPLY && matchedSkillsCount >= 5 && missingRequiredCount <= 1) {
+  if (matchScore >= MATCH_THRESHOLDS.APPLY) {
     return 'apply';
   }
 
-  // Decent match: medium score or some missing required skills
-  if (matchScore >= MATCH_THRESHOLDS.MAYBE && matchedSkillsCount >= 3) {
+  if (matchScore >= MATCH_THRESHOLDS.MAYBE) {
     return 'maybe';
   }
 
-  // Weak match
   return 'pass';
 }
 
