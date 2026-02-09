@@ -5,10 +5,11 @@ import { parseCV } from '../shared/utils/cvParser'
 interface HomePageProps {
   cvProfile: CVProfile | null
   onCVUpload: (profile: CVProfile) => void
+  onClearCV: () => void
   onAnalyze: (job: JobData) => void
 }
 
-export default function HomePage({ cvProfile, onCVUpload, onAnalyze }: HomePageProps) {
+export default function HomePage({ cvProfile, onCVUpload, onClearCV, onAnalyze }: HomePageProps) {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [jobDescription, setJobDescription] = useState('')
@@ -135,7 +136,7 @@ export default function HomePage({ cvProfile, onCVUpload, onAnalyze }: HomePageP
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-semibold text-green-900 dark:text-green-100">
-                  ✓ CV Uploaded Successfully
+                  ✓ CV Loaded (saved in browser)
                 </p>
                 <p className="text-sm text-green-700 dark:text-green-300 mt-1">
                   Found {cvProfile.skills.length} skills and {cvProfile.experience.length} work experiences
@@ -146,12 +147,20 @@ export default function HomePage({ cvProfile, onCVUpload, onAnalyze }: HomePageP
                   </p>
                 )}
               </div>
-              <button
-                onClick={() => document.getElementById('cv-upload')?.click()}
-                className="btn-secondary text-sm"
-              >
-                Upload Different CV
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => document.getElementById('cv-upload')?.click()}
+                  className="btn-secondary text-sm"
+                >
+                  📤 Upload Different CV
+                </button>
+                <button
+                  onClick={onClearCV}
+                  className="btn-secondary text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30"
+                >
+                  🗑️ Clear CV
+                </button>
+              </div>
             </div>
           </div>
         )}

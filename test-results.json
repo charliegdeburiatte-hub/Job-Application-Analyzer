@@ -1,0 +1,20 @@
+{
+  "testResults": [
+    {
+      "testNumber": 1,
+      "date": "2026-02-06",
+      "job": {
+        "title": "",
+        "company": "",
+        "description": ""
+      },
+      "results": {
+        "matchScore": 0,
+        "recommendation": "",
+        "matchedSkills": [],
+        "missingSkills": []
+      },
+      "notes": ""
+    }
+  ]
+}

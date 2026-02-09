@@ -2,6 +2,7 @@ import type { Analysis, JobData, CVProfile } from '../shared/types'
 import { getRecommendationText, getRecommendationEmoji } from '../shared'
 import MatchScore from '../components/MatchScore'
 import SkillsList from '../components/SkillsList'
+import { compressToEncodedURIComponent } from 'lz-string'
 
 interface ResultsPageProps {
   analysis: Analysis
@@ -40,6 +41,31 @@ export default function ResultsPage({ analysis, jobData, cvProfile, onReset }: R
     URL.revokeObjectURL(url)
   }
 
+  // Generate compressed debug string with ALL data including job description
+  const generateDebugString = () => {
+    const debugData = {
+      date: new Date().toISOString().split('T')[0],
+      job: {
+        title: jobData.title,
+        company: jobData.company,
+        description: jobData.description,
+        location: jobData.location,
+      },
+      analysis: {
+        matchScore,
+        recommendation,
+        baseScore: analysis.baseScore,
+        matchedSkills: matchDetails.matchedSkills,
+        missingSkills: matchDetails.missingSkills,
+        strengths: matchDetails.strengthAreas,
+        gaps: matchDetails.weakAreas,
+      },
+      scoring: analysis.scoringBreakdown,
+    }
+
+    return compressToEncodedURIComponent(JSON.stringify(debugData))
+  }
+
   return (
     <div className="max-w-4xl mx-auto space-y-6 pb-6">
       {/* Header with Back Button */}
@@ -52,24 +78,40 @@ export default function ResultsPage({ analysis, jobData, cvProfile, onReset }: R
         </button>
       </div>
 
-      {/* Debug Summary */}
+      {/* Debug Summary - Compressed */}
       <div className="card bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex-1">
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Debug Summary (copy to Claude):</p>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              🔬 Test Data (compressed - includes full job description)
+            </p>
+            <div className="flex gap-2">
+              <a
+                href="/decode"
+                className="btn-secondary text-xs"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                🔓 Decoder Tool
+              </a>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(generateDebugString());
+                }}
+                className="btn-secondary text-xs whitespace-nowrap"
+              >
+                📋 Copy
+              </button>
+            </div>
+          </div>
+          <div className="bg-white dark:bg-gray-900 p-3 rounded border border-gray-200 dark:border-gray-700">
             <code className="text-xs text-gray-700 dark:text-gray-300 font-mono break-all">
-              TEST|{new Date().toISOString().split('T')[0]}|{jobData.title}|{jobData.company}|{matchScore}%|{matchDetails.matchedSkills.length}matched|{matchDetails.missingSkills.length}missing|{recommendation}
+              {generateDebugString()}
             </code>
           </div>
-          <button
-            onClick={() => {
-              const debugString = `TEST|${new Date().toISOString().split('T')[0]}|${jobData.title}|${jobData.company}|${matchScore}%|${matchDetails.matchedSkills.length}matched|${matchDetails.missingSkills.length}missing|${recommendation}`;
-              navigator.clipboard.writeText(debugString);
-            }}
-            className="btn-secondary text-xs whitespace-nowrap"
-          >
-            📋 Copy
-          </button>
+          <p className="text-xs text-gray-500 dark:text-gray-400 italic">
+            Preview: {jobData.title} @ {jobData.company} • {matchScore}% • {matchDetails.matchedSkills.length} matched, {matchDetails.missingSkills.length} missing
+          </p>
         </div>
       </div>
 

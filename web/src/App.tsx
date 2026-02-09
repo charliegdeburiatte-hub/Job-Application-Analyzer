@@ -1,23 +1,42 @@
 import { useState, useEffect } from 'react'
+import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom'
 import type { CVProfile, JobData, Analysis } from './shared/types'
 import { analyzeJob } from './shared/utils/analysis'
 import HomePage from './pages/HomePage'
 import ResultsPage from './pages/ResultsPage'
+import DecodePage from './pages/DecodePage'
 
-function App() {
-  const [darkMode, setDarkMode] = useState(false)
-  const [cvProfile, setCVProfile] = useState<CVProfile | null>(null)
+function MainApp() {
+  const [darkMode, setDarkMode] = useState(() => {
+    // Load dark mode preference from localStorage
+    const saved = localStorage.getItem('darkMode')
+    return saved ? JSON.parse(saved) : false
+  })
+  const [cvProfile, setCVProfile] = useState<CVProfile | null>(() => {
+    // Load CV from localStorage on mount
+    const saved = localStorage.getItem('cvProfile')
+    return saved ? JSON.parse(saved) : null
+  })
   const [jobData, setJobData] = useState<JobData | null>(null)
   const [analysis, setAnalysis] = useState<Analysis | null>(null)
+  const location = useLocation()
 
-  // Apply dark mode class to document
+  // Apply dark mode class to document and persist preference
   useEffect(() => {
     if (darkMode) {
       document.body.classList.add('dark')
     } else {
       document.body.classList.remove('dark')
     }
+    localStorage.setItem('darkMode', JSON.stringify(darkMode))
   }, [darkMode])
+
+  // Persist CV profile to localStorage whenever it changes
+  useEffect(() => {
+    if (cvProfile) {
+      localStorage.setItem('cvProfile', JSON.stringify(cvProfile))
+    }
+  }, [cvProfile])
 
   const handleAnalyze = (job: JobData) => {
     if (!cvProfile) {
@@ -35,45 +54,71 @@ function App() {
     setAnalysis(null)
   }
 
+  const handleClearCV = () => {
+    setCVProfile(null)
+    localStorage.removeItem('cvProfile')
+    // Also clear analysis if any
+    setJobData(null)
+    setAnalysis(null)
+  }
+
+  const isDecodePage = location.pathname === '/decode'
+
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors">
       {/* Header */}
       <header className="bg-blue-600 dark:bg-blue-800 text-white shadow-lg">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
-            <div>
+            <Link to="/" className="hover:opacity-90 transition-opacity">
               <h1 className="text-3xl font-bold">Job Application Analyzer</h1>
               <p className="text-blue-100 mt-1">
-                Find out if you're a good match for any job posting
+                {isDecodePage ? 'Test Data Decoder' : 'Find out if you\'re a good match for any job posting'}
               </p>
+            </Link>
+            <div className="flex items-center gap-3">
+              {isDecodePage && (
+                <Link to="/" className="btn-secondary text-sm">
+                  ← Back to Analyzer
+                </Link>
+              )}
+              <button
+                onClick={() => setDarkMode(!darkMode)}
+                className="p-2 rounded-lg bg-blue-700 dark:bg-blue-900 hover:bg-blue-800 dark:hover:bg-blue-950 transition-colors"
+                aria-label="Toggle dark mode"
+              >
+                {darkMode ? '☀️' : '🌙'}
+              </button>
             </div>
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className="p-2 rounded-lg bg-blue-700 dark:bg-blue-900 hover:bg-blue-800 dark:hover:bg-blue-950 transition-colors"
-              aria-label="Toggle dark mode"
-            >
-              {darkMode ? '☀️' : '🌙'}
-            </button>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        {!analysis ? (
-          <HomePage
-            cvProfile={cvProfile}
-            onCVUpload={setCVProfile}
-            onAnalyze={handleAnalyze}
+        <Routes>
+          <Route
+            path="/"
+            element={
+              !analysis ? (
+                <HomePage
+                  cvProfile={cvProfile}
+                  onCVUpload={setCVProfile}
+                  onClearCV={handleClearCV}
+                  onAnalyze={handleAnalyze}
+                />
+              ) : (
+                <ResultsPage
+                  analysis={analysis}
+                  jobData={jobData!}
+                  cvProfile={cvProfile!}
+                  onReset={handleReset}
+                />
+              )
+            }
           />
-        ) : (
-          <ResultsPage
-            analysis={analysis}
-            jobData={jobData!}
-            cvProfile={cvProfile!}
-            onReset={handleReset}
-          />
-        )}
+          <Route path="/decode" element={<DecodePage />} />
+        </Routes>
       </main>
 
       {/* Footer */}
@@ -96,6 +141,14 @@ function App() {
         </div>
       </footer>
     </div>
+  )
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <MainApp />
+    </BrowserRouter>
   )
 }
 
