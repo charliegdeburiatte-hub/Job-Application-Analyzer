@@ -6,62 +6,88 @@ import HomePage from './pages/HomePage'
 import ResultsPage from './pages/ResultsPage'
 import DecodePage from './pages/DecodePage'
 
+export interface SavedProfile {
+  id: string
+  name: string
+  profile: CVProfile
+  savedAt: string
+}
+
+export interface HistoryEntry {
+  id: string
+  date: string
+  jobTitle: string
+  company: string
+  matchScore: number
+  recommendation: string
+  analysis: Analysis
+  jobData: JobData
+}
+
+function loadJSON<T>(key: string, fallback: T): T {
+  try {
+    const saved = localStorage.getItem(key)
+    return saved ? JSON.parse(saved) : fallback
+  } catch {
+    return fallback
+  }
+}
+
 function MainApp() {
-  const [darkMode, setDarkMode] = useState(() => {
-    // Load dark mode preference from localStorage
-    const saved = localStorage.getItem('darkMode')
-    return saved ? JSON.parse(saved) : false
-  })
-  const [cvProfile, setCVProfile] = useState<CVProfile | null>(() => {
-    // Load CV from localStorage on mount
-    try {
-      const saved = localStorage.getItem('cvProfile')
-      if (saved) {
-        console.log('📦 Loaded CV from localStorage:', JSON.parse(saved).skills.length, 'skills')
-        return JSON.parse(saved)
-      }
-      console.log('📦 No CV found in localStorage')
-      return null
-    } catch (error) {
-      console.error('❌ Error loading CV from localStorage:', error)
-      return null
-    }
-  })
+  const [darkMode, setDarkMode] = useState(() => loadJSON('darkMode', false))
+  const [cvProfile, setCVProfile] = useState<CVProfile | null>(() => loadJSON('cvProfile', null))
+  const [savedProfiles, setSavedProfiles] = useState<SavedProfile[]>(() => loadJSON('savedProfiles', []))
+  const [history, setHistory] = useState<HistoryEntry[]>(() => loadJSON('analysisHistory', []))
   const [jobData, setJobData] = useState<JobData | null>(null)
   const [analysis, setAnalysis] = useState<Analysis | null>(null)
   const location = useLocation()
 
-  // Apply dark mode class to document and persist preference
+  // Dark mode
   useEffect(() => {
-    if (darkMode) {
-      document.body.classList.add('dark')
-    } else {
-      document.body.classList.remove('dark')
-    }
+    document.body.classList.toggle('dark', darkMode)
     localStorage.setItem('darkMode', JSON.stringify(darkMode))
   }, [darkMode])
 
-  // Persist CV profile to localStorage whenever it changes
+  // Persist active CV
   useEffect(() => {
     if (cvProfile) {
-      try {
-        localStorage.setItem('cvProfile', JSON.stringify(cvProfile))
-        console.log('💾 Saved CV to localStorage:', cvProfile.skills.length, 'skills')
-      } catch (error) {
-        console.error('❌ Error saving CV to localStorage:', error)
-      }
+      localStorage.setItem('cvProfile', JSON.stringify(cvProfile))
+    } else {
+      localStorage.removeItem('cvProfile')
     }
   }, [cvProfile])
+
+  // Persist saved profiles
+  useEffect(() => {
+    localStorage.setItem('savedProfiles', JSON.stringify(savedProfiles))
+  }, [savedProfiles])
+
+  // Persist history
+  useEffect(() => {
+    localStorage.setItem('analysisHistory', JSON.stringify(history))
+  }, [history])
 
   const handleAnalyze = (job: JobData) => {
     if (!cvProfile) {
       alert('Please upload your CV first')
       return
     }
-
-    setJobData(job)
     const result = analyzeJob(job, cvProfile)
+    setJobData(job)
     setAnalysis(result)
+
+    // Save to history (cap at 20)
+    const entry: HistoryEntry = {
+      id: Date.now().toString(),
+      date: new Date().toISOString(),
+      jobTitle: job.title,
+      company: job.company,
+      matchScore: result.matchScore,
+      recommendation: result.recommendation,
+      analysis: result,
+      jobData: job,
+    }
+    setHistory(prev => [entry, ...prev].slice(0, 20))
   }
 
   const handleReset = () => {
@@ -71,10 +97,33 @@ function MainApp() {
 
   const handleClearCV = () => {
     setCVProfile(null)
-    localStorage.removeItem('cvProfile')
-    // Also clear analysis if any
     setJobData(null)
     setAnalysis(null)
+  }
+
+  const handleSaveProfile = (name: string) => {
+    if (!cvProfile) return
+    const newProfile: SavedProfile = {
+      id: Date.now().toString(),
+      name: name.trim() || 'My CV',
+      profile: cvProfile,
+      savedAt: new Date().toISOString(),
+    }
+    setSavedProfiles(prev => [...prev, newProfile])
+  }
+
+  const handleDeleteProfile = (id: string) => {
+    setSavedProfiles(prev => prev.filter(p => p.id !== id))
+  }
+
+  const handleLoadProfile = (id: string) => {
+    const found = savedProfiles.find(p => p.id === id)
+    if (found) setCVProfile(found.profile)
+  }
+
+  const handleViewHistory = (entry: HistoryEntry) => {
+    setJobData(entry.jobData)
+    setAnalysis(entry.analysis)
   }
 
   const isDecodePage = location.pathname === '/decode'
@@ -88,7 +137,7 @@ function MainApp() {
             <Link to="/" className="hover:opacity-90 transition-opacity">
               <h1 className="text-3xl font-bold">Job Application Analyser</h1>
               <p className="text-purple-100 mt-1">
-                {isDecodePage ? 'Test Data Decoder' : 'Find out if you\'re a good match for any job posting'}
+                {isDecodePage ? 'Test Data Decoder' : "Find out if you're a good match for any job posting"}
               </p>
             </Link>
             <div className="flex items-center gap-3">
@@ -121,6 +170,12 @@ function MainApp() {
                   onCVUpload={setCVProfile}
                   onClearCV={handleClearCV}
                   onAnalyze={handleAnalyze}
+                  savedProfiles={savedProfiles}
+                  onSaveProfile={handleSaveProfile}
+                  onDeleteProfile={handleDeleteProfile}
+                  onLoadProfile={handleLoadProfile}
+                  history={history}
+                  onViewHistory={handleViewHistory}
                 />
               ) : (
                 <ResultsPage

@@ -594,6 +594,33 @@ export async function parseCV(file: File): Promise<{ text: string; profile: CVPr
 }
 
 /**
+ * Parse CV from plain pasted text (no file needed)
+ */
+export function parseCVFromText(text: string): CVProfile {
+  if (text.trim().length < 50) {
+    throw new Error('CV text is too short. Please paste more content.');
+  }
+
+  const sections = detectSections(text);
+  const personalInfo = extractPersonalInfo(text);
+  const skills = extractSkillsAdvanced(text, sections);
+  const experience = extractExperience(sections.experience || '');
+  const education = extractEducation(sections.education || '');
+  const certifications = extractCertifications(sections.certifications || '');
+  const totalExperienceYears = calculateExperienceYears(experience);
+
+  return {
+    personalInfo,
+    summary: sections.summary?.substring(0, 500),
+    skills,
+    experience,
+    education,
+    certifications,
+    totalExperienceYears,
+  };
+}
+
+/**
  * Escape special regex characters
  */
 function escapeRegex(str: string): string {
