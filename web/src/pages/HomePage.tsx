@@ -12,6 +12,7 @@ interface HomePageProps {
   onSaveProfile: (name: string) => void
   onDeleteProfile: (id: string) => void
   onLoadProfile: (id: string) => void
+  onUpdateProfile: (profile: CVProfile) => void
   history: HistoryEntry[]
   onViewHistory: (entry: HistoryEntry) => void
 }
@@ -23,7 +24,7 @@ const scoreColour = (score: number) =>
 
 export default function HomePage({
   cvProfile, onCVUpload, onClearCV, onAnalyze,
-  savedProfiles, onSaveProfile, onDeleteProfile, onLoadProfile,
+  savedProfiles, onSaveProfile, onDeleteProfile, onLoadProfile, onUpdateProfile,
   history, onViewHistory,
 }: HomePageProps) {
   const [cvTab, setCvTab] = useState<'upload' | 'paste'>('upload')
@@ -37,6 +38,8 @@ export default function HomePage({
 
   const [saveProfileName, setSaveProfileName] = useState('')
   const [showSaveForm, setShowSaveForm] = useState(false)
+  const [showSkillEditor, setShowSkillEditor] = useState(false)
+  const [newSkill, setNewSkill] = useState('')
 
   const [showHistory, setShowHistory] = useState(false)
 
@@ -55,7 +58,7 @@ export default function HomePage({
       const result = await parseCV(file)
       onCVUpload(result.profile)
     } catch (err) {
-      setError('Failed to parse CV. Please make sure it\'s a valid .docx or .pdf file.')
+      setError(err instanceof Error ? err.message : 'Failed to parse CV. Please make sure it\'s a valid .docx or .pdf file.')
       console.error(err)
     } finally {
       setUploading(false)
@@ -78,6 +81,21 @@ export default function HomePage({
     onSaveProfile(saveProfileName)
     setSaveProfileName('')
     setShowSaveForm(false)
+  }
+
+  // ── Skill editor ──
+
+  const handleRemoveSkill = (skill: string) => {
+    if (!cvProfile) return
+    onUpdateProfile({ ...cvProfile, skills: cvProfile.skills.filter(s => s !== skill) })
+  }
+
+  const handleAddSkill = () => {
+    const trimmed = newSkill.trim()
+    if (!trimmed || !cvProfile) return
+    if (cvProfile.skills.map(s => s.toLowerCase()).includes(trimmed.toLowerCase())) return
+    onUpdateProfile({ ...cvProfile, skills: [...cvProfile.skills, trimmed] })
+    setNewSkill('')
   }
 
   // ── Analyse ──
@@ -201,24 +219,90 @@ export default function HomePage({
             )}
           </>
         ) : (
-          <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700 rounded-lg p-4 space-y-3">
-            <div className="flex items-start justify-between gap-2 flex-wrap">
-              <div>
-                <p className="font-semibold text-green-900 dark:text-green-100">✓ CV Loaded</p>
-                <p className="text-sm text-green-700 dark:text-green-300 mt-1">
-                  {cvProfile.skills.length} skills • {cvProfile.experience.length} work experiences
-                  {cvProfile.totalExperienceYears ? ` • ${cvProfile.totalExperienceYears} years total` : ''}
-                </p>
+          <div className="space-y-4">
+            {/* CV loaded banner */}
+            <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700 rounded-lg p-4">
+              <div className="flex items-start justify-between gap-2 flex-wrap">
+                <div>
+                  <p className="font-semibold text-green-900 dark:text-green-100">✓ CV Loaded</p>
+                  {cvProfile.personalInfo?.name && (
+                    <p className="text-sm text-green-700 dark:text-green-300 mt-0.5">{cvProfile.personalInfo.name}</p>
+                  )}
+                  <p className="text-sm text-green-700 dark:text-green-300 mt-1">
+                    {cvProfile.skills.length} skills
+                    {cvProfile.experience.length > 0 && ` • ${cvProfile.experience.length} role${cvProfile.experience.length !== 1 ? 's' : ''}`}
+                    {cvProfile.totalExperienceYears ? ` • ${cvProfile.totalExperienceYears} yrs experience` : ''}
+                  </p>
+                </div>
+                <div className="flex gap-2 flex-wrap">
+                  <label htmlFor="cv-upload-replace" className="btn-secondary text-sm cursor-pointer">
+                    📤 Replace CV
+                  </label>
+                  <input type="file" accept=".docx,.pdf" onChange={handleFileUpload} className="hidden" id="cv-upload-replace" />
+                  <button onClick={onClearCV} className="btn-secondary text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30">
+                    🗑️ Clear
+                  </button>
+                </div>
               </div>
-              <div className="flex gap-2 flex-wrap">
-                <label htmlFor="cv-upload-replace" className="btn-secondary text-sm cursor-pointer">
-                  📤 Replace CV
-                </label>
-                <input type="file" accept=".docx,.pdf" onChange={handleFileUpload} className="hidden" id="cv-upload-replace" />
-                <button onClick={onClearCV} className="btn-secondary text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30">
-                  🗑️ Clear
-                </button>
-              </div>
+            </div>
+
+            {/* Skill editor */}
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+              <button
+                onClick={() => setShowSkillEditor(s => !s)}
+                className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-gray-800 text-left hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              >
+                <span className="font-medium text-gray-900 dark:text-white text-sm">
+                  ✏️ Review &amp; Edit Skills ({cvProfile.skills.length})
+                </span>
+                <span className="text-gray-400 text-xs">{showSkillEditor ? '▲ Hide' : '▼ Show'}</span>
+              </button>
+
+              {showSkillEditor && (
+                <div className="p-4 space-y-3">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Remove skills the parser picked up incorrectly, or add ones it missed. This directly affects your match score.
+                  </p>
+
+                  {/* Skill chips */}
+                  <div className="flex flex-wrap gap-2">
+                    {cvProfile.skills.map(skill => (
+                      <span
+                        key={skill}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-sm bg-purple-100 dark:bg-purple-900/40 text-purple-800 dark:text-purple-200"
+                      >
+                        {skill}
+                        <button
+                          onClick={() => handleRemoveSkill(skill)}
+                          className="hover:text-red-600 dark:hover:text-red-400 font-bold leading-none ml-0.5"
+                          aria-label={`Remove ${skill}`}
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Add skill input */}
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={newSkill}
+                      onChange={e => setNewSkill(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && handleAddSkill()}
+                      placeholder="Add a skill and press Enter..."
+                      className="input-field text-sm flex-1"
+                    />
+                    <button
+                      onClick={handleAddSkill}
+                      disabled={!newSkill.trim()}
+                      className="btn-primary text-sm disabled:opacity-50"
+                    >
+                      Add
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Save as profile */}

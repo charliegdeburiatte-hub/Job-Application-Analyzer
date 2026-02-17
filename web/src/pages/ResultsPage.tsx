@@ -304,7 +304,7 @@ export default function ResultsPage({ analysis, jobData, cvProfile, onReset }: R
           }
         `}
       >
-        <div className="flex items-center gap-3 mb-2">
+        <div className="flex items-center gap-3 mb-3">
           <span className="text-4xl">{getRecommendationEmoji(recommendation)}</span>
           <h3
             className={`
@@ -321,6 +321,30 @@ export default function ResultsPage({ analysis, jobData, cvProfile, onReset }: R
             {getRecommendationText(recommendation)}
           </h3>
         </div>
+        {analysis.scoringBreakdown && (() => {
+          const { requiredMatched, requiredTotal, preferredMatched, preferredTotal } = analysis.scoringBreakdown
+          const missingRequired = requiredTotal - requiredMatched
+          const textColour = recommendation === 'apply'
+            ? 'text-green-700 dark:text-green-300'
+            : recommendation === 'maybe'
+            ? 'text-yellow-700 dark:text-yellow-300'
+            : 'text-red-700 dark:text-red-300'
+
+          let sentence = ''
+          if (requiredTotal > 0 && missingRequired === 0) {
+            sentence = `You matched all ${requiredTotal} required skill${requiredTotal !== 1 ? 's' : ''}`
+            if (preferredTotal > 0) sentence += ` and ${preferredMatched} of ${preferredTotal} preferred skill${preferredTotal !== 1 ? 's' : ''}`
+            sentence += '.'
+          } else if (requiredTotal > 0) {
+            sentence = `You matched ${requiredMatched} of ${requiredTotal} required skill${requiredTotal !== 1 ? 's' : ''} — the ${missingRequired} missing ${missingRequired === 1 ? 'skill is' : 'skills are'} the main reason for your score.`
+          } else if (preferredTotal > 0) {
+            sentence = `You matched ${preferredMatched} of ${preferredTotal} preferred skill${preferredTotal !== 1 ? 's' : ''}.`
+          }
+
+          return sentence ? (
+            <p className={`text-sm ${textColour}`}>{sentence}</p>
+          ) : null
+        })()}
       </div>
 
       {/* Job Info */}

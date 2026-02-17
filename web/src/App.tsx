@@ -121,6 +121,10 @@ function MainApp() {
     if (found) setCVProfile(found.profile)
   }
 
+  const handleUpdateProfile = (updated: CVProfile) => {
+    setCVProfile(updated)
+  }
+
   const handleViewHistory = (entry: HistoryEntry) => {
     setJobData(entry.jobData)
     setAnalysis(entry.analysis)
@@ -132,11 +136,11 @@ function MainApp() {
     <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors">
       {/* Header */}
       <header className="bg-purple-600 dark:bg-purple-800 text-white shadow-lg">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <Link to="/" className="hover:opacity-90 transition-opacity">
-              <h1 className="text-3xl font-bold">Job Application Analyser</h1>
-              <p className="text-purple-100 mt-1">
+        <div className="container mx-auto px-4 py-4 sm:py-6">
+          <div className="flex items-center justify-between gap-3">
+            <Link to="/" className="hover:opacity-90 transition-opacity min-w-0">
+              <h1 className="text-xl sm:text-3xl font-bold truncate">Job Application Analyser</h1>
+              <p className="text-purple-100 mt-0.5 text-xs sm:text-sm hidden sm:block">
                 {isDecodePage ? 'Test Data Decoder' : "Find out if you're a good match for any job posting"}
               </p>
             </Link>
@@ -159,7 +163,7 @@ function MainApp() {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
         <Routes>
           <Route
             path="/"
@@ -174,6 +178,7 @@ function MainApp() {
                   onSaveProfile={handleSaveProfile}
                   onDeleteProfile={handleDeleteProfile}
                   onLoadProfile={handleLoadProfile}
+                  onUpdateProfile={handleUpdateProfile}
                   history={history}
                   onViewHistory={handleViewHistory}
                 />
