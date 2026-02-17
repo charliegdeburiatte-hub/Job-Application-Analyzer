@@ -457,7 +457,9 @@ export default function ResultsPage({ analysis, jobData, cvProfile, onReset }: R
           <div>
             <p className="text-gray-600 dark:text-gray-400">Work Experience</p>
             <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              {cvProfile.totalExperienceYears || cvProfile.experience.length} years
+              {cvProfile.totalExperienceYears
+                ? `${cvProfile.totalExperienceYears} yrs`
+                : `${cvProfile.experience.length} roles`}
             </p>
           </div>
         </div>

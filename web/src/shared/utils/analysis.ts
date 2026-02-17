@@ -222,8 +222,9 @@ function generateStrengths(matchedSkills: string[], cvProfile: CVProfile): strin
   // Add experience years if available (use actual calculated years)
   if (cvProfile.totalExperienceYears && cvProfile.totalExperienceYears >= 2) {
     strengths.push(`${cvProfile.totalExperienceYears}+ years of professional experience`);
-  } else if (cvProfile.experience.length > 0) {
-    const totalYears = cvProfile.experience.length * 1.5; // Fallback estimate
+  } else if (!cvProfile.totalExperienceYears && cvProfile.experience.length > 0) {
+    // Only estimate when the parser couldn't calculate years at all
+    const totalYears = cvProfile.experience.length * 1.5;
     if (totalYears >= 3) {
       strengths.push(`${Math.floor(totalYears)}+ years of professional experience`);
     }
