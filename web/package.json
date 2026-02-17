@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "autoprefixer": "^10.4.24",
+    "jspdf": "^4.1.0",
     "lz-string": "^1.5.0",
     "mammoth": "^1.11.0",
     "pdfjs-dist": "^4.0.379",

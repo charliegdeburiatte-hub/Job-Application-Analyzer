@@ -1,3 +1,4 @@
+import { jsPDF } from 'jspdf'
 import type { Analysis, JobData, CVProfile } from '../shared/types'
 import { getRecommendationText, getRecommendationEmoji } from '../shared'
 import MatchScore from '../components/MatchScore'
@@ -29,7 +30,7 @@ export default function ResultsPage({ analysis, jobData, cvProfile, onReset }: R
         strengths: matchDetails.strengthAreas,
         gaps: matchDetails.weakAreas,
       },
-      analyzedDate: new Date().toISOString(),
+      analysedDate: new Date().toISOString(),
     }
 
     const blob = new Blob([JSON.stringify(results, null, 2)], { type: 'application/json' })
@@ -39,6 +40,171 @@ export default function ResultsPage({ analysis, jobData, cvProfile, onReset }: R
     a.download = `job-analysis-${jobData.title.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.json`
     a.click()
     URL.revokeObjectURL(url)
+  }
+
+  const downloadPDF = () => {
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' })
+    const pageW = doc.internal.pageSize.getWidth()
+    const margin = 15
+    const contentW = pageW - margin * 2
+    let y = 0
+
+    const addPage = () => {
+      doc.addPage()
+      y = 20
+    }
+
+    const checkPageBreak = (needed: number) => {
+      if (y + needed > 275) addPage()
+    }
+
+    // ── Header bar ──
+    doc.setFillColor(126, 34, 206) // purple-700
+    doc.rect(0, 0, pageW, 28, 'F')
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(18)
+    doc.setTextColor(255, 255, 255)
+    doc.text('Job Application Analyser', margin, 12)
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(9)
+    doc.text('Analysis Report  •  ' + new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }), margin, 21)
+    y = 38
+
+    // ── Job details ──
+    doc.setTextColor(17, 24, 39) // gray-900
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(15)
+    doc.text(jobData.title, margin, y)
+    y += 7
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(11)
+    doc.setTextColor(75, 85, 99) // gray-600
+    doc.text(jobData.company, margin, y)
+    y += 5
+    if (jobData.location) {
+      doc.text(jobData.location, margin, y)
+      y += 5
+    }
+    y += 4
+
+    // ── Divider ──
+    doc.setDrawColor(216, 180, 254) // purple-200
+    doc.line(margin, y, pageW - margin, y)
+    y += 8
+
+    // ── Match score ──
+    const scoreColour = matchScore >= 70 ? [22, 163, 74] : matchScore >= 50 ? [202, 138, 4] : [220, 38, 38]
+    doc.setFillColor(...(scoreColour as [number, number, number]))
+    doc.circle(margin + 18, y + 14, 14, 'F')
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(16)
+    doc.setTextColor(255, 255, 255)
+    const scoreText = `${matchScore}%`
+    const scoreW = doc.getTextWidth(scoreText)
+    doc.text(scoreText, margin + 18 - scoreW / 2, y + 16)
+
+    doc.setTextColor(17, 24, 39)
+    doc.setFontSize(14)
+    doc.text(getRecommendationText(recommendation), margin + 38, y + 10)
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(10)
+    doc.setTextColor(107, 114, 128)
+    doc.text('Match Score', margin + 38, y + 18)
+    y += 36
+
+    // ── Scoring breakdown ──
+    if (analysis.scoringBreakdown) {
+      checkPageBreak(30)
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(11)
+      doc.setTextColor(17, 24, 39)
+      doc.text('Scoring Breakdown', margin, y)
+      y += 6
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(10)
+      doc.setTextColor(75, 85, 99)
+      const sb = analysis.scoringBreakdown
+      doc.text(`Base Score: ${analysis.baseScore}%   Experience Bonus: +${sb.experienceBonus}   Final Score: ${matchScore}%`, margin, y)
+      y += 5
+      doc.text(`Required Skills: ${sb.requiredMatched} / ${sb.requiredTotal} matched (3× weight)`, margin, y)
+      y += 5
+      doc.text(`Preferred Skills: ${sb.preferredMatched} / ${sb.preferredTotal} matched (1× weight)`, margin, y)
+      y += 10
+    }
+
+    // ── Helper to render a section with wrapped skill chips as text ──
+    const renderSection = (title: string, items: string[], colour: [number, number, number]) => {
+      if (items.length === 0) return
+      checkPageBreak(20)
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(11)
+      doc.setTextColor(...colour)
+      doc.text(`${title} (${items.length})`, margin, y)
+      y += 6
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(9)
+      doc.setTextColor(55, 65, 81)
+      const line: string[] = []
+      let lineW = 0
+      for (const skill of items) {
+        const w = doc.getTextWidth(skill + '  ')
+        if (lineW + w > contentW && line.length > 0) {
+          checkPageBreak(6)
+          doc.text(line.join('   '), margin, y)
+          y += 5
+          line.length = 0
+          lineW = 0
+        }
+        line.push(skill)
+        lineW += w
+      }
+      if (line.length > 0) {
+        checkPageBreak(6)
+        doc.text(line.join('   '), margin, y)
+        y += 5
+      }
+      y += 5
+    }
+
+    // ── Helper for bullet list sections ──
+    const renderBullets = (title: string, items: string[], colour: [number, number, number]) => {
+      if (items.length === 0) return
+      checkPageBreak(20)
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(11)
+      doc.setTextColor(...colour)
+      doc.text(title, margin, y)
+      y += 6
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(10)
+      doc.setTextColor(55, 65, 81)
+      for (const item of items) {
+        const lines = doc.splitTextToSize('• ' + item, contentW)
+        checkPageBreak(lines.length * 5 + 2)
+        doc.text(lines, margin, y)
+        y += lines.length * 5 + 1
+      }
+      y += 4
+    }
+
+    renderSection('Matched Skills', matchDetails.matchedSkills, [22, 163, 74])
+    renderSection('Missing Skills', matchDetails.missingSkills, [220, 38, 38])
+    renderBullets('Your Strengths', matchDetails.strengthAreas, [22, 163, 74])
+    renderBullets('Areas for Improvement', matchDetails.weakAreas, [202, 138, 4])
+
+    // ── Footer on each page ──
+    const totalPages = doc.getNumberOfPages()
+    for (let i = 1; i <= totalPages; i++) {
+      doc.setPage(i)
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(8)
+      doc.setTextColor(156, 163, 175)
+      doc.text('Generated by Job Application Analyser  •  All analysis runs locally in your browser', margin, 290)
+      doc.text(`Page ${i} of ${totalPages}`, pageW - margin - 20, 290)
+    }
+
+    const filename = `job-analysis-${jobData.title.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.pdf`
+    doc.save(filename)
   }
 
   // Generate compressed debug string with ALL data including job description
@@ -69,13 +235,18 @@ export default function ResultsPage({ analysis, jobData, cvProfile, onReset }: R
   return (
     <div className="max-w-4xl mx-auto space-y-6 pb-6">
       {/* Header with Back Button */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-2">
         <button onClick={onReset} className="btn-secondary">
           ← Analyse Another Job
         </button>
-        <button onClick={downloadResults} className="btn-secondary">
-          📥 Download Results
-        </button>
+        <div className="flex gap-2">
+          <button onClick={downloadPDF} className="btn-primary">
+            📄 Download PDF
+          </button>
+          <button onClick={downloadResults} className="btn-secondary">
+            📥 Download JSON
+          </button>
+        </div>
       </div>
 
       {/* Debug Summary - Compressed */}
