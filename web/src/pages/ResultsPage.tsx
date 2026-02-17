@@ -167,42 +167,42 @@ export default function ResultsPage({ analysis, jobData, cvProfile, onReset }: R
 
       {/* Scoring Details */}
       {analysis.scoringBreakdown && (
-        <div className="card bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700">
-          <h4 className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-3">
+        <div className="card bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700">
+          <h4 className="text-lg font-semibold text-purple-900 dark:text-purple-100 mb-3">
             📊 Scoring Details
           </h4>
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
-              <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">Base Score</p>
-              <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+              <p className="text-sm text-purple-700 dark:text-purple-300 font-medium">Base Score</p>
+              <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">
                 {analysis.baseScore}%
               </p>
             </div>
             <div>
-              <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">
+              <p className="text-sm text-purple-700 dark:text-purple-300 font-medium">
                 Experience Bonus
               </p>
-              <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+              <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">
                 +{analysis.scoringBreakdown.experienceBonus}
               </p>
             </div>
           </div>
 
           <div className="space-y-2 text-sm">
-            <div className="flex items-center justify-between py-2 border-t border-blue-200 dark:border-blue-700">
-              <span className="text-blue-700 dark:text-blue-300">
+            <div className="flex items-center justify-between py-2 border-t border-purple-200 dark:border-purple-700">
+              <span className="text-purple-700 dark:text-purple-300">
                 Required Skills (3x weight)
               </span>
-              <span className="font-semibold text-blue-900 dark:text-blue-100">
+              <span className="font-semibold text-purple-900 dark:text-purple-100">
                 {analysis.scoringBreakdown.requiredMatched} /{' '}
                 {analysis.scoringBreakdown.requiredTotal}
               </span>
             </div>
             <div className="flex items-center justify-between py-2">
-              <span className="text-blue-700 dark:text-blue-300">
+              <span className="text-purple-700 dark:text-purple-300">
                 Preferred Skills (1x weight)
               </span>
-              <span className="font-semibold text-blue-900 dark:text-blue-100">
+              <span className="font-semibold text-purple-900 dark:text-purple-100">
                 {analysis.scoringBreakdown.preferredMatched} /{' '}
                 {analysis.scoringBreakdown.preferredTotal}
               </span>

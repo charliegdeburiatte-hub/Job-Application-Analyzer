@@ -82,12 +82,12 @@ function MainApp() {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors">
       {/* Header */}
-      <header className="bg-blue-600 dark:bg-blue-800 text-white shadow-lg">
+      <header className="bg-purple-600 dark:bg-purple-800 text-white shadow-lg">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <Link to="/" className="hover:opacity-90 transition-opacity">
               <h1 className="text-3xl font-bold">Job Application Analyser</h1>
-              <p className="text-blue-100 mt-1">
+              <p className="text-purple-100 mt-1">
                 {isDecodePage ? 'Test Data Decoder' : 'Find out if you\'re a good match for any job posting'}
               </p>
             </Link>
@@ -99,7 +99,7 @@ function MainApp() {
               )}
               <button
                 onClick={() => setDarkMode(!darkMode)}
-                className="p-2 rounded-lg bg-blue-700 dark:bg-blue-900 hover:bg-blue-800 dark:hover:bg-blue-950 transition-colors"
+                className="p-2 rounded-lg bg-purple-700 dark:bg-purple-900 hover:bg-purple-800 dark:hover:bg-purple-950 transition-colors"
                 aria-label="Toggle dark mode"
               >
                 {darkMode ? '☀️' : '🌙'}
@@ -148,7 +148,7 @@ function MainApp() {
               href="https://github.com/charliegdeburiatte-hub/Job-Application-Analyzer"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600 dark:text-blue-400 hover:underline"
+              className="text-purple-600 dark:text-purple-400 hover:underline"
             >
               GitHub
             </a>

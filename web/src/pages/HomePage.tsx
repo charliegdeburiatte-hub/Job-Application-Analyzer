@@ -227,14 +227,14 @@ export default function HomePage({ cvProfile, onCVUpload, onClearCV, onAnalyze }
       )}
 
       {/* Privacy Notice */}
-      <div className="card bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700">
+      <div className="card bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-700">
         <div className="flex items-start gap-3">
           <div className="text-2xl">🔒</div>
           <div>
-            <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
+            <h4 className="font-semibold text-purple-900 dark:text-purple-100 mb-1">
               100% Private & Secure
             </h4>
-            <p className="text-sm text-blue-800 dark:text-blue-200">
+            <p className="text-sm text-purple-800 dark:text-purple-200">
               All analysis happens in your browser. Your CV and job descriptions are never sent to any server.
               No data is collected, stored, or shared.
             </p>

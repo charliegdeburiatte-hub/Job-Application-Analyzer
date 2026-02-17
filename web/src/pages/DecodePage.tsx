@@ -59,7 +59,7 @@ export default function DecodePage() {
             className="w-full h-32 px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600
                      bg-white dark:bg-gray-800 text-gray-900 dark:text-white
                      placeholder-gray-400 dark:placeholder-gray-500
-                     focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                     focus:ring-2 focus:ring-purple-500 focus:border-transparent
                      font-mono text-sm"
           />
 
@@ -83,26 +83,26 @@ export default function DecodePage() {
         {decodedData && (
           <div className="space-y-4">
             {/* Summary Card */}
-            <div className="card bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700">
-              <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-3">
+            <div className="card bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700">
+              <h3 className="text-lg font-semibold text-purple-900 dark:text-purple-100 mb-3">
                 📊 Summary
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                 <div>
-                  <p className="text-blue-700 dark:text-blue-300">Date</p>
-                  <p className="font-semibold text-blue-900 dark:text-blue-100">{decodedData.date}</p>
+                  <p className="text-purple-700 dark:text-purple-300">Date</p>
+                  <p className="font-semibold text-purple-900 dark:text-purple-100">{decodedData.date}</p>
                 </div>
                 <div>
-                  <p className="text-blue-700 dark:text-blue-300">Match Score</p>
-                  <p className="font-semibold text-blue-900 dark:text-blue-100">{decodedData.analysis.matchScore}%</p>
+                  <p className="text-purple-700 dark:text-purple-300">Match Score</p>
+                  <p className="font-semibold text-purple-900 dark:text-purple-100">{decodedData.analysis.matchScore}%</p>
                 </div>
                 <div>
-                  <p className="text-blue-700 dark:text-blue-300">Recommendation</p>
-                  <p className="font-semibold text-blue-900 dark:text-blue-100 capitalize">{decodedData.analysis.recommendation}</p>
+                  <p className="text-purple-700 dark:text-purple-300">Recommendation</p>
+                  <p className="font-semibold text-purple-900 dark:text-purple-100 capitalize">{decodedData.analysis.recommendation}</p>
                 </div>
                 <div>
-                  <p className="text-blue-700 dark:text-blue-300">Base Score</p>
-                  <p className="font-semibold text-blue-900 dark:text-blue-100">{decodedData.analysis.baseScore}%</p>
+                  <p className="text-purple-700 dark:text-purple-300">Base Score</p>
+                  <p className="font-semibold text-purple-900 dark:text-purple-100">{decodedData.analysis.baseScore}%</p>
                 </div>
               </div>
             </div>
@@ -256,11 +256,11 @@ export default function DecodePage() {
 
         {/* Instructions */}
         {!decodedData && (
-          <div className="card bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700">
-            <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-3">
+          <div className="card bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700">
+            <h3 className="text-lg font-semibold text-purple-900 dark:text-purple-100 mb-3">
               📖 How to Use
             </h3>
-            <ol className="space-y-2 text-sm text-blue-800 dark:text-blue-200">
+            <ol className="space-y-2 text-sm text-purple-800 dark:text-purple-200">
               <li className="flex items-start">
                 <span className="font-bold mr-2">1.</span>
                 <span>After analyzing a job, click the "Copy" button in the debug section</span>
