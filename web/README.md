@@ -1,6 +1,6 @@
-# Job Application Analyzer - Web Application
+# Job Application Analyser - Web Application
 
-This is the web application version of the Job Application Analyzer.
+This is the web application version of the Job Application Analyser.
 
 ## 🚀 Quick Start
 

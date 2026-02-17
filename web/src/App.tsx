@@ -86,7 +86,7 @@ function MainApp() {
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <Link to="/" className="hover:opacity-90 transition-opacity">
-              <h1 className="text-3xl font-bold">Job Application Analyzer</h1>
+              <h1 className="text-3xl font-bold">Job Application Analyser</h1>
               <p className="text-blue-100 mt-1">
                 {isDecodePage ? 'Test Data Decoder' : 'Find out if you\'re a good match for any job posting'}
               </p>
@@ -94,7 +94,7 @@ function MainApp() {
             <div className="flex items-center gap-3">
               {isDecodePage && (
                 <Link to="/" className="btn-secondary text-sm">
-                  ← Back to Analyzer
+                  ← Back to Analyser
                 </Link>
               )}
               <button

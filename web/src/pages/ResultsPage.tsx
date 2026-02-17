@@ -71,7 +71,7 @@ export default function ResultsPage({ analysis, jobData, cvProfile, onReset }: R
       {/* Header with Back Button */}
       <div className="flex items-center justify-between">
         <button onClick={onReset} className="btn-secondary">
-          ← Analyze Another Job
+          ← Analyse Another Job
         </button>
         <button onClick={downloadResults} className="btn-secondary">
           📥 Download Results
