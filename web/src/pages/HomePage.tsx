@@ -20,8 +20,8 @@ export default function HomePage({ cvProfile, onCVUpload, onClearCV, onAnalyze }
     const file = e.target.files?.[0]
     if (!file) return
 
-    if (!file.name.endsWith('.docx')) {
-      setError('Please upload a .docx file')
+    if (!file.name.endsWith('.docx') && !file.name.endsWith('.pdf')) {
+      setError('Please upload a .docx or .pdf file')
       return
     }
 
@@ -84,9 +84,7 @@ export default function HomePage({ cvProfile, onCVUpload, onClearCV, onAnalyze }
             </p>
           </div>
           <div>
-            <div className="mb-2">
-              <img src="/logo.jpeg" alt="Target" className="w-12 h-12 mx-auto" />
-            </div>
+            <div className="text-3xl mb-2">🎯</div>
             <h3 className="font-semibold text-gray-900 dark:text-white mb-2">3. Get Your Match Score</h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Instantly see how well you match and what skills you're missing
@@ -112,7 +110,7 @@ export default function HomePage({ cvProfile, onCVUpload, onClearCV, onAnalyze }
           <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center">
             <input
               type="file"
-              accept=".docx"
+              accept=".docx,.pdf"
               onChange={handleCVUpload}
               disabled={uploading}
               className="hidden"
@@ -122,12 +120,12 @@ export default function HomePage({ cvProfile, onCVUpload, onClearCV, onAnalyze }
               htmlFor="cv-upload"
               className="cursor-pointer inline-block"
             >
-              <div className="text-6xl mb-4">📄</div>
+              <div className="text-6xl mb-4">{uploading ? '⏳' : '📂'}</div>
               <div className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                 {uploading ? 'Parsing CV...' : 'Click to upload your CV'}
               </div>
               <div className="text-sm text-gray-600 dark:text-gray-400">
-                .docx format only • Your data never leaves your browser
+                .docx or .pdf • Your data never leaves your browser
               </div>
             </label>
           </div>
