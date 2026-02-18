@@ -13,6 +13,8 @@ export interface SavedProfile {
   savedAt: string
 }
 
+export type ApplicationStatus = 'saved' | 'applied' | 'interview' | 'offer' | 'rejected'
+
 export interface HistoryEntry {
   id: string
   date: string
@@ -22,6 +24,8 @@ export interface HistoryEntry {
   recommendation: string
   analysis: Analysis
   jobData: JobData
+  status?: ApplicationStatus
+  notes?: string
 }
 
 function loadJSON<T>(key: string, fallback: T): T {
@@ -130,6 +134,10 @@ function MainApp() {
     setAnalysis(entry.analysis)
   }
 
+  const updateHistoryEntry = (id: string, patch: Partial<HistoryEntry>) => {
+    setHistory(prev => prev.map(e => e.id === id ? { ...e, ...patch } : e))
+  }
+
   const isDecodePage = location.pathname === '/decode'
 
   return (
@@ -181,6 +189,7 @@ function MainApp() {
                   onUpdateProfile={handleUpdateProfile}
                   history={history}
                   onViewHistory={handleViewHistory}
+                  onUpdateEntry={updateHistoryEntry}
                 />
               ) : (
                 <ResultsPage

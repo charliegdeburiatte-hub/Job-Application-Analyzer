@@ -30,10 +30,10 @@ Web app is live on Vercel. Core features complete:
 
 **Goal:** Turn it from a one-off tool into something used throughout a job search.
 
-- [ ] **Job pipeline** — History entries get a status: `Saved → Applied → Interview → Offer / Rejected`.
-- [ ] **Notes per job** — Free-text note on any history entry ("Applied 14 Feb", "Recruiter: Sarah").
-- [ ] **Filter/search history** — Search by company, filter by score range.
-- [ ] **Export history as CSV** — For people tracking applications in a spreadsheet.
+- [x] **Job pipeline** — History entries get a status: `Saved → Applied → Interview → Offer / Rejected`.
+- [x] **Notes per job** — Free-text note on any history entry ("Applied 14 Feb", "Recruiter: Sarah").
+- [x] **Filter/search history** — Search by company, filter by score range.
+- [x] **Export history as CSV** — For people tracking applications in a spreadsheet.
 
 ---
 

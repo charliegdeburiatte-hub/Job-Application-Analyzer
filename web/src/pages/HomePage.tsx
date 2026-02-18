@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import type { CVProfile, JobData } from '../shared/types'
 import { parseCV, parseCVFromText } from '../shared/utils/cvParser'
-import type { SavedProfile, HistoryEntry } from '../App'
+import { downloadBlob } from '../shared/utils/helpers'
+import type { ApplicationStatus, SavedProfile, HistoryEntry } from '../App'
 
 interface HomePageProps {
   cvProfile: CVProfile | null
@@ -15,6 +16,7 @@ interface HomePageProps {
   onUpdateProfile: (profile: CVProfile) => void
   history: HistoryEntry[]
   onViewHistory: (entry: HistoryEntry) => void
+  onUpdateEntry: (id: string, patch: Partial<HistoryEntry>) => void
 }
 
 const scoreColour = (score: number) =>
@@ -22,10 +24,38 @@ const scoreColour = (score: number) =>
   score >= 50 ? 'text-amber-600 dark:text-amber-400' :
                'text-red-600 dark:text-red-400'
 
+const STATUS_CONFIG: Record<ApplicationStatus, { label: string; className: string }> = {
+  saved:     { label: 'Saved',     className: 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200' },
+  applied:   { label: 'Applied',   className: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300' },
+  interview: { label: 'Interview', className: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300' },
+  offer:     { label: 'Offer',     className: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300' },
+  rejected:  { label: 'Rejected',  className: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300' },
+}
+
+function exportHistoryToCSV(entries: HistoryEntry[]) {
+  const headers = ['Date', 'Job Title', 'Company', 'Score', 'Recommendation', 'Status', 'Notes', 'Matched Skills', 'Missing Skills']
+  const rows = entries.map(e => [
+    new Date(e.date).toLocaleDateString('en-GB'),
+    e.jobTitle,
+    e.company,
+    String(e.matchScore),
+    e.recommendation,
+    e.status ?? 'saved',
+    e.notes ?? '',
+    e.analysis.matchDetails.matchedSkills.join('; '),
+    e.analysis.matchDetails.missingSkills.join('; '),
+  ])
+  const csv = [headers, ...rows]
+    .map(row => row.map(cell => `"${cell.replace(/"/g, '""')}"`).join(','))
+    .join('\n')
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  downloadBlob(blob, `job-applications-${new Date().toISOString().slice(0, 10)}.csv`)
+}
+
 export default function HomePage({
   cvProfile, onCVUpload, onClearCV, onAnalyze,
   savedProfiles, onSaveProfile, onDeleteProfile, onLoadProfile, onUpdateProfile,
-  history, onViewHistory,
+  history, onViewHistory, onUpdateEntry,
 }: HomePageProps) {
   const [cvTab, setCvTab] = useState<'upload' | 'paste'>('upload')
   const [cvText, setCvText] = useState('')
@@ -42,6 +72,16 @@ export default function HomePage({
   const [newSkill, setNewSkill] = useState('')
 
   const [showHistory, setShowHistory] = useState(false)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [statusFilter, setStatusFilter] = useState<'all' | ApplicationStatus>('all')
+  const [noteEdit, setNoteEdit] = useState<{ id: string; value: string } | null>(null)
+
+  const filteredHistory = history
+    .filter(e => {
+      const term = searchTerm.toLowerCase()
+      return e.jobTitle.toLowerCase().includes(term) || e.company.toLowerCase().includes(term)
+    })
+    .filter(e => statusFilter === 'all' || (e.status ?? 'saved') === statusFilter)
 
   // ── CV handlers ──
 
@@ -396,35 +436,113 @@ export default function HomePage({
       {/* ── Recent Analyses ── */}
       {history.length > 0 && (
         <div className="card">
-          <button
-            onClick={() => setShowHistory(h => !h)}
-            className="w-full flex items-center justify-between text-left"
-          >
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white">🕒 Recent Analyses ({history.length})</h3>
-            <span className="text-gray-500 dark:text-gray-400 text-sm">{showHistory ? '▲ Hide' : '▼ Show'}</span>
-          </button>
+          {/* Header row */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowHistory(h => !h)}
+              className="flex items-center gap-2 text-left flex-1 min-w-0"
+            >
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                🕒 Recent Analyses ({history.length})
+              </h3>
+              <span className="text-gray-500 dark:text-gray-400 text-sm">{showHistory ? '▲' : '▼'}</span>
+            </button>
+            <button
+              onClick={() => exportHistoryToCSV(history)}
+              className="btn-secondary text-sm flex-shrink-0"
+              title="Export all applications as CSV"
+            >
+              📥 Export CSV
+            </button>
+          </div>
 
           {showHistory && (
-            <div className="mt-4 space-y-2">
-              {history.map(entry => (
-                <button
-                  key={entry.id}
-                  onClick={() => onViewHistory(entry)}
-                  className="w-full text-left p-3 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            <div className="mt-4 space-y-3">
+              {/* Search + filter */}
+              <div className="flex gap-2 flex-wrap">
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                  placeholder="Search title or company..."
+                  className="input-field text-sm flex-1 min-w-[160px]"
+                />
+                <select
+                  value={statusFilter}
+                  onChange={e => setStatusFilter(e.target.value as 'all' | ApplicationStatus)}
+                  className="input-field text-sm w-auto"
                 >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-gray-900 dark:text-white">{entry.jobTitle}</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {entry.company} • {new Date(entry.date).toLocaleDateString('en-GB')}
-                      </p>
+                  <option value="all">All Statuses</option>
+                  {(Object.keys(STATUS_CONFIG) as ApplicationStatus[]).map(s => (
+                    <option key={s} value={s}>{STATUS_CONFIG[s].label}</option>
+                  ))}
+                </select>
+              </div>
+
+              {filteredHistory.length === 0 ? (
+                <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
+                  No analyses match your search.
+                </p>
+              ) : (
+                filteredHistory.map(entry => {
+                  const status = entry.status ?? 'saved'
+                  const isEditingNote = noteEdit?.id === entry.id
+                  return (
+                    <div key={entry.id} className="bg-gray-50 dark:bg-gray-800 rounded-lg overflow-hidden">
+                      {/* Main info row */}
+                      <div className="flex items-start gap-2 p-3">
+                        <button
+                          onClick={() => onViewHistory(entry)}
+                          className="text-left flex-1 min-w-0 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+                        >
+                          <p className="font-medium text-gray-900 dark:text-white">{entry.jobTitle}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            {entry.company} • {new Date(entry.date).toLocaleDateString('en-GB')}
+                          </p>
+                        </button>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <span className={`text-base font-bold ${scoreColour(entry.matchScore)}`}>
+                            {entry.matchScore}%
+                          </span>
+                          <select
+                            value={status}
+                            onChange={e => onUpdateEntry(entry.id, { status: e.target.value as ApplicationStatus })}
+                            className={`text-xs font-medium rounded-full px-2 py-1 border-0 cursor-pointer ${STATUS_CONFIG[status].className}`}
+                          >
+                            {(Object.keys(STATUS_CONFIG) as ApplicationStatus[]).map(s => (
+                              <option key={s} value={s}>{STATUS_CONFIG[s].label}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                      {/* Notes row */}
+                      <div className="px-3 pb-3">
+                        {isEditingNote ? (
+                          <textarea
+                            value={noteEdit.value}
+                            onChange={e => setNoteEdit(n => n ? { ...n, value: e.target.value } : null)}
+                            onBlur={() => {
+                              onUpdateEntry(entry.id, { notes: noteEdit.value })
+                              setNoteEdit(null)
+                            }}
+                            placeholder="Add a note..."
+                            className="input-field text-sm w-full"
+                            rows={2}
+                            autoFocus
+                          />
+                        ) : (
+                          <button
+                            onClick={() => setNoteEdit({ id: entry.id, value: entry.notes ?? '' })}
+                            className="text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors text-left"
+                          >
+                            {entry.notes ? `📝 ${entry.notes}` : '+ Add note'}
+                          </button>
+                        )}
+                      </div>
                     </div>
-                    <span className={`text-lg font-bold ${scoreColour(entry.matchScore)}`}>
-                      {entry.matchScore}%
-                    </span>
-                  </div>
-                </button>
-              ))}
+                  )
+                })
+              )}
             </div>
           )}
         </div>
