@@ -41,9 +41,9 @@ Web app is live on Vercel. Core features complete:
 
 **Goal:** Tell the user what to actually do, not just how they scored.
 
-- [ ] **Gap analysis across history** — "Python, AWS, Docker appear as missing in 7 of your last 10 analyses."
-- [ ] **Keyword suggestions** — "Add these exact phrases to your CV to improve your match for roles like this."
-- [ ] **Role fit summary** — Short plain-English paragraph explaining the match. "Strong experience in support and Microsoft 365. Main gaps are cloud infrastructure and ITIL."
+- [x] **Gap analysis across history** — "Python, AWS, Docker appear as missing in 7 of your last 10 analyses."
+- [x] **Keyword suggestions** — "Add these exact phrases to your CV to improve your match for roles like this."
+- [x] **Role fit summary** — Short plain-English paragraph explaining the match. "Strong experience in support and Microsoft 365. Main gaps are cloud infrastructure and ITIL."
 
 ---
 

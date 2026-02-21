@@ -1,9 +1,35 @@
+import { useState } from 'react'
 import { jsPDF } from 'jspdf'
 import type { Analysis, JobData, CVProfile } from '../shared/types'
 import { getRecommendationText, getRecommendationEmoji } from '../shared'
 import MatchScore from '../components/MatchScore'
 import SkillsList from '../components/SkillsList'
 import { compressToEncodedURIComponent } from 'lz-string'
+
+function buildRoleSummary(analysis: Analysis): string {
+  const { matchDetails, scoringBreakdown, matchScore } = analysis
+  const { missingSkills } = matchDetails
+
+  if (!scoringBreakdown) return `You scored ${matchScore}% for this role.`
+
+  const { requiredMatched, requiredTotal, preferredMatched, preferredTotal } = scoringBreakdown
+  const missingRequired = requiredTotal - requiredMatched
+
+  if (requiredTotal > 0 && missingRequired === 0) {
+    const prefSentence = preferredTotal > 0
+      ? ` You also matched ${preferredMatched} of ${preferredTotal} preferred skill${preferredTotal !== 1 ? 's' : ''}.`
+      : ''
+    return `You meet all ${requiredTotal} required skill${requiredTotal !== 1 ? 's' : ''} for this role.${prefSentence}`
+  }
+
+  if (requiredTotal > 0) {
+    const topMissing = missingSkills.slice(0, 3).join(', ')
+    const missingPhrase = topMissing ? ` (${topMissing})` : ''
+    return `You match ${requiredMatched} of ${requiredTotal} required skills for this role. The ${missingRequired} missing skill${missingRequired !== 1 ? 's' : ''}${missingPhrase} ${missingRequired === 1 ? 'is' : 'are'} the main reason for your ${matchScore}% score.`
+  }
+
+  return `You matched ${preferredMatched} of ${preferredTotal} preferred skills for this role, scoring ${matchScore}%.`
+}
 
 interface ResultsPageProps {
   analysis: Analysis
@@ -14,6 +40,14 @@ interface ResultsPageProps {
 
 export default function ResultsPage({ analysis, jobData, cvProfile, onReset }: ResultsPageProps) {
   const { matchScore, recommendation, matchDetails } = analysis
+  const [copied, setCopied] = useState(false)
+
+  const copyMissingSkills = () => {
+    const text = 'Skills to add to CV:\n' + matchDetails.missingSkills.map(s => `• ${s}`).join('\n')
+    navigator.clipboard.writeText(text)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   const downloadResults = () => {
     const results = {
@@ -321,30 +355,15 @@ export default function ResultsPage({ analysis, jobData, cvProfile, onReset }: R
             {getRecommendationText(recommendation)}
           </h3>
         </div>
-        {analysis.scoringBreakdown && (() => {
-          const { requiredMatched, requiredTotal, preferredMatched, preferredTotal } = analysis.scoringBreakdown
-          const missingRequired = requiredTotal - requiredMatched
-          const textColour = recommendation === 'apply'
+        <p className={`text-sm ${
+          recommendation === 'apply'
             ? 'text-green-700 dark:text-green-300'
             : recommendation === 'maybe'
             ? 'text-yellow-700 dark:text-yellow-300'
             : 'text-red-700 dark:text-red-300'
-
-          let sentence = ''
-          if (requiredTotal > 0 && missingRequired === 0) {
-            sentence = `You matched all ${requiredTotal} required skill${requiredTotal !== 1 ? 's' : ''}`
-            if (preferredTotal > 0) sentence += ` and ${preferredMatched} of ${preferredTotal} preferred skill${preferredTotal !== 1 ? 's' : ''}`
-            sentence += '.'
-          } else if (requiredTotal > 0) {
-            sentence = `You matched ${requiredMatched} of ${requiredTotal} required skill${requiredTotal !== 1 ? 's' : ''} — the ${missingRequired} missing ${missingRequired === 1 ? 'skill is' : 'skills are'} the main reason for your score.`
-          } else if (preferredTotal > 0) {
-            sentence = `You matched ${preferredMatched} of ${preferredTotal} preferred skill${preferredTotal !== 1 ? 's' : ''}.`
-          }
-
-          return sentence ? (
-            <p className={`text-sm ${textColour}`}>{sentence}</p>
-          ) : null
-        })()}
+        }`}>
+          {buildRoleSummary(analysis)}
+        </p>
       </div>
 
       {/* Job Info */}
@@ -423,6 +442,36 @@ export default function ResultsPage({ analysis, jobData, cvProfile, onReset }: R
             ✗ Missing Skills ({matchDetails.missingSkills.length})
           </h4>
           <SkillsList skills={matchDetails.missingSkills} type="missing" />
+        </div>
+      )}
+
+      {/* Keyword Suggestions */}
+      {matchDetails.missingSkills.length > 0 && (
+        <div className="card bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700">
+          <div className="flex items-start justify-between gap-3 mb-3">
+            <h4 className="text-lg font-semibold text-blue-900 dark:text-blue-100">
+              💡 Add to Your CV
+            </h4>
+            <button
+              onClick={copyMissingSkills}
+              className="btn-secondary text-sm flex-shrink-0"
+            >
+              {copied ? '✓ Copied!' : '📋 Copy as list'}
+            </button>
+          </div>
+          <p className="text-sm text-blue-700 dark:text-blue-300 mb-3">
+            These required skills aren't on your CV — consider adding them if you have the experience:
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {matchDetails.missingSkills.map(skill => (
+              <span
+                key={skill}
+                className="inline-block px-3 py-1 text-sm font-medium rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200 border border-blue-300 dark:border-blue-600"
+              >
+                {skill}
+              </span>
+            ))}
+          </div>
         </div>
       )}
 

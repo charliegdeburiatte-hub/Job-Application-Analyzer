@@ -548,6 +548,48 @@ export default function HomePage({
         </div>
       )}
 
+      {/* ── Recurring Skill Gaps ── */}
+      {history.length >= 3 && (() => {
+        const freq = history
+          .flatMap(e => e.analysis.matchDetails.missingSkills)
+          .reduce((acc: Record<string, number>, skill) => {
+            acc[skill] = (acc[skill] || 0) + 1
+            return acc
+          }, {})
+        const topGaps = Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 6)
+        if (topGaps.length === 0) return null
+        const maxCount = topGaps[0][1]
+        return (
+          <div className="card">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
+              📊 Recurring Skill Gaps
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+              Based on your last {history.length} {history.length === 1 ? 'analysis' : 'analyses'} — these skills keep coming up as missing.
+            </p>
+            <div className="space-y-3">
+              {topGaps.map(([skill, count]) => (
+                <div key={skill} className="flex items-center gap-3">
+                  <span className="text-sm font-medium text-gray-900 dark:text-white w-28 shrink-0 truncate">{skill}</span>
+                  <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+                    <div
+                      className="h-2 rounded-full bg-red-400 dark:bg-red-500 transition-all"
+                      style={{ width: `${(count / maxCount) * 100}%` }}
+                    />
+                  </div>
+                  <span className="text-sm text-gray-500 dark:text-gray-400 w-16 text-right shrink-0">
+                    {count} {count === 1 ? 'role' : 'roles'}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-4">
+              Worth adding to your CV or upskilling — especially the top ones.
+            </p>
+          </div>
+        )
+      })()}
+
       {/* ── Privacy Notice ── */}
       <div className="card bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-700">
         <div className="flex items-start gap-3">
