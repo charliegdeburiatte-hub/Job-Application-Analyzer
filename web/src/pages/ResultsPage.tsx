@@ -41,6 +41,15 @@ interface ResultsPageProps {
 export default function ResultsPage({ analysis, jobData, cvProfile, onReset }: ResultsPageProps) {
   const { matchScore, recommendation, matchDetails } = analysis
   const [copied, setCopied] = useState(false)
+  const [shareCopied, setShareCopied] = useState(false)
+  const [showDebug, setShowDebug] = useState(false)
+
+  const copyShareLink = () => {
+    const url = `${window.location.origin}/decode?data=${generateDebugString()}`
+    navigator.clipboard.writeText(url)
+    setShareCopied(true)
+    setTimeout(() => setShareCopied(false), 2000)
+  }
 
   const copyMissingSkills = () => {
     const text = 'Skills to add to CV:\n' + matchDetails.missingSkills.map(s => `• ${s}`).join('\n')
@@ -273,51 +282,58 @@ export default function ResultsPage({ analysis, jobData, cvProfile, onReset }: R
         <button onClick={onReset} className="btn-secondary">
           ← Analyse Another Job
         </button>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <button onClick={downloadPDF} className="btn-primary">
             📄 Download PDF
           </button>
           <button onClick={downloadResults} className="btn-secondary">
             📥 Download JSON
           </button>
+          <button onClick={copyShareLink} className="btn-secondary">
+            {shareCopied ? '✓ Copied!' : '🔗 Share'}
+          </button>
         </div>
       </div>
 
-      {/* Debug Summary - Compressed */}
+      {/* Debug Summary - Collapsed by default */}
       <div className="card bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              🔬 Test Data (compressed - includes full job description)
-            </p>
-            <div className="flex gap-2">
-              <a
-                href="/decode"
-                className="btn-secondary text-xs"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                🔓 Decoder Tool
-              </a>
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(generateDebugString());
-                }}
-                className="btn-secondary text-xs whitespace-nowrap"
-              >
-                📋 Copy
-              </button>
+        <button
+          onClick={() => setShowDebug(d => !d)}
+          className="w-full flex items-center justify-between text-left"
+        >
+          <p className="text-xs text-gray-500 dark:text-gray-400">🔬 Debug / Test Data</p>
+          <span className="text-gray-400 text-xs">{showDebug ? '▲ Hide' : '▼ Show'}</span>
+        </button>
+        {showDebug && (
+          <div className="mt-3 space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Compressed string (includes full job description)
+              </p>
+              <div className="flex gap-2">
+                <a
+                  href="/decode"
+                  className="btn-secondary text-xs"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  🔓 Decoder
+                </a>
+                <button
+                  onClick={() => navigator.clipboard.writeText(generateDebugString())}
+                  className="btn-secondary text-xs whitespace-nowrap"
+                >
+                  📋 Copy
+                </button>
+              </div>
+            </div>
+            <div className="bg-white dark:bg-gray-900 p-3 rounded border border-gray-200 dark:border-gray-700">
+              <code className="text-xs text-gray-700 dark:text-gray-300 font-mono break-all">
+                {generateDebugString()}
+              </code>
             </div>
           </div>
-          <div className="bg-white dark:bg-gray-900 p-3 rounded border border-gray-200 dark:border-gray-700">
-            <code className="text-xs text-gray-700 dark:text-gray-300 font-mono break-all">
-              {generateDebugString()}
-            </code>
-          </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400 italic">
-            Preview: {jobData.title} @ {jobData.company} • {matchScore}% • {matchDetails.matchedSkills.length} matched, {matchDetails.missingSkills.length} missing
-          </p>
-        </div>
+        )}
       </div>
 
       {/* Match Score Circle */}

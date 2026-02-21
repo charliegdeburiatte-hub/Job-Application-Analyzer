@@ -1,10 +1,25 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { decompressFromEncodedURIComponent } from 'lz-string'
 
 export default function DecodePage() {
+  const [searchParams] = useSearchParams()
   const [compressedString, setCompressedString] = useState('')
   const [decodedData, setDecodedData] = useState<any>(null)
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const data = searchParams.get('data')
+    if (!data) return
+    setCompressedString(data)
+    try {
+      const decompressed = decompressFromEncodedURIComponent(data)
+      if (!decompressed) { setError('Failed to decompress shared link.'); return }
+      setDecodedData(JSON.parse(decompressed))
+    } catch {
+      setError('Invalid shared link.')
+    }
+  }, [])
 
   const handleDecode = () => {
     if (!compressedString.trim()) {

@@ -51,10 +51,10 @@ Web app is live on Vercel. Core features complete:
 
 **Goal:** Easier to get to and easier to share.
 
-- [ ] **PWA** — Web app manifest so it installs on phone/desktop like an app. No app store needed.
-- [ ] **Shareable results link** — URL with compressed result encoded. Infrastructure already exists (lz-string + decode page).
-- [ ] **Bookmarklet** — One-click to copy a job description from any page and open the analyser with it pre-filled.
-- [ ] **Firefox extension revival** — Reconnect extension to the shared analysis engine.
+- [x] **PWA** — Web app manifest so it installs on phone/desktop like an app. No app store needed.
+- [x] **Shareable results link** — URL with compressed result encoded. Infrastructure already exists (lz-string + decode page).
+- [x] **Bookmarklet** — One-click to copy a job description from any page and open the analyser with it pre-filled.
+- [ ] **Firefox extension revival** — Reconnect extension to the shared analysis engine. (Deferred)
 
 ---
 
