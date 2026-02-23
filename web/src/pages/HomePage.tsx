@@ -104,12 +104,22 @@ export default function HomePage({
     if (c) setCompany(decodeURIComponent(c))
   }, [])
 
-  // Bookmarklet: React blocks javascript: in href props, so we set it directly on the DOM element
-  const bookmarkletRef = useRef<HTMLAnchorElement>(null)
+  // Bookmarklet: React 19 blocks javascript: URLs even via ref, so we build the
+  // anchor element entirely in vanilla JS and inject it into a container span.
+  const bookmarkletContainerRef = useRef<HTMLSpanElement>(null)
+  const bookmarkletHref = useRef<string>('')
   useEffect(() => {
-    if (bookmarkletRef.current) {
-      bookmarkletRef.current.href = `javascript:(function(){var d=window.getSelection().toString().trim();if(!d)d=prompt('Paste the job description:','');if(d)window.open('${window.location.origin}/?jd='+encodeURIComponent(d.slice(0,8000)),'_blank');})()`
-    }
+    if (!bookmarkletContainerRef.current) return
+    const href = `javascript:(function(){var d=window.getSelection().toString().trim();if(!d)d=prompt('Paste the job description:','');if(d)window.open('${window.location.origin}/?jd='+encodeURIComponent(d.slice(0,8000)),'_blank');})()`
+    bookmarkletHref.current = href
+    const a = document.createElement('a')
+    a.href = href
+    a.draggable = true
+    a.title = 'Drag me to your bookmarks bar'
+    a.className = 'btn-primary text-sm select-none cursor-grab active:cursor-grabbing inline-block'
+    a.textContent = '🔖 Analyse This Job'
+    bookmarkletContainerRef.current.innerHTML = ''
+    bookmarkletContainerRef.current.appendChild(a)
   }, [])
 
   const filteredHistory = history
@@ -217,21 +227,12 @@ export default function HomePage({
           Drag to your bookmarks bar — click on any job page to open the analyser with the description pre-filled.
         </p>
         <div className="flex flex-wrap items-center gap-3">
-          <a
-            ref={bookmarkletRef}
-            draggable
-            className="btn-primary text-sm select-none cursor-grab active:cursor-grabbing"
-            title="Drag me to your bookmarks bar"
-          >
-            🔖 Analyse This Job
-          </a>
+          <span ref={bookmarkletContainerRef} />
           <button
             onClick={() => {
-              if (bookmarkletRef.current) {
-                navigator.clipboard.writeText(bookmarkletRef.current.href)
-                setBookmarkletCopied(true)
-                setTimeout(() => setBookmarkletCopied(false), 2000)
-              }
+              navigator.clipboard.writeText(bookmarkletHref.current)
+              setBookmarkletCopied(true)
+              setTimeout(() => setBookmarkletCopied(false), 2000)
             }}
             className="btn-secondary text-sm"
           >
