@@ -9,6 +9,6 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 )
 
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'))
-}
+// Service worker removed — it was caching index.html and serving it in place
+// of CSS/JS assets, causing MIME type errors. The kill-switch sw.js will
+// unregister any previously installed SW for existing visitors.
