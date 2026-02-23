@@ -102,7 +102,7 @@ export default function ResultsPage({ analysis, jobData, cvProfile, onReset }: R
     }
 
     // ── Header bar ──
-    doc.setFillColor(126, 34, 206) // purple-700
+    doc.setFillColor(45, 106, 79) // forest-600
     doc.rect(0, 0, pageW, 28, 'F')
     doc.setFont('helvetica', 'bold')
     doc.setFontSize(18)
@@ -131,7 +131,7 @@ export default function ResultsPage({ analysis, jobData, cvProfile, onReset }: R
     y += 4
 
     // ── Divider ──
-    doc.setDrawColor(216, 180, 254) // purple-200
+    doc.setDrawColor(156, 212, 181) // forest-200
     doc.line(margin, y, pageW - margin, y)
     y += 8
 
@@ -357,42 +357,42 @@ export default function ResultsPage({ analysis, jobData, cvProfile, onReset }: R
 
       {/* Scoring Details */}
       {analysis.scoringBreakdown && (
-        <div className="card bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700">
-          <h4 className="text-lg font-semibold text-purple-900 dark:text-purple-100 mb-3">
+        <div className="card bg-forest-50 dark:bg-forest-900/20 border border-forest-200 dark:border-forest-700">
+          <h4 className="text-lg font-semibold text-forest-900 dark:text-forest-100 mb-3">
             📊 Scoring Details
           </h4>
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
-              <p className="text-sm text-purple-700 dark:text-purple-300 font-medium">Base Score</p>
-              <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">
+              <p className="text-sm text-forest-700 dark:text-forest-300 font-medium">Base Score</p>
+              <p className="text-2xl font-bold text-forest-900 dark:text-forest-100">
                 {analysis.baseScore}%
               </p>
             </div>
             <div>
-              <p className="text-sm text-purple-700 dark:text-purple-300 font-medium">
+              <p className="text-sm text-forest-700 dark:text-forest-300 font-medium">
                 Experience Bonus
               </p>
-              <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">
+              <p className="text-2xl font-bold text-forest-900 dark:text-forest-100">
                 +{analysis.scoringBreakdown.experienceBonus}
               </p>
             </div>
           </div>
 
           <div className="space-y-2 text-sm">
-            <div className="flex items-center justify-between py-2 border-t border-purple-200 dark:border-purple-700">
-              <span className="text-purple-700 dark:text-purple-300">
+            <div className="flex items-center justify-between py-2 border-t border-forest-200 dark:border-forest-700">
+              <span className="text-forest-700 dark:text-forest-300">
                 Required Skills (3x weight)
               </span>
-              <span className="font-semibold text-purple-900 dark:text-purple-100">
+              <span className="font-semibold text-forest-900 dark:text-forest-100">
                 {analysis.scoringBreakdown.requiredMatched} /{' '}
                 {analysis.scoringBreakdown.requiredTotal}
               </span>
             </div>
             <div className="flex items-center justify-between py-2">
-              <span className="text-purple-700 dark:text-purple-300">
+              <span className="text-forest-700 dark:text-forest-300">
                 Preferred Skills (1x weight)
               </span>
-              <span className="font-semibold text-purple-900 dark:text-purple-100">
+              <span className="font-semibold text-forest-900 dark:text-forest-100">
                 {analysis.scoringBreakdown.preferredMatched} /{' '}
                 {analysis.scoringBreakdown.preferredTotal}
               </span>

@@ -6,7 +6,22 @@ export default {
   ],
   darkMode: 'class',
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        forest: {
+          50:  '#e8f5ee',
+          100: '#c6e8d3',
+          200: '#9cd4b5',
+          300: '#6bbc93',
+          400: '#3da473',
+          500: '#2d8a5e',
+          600: '#2d6a4f',
+          700: '#245a41',
+          800: '#1a4231',
+          900: '#112c21',
+        },
+      },
+    },
   },
   plugins: [],
 }

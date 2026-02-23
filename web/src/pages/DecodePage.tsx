@@ -74,7 +74,7 @@ export default function DecodePage() {
             className="w-full h-32 px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600
                      bg-white dark:bg-gray-800 text-gray-900 dark:text-white
                      placeholder-gray-400 dark:placeholder-gray-500
-                     focus:ring-2 focus:ring-purple-500 focus:border-transparent
+                     focus:ring-2 focus:ring-forest-500 focus:border-transparent
                      font-mono text-sm"
           />
 
@@ -98,26 +98,26 @@ export default function DecodePage() {
         {decodedData && (
           <div className="space-y-4">
             {/* Summary Card */}
-            <div className="card bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700">
-              <h3 className="text-lg font-semibold text-purple-900 dark:text-purple-100 mb-3">
+            <div className="card bg-forest-50 dark:bg-forest-900/20 border border-forest-200 dark:border-forest-700">
+              <h3 className="text-lg font-semibold text-forest-900 dark:text-forest-100 mb-3">
                 📊 Summary
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                 <div>
-                  <p className="text-purple-700 dark:text-purple-300">Date</p>
-                  <p className="font-semibold text-purple-900 dark:text-purple-100">{decodedData.date}</p>
+                  <p className="text-forest-700 dark:text-forest-300">Date</p>
+                  <p className="font-semibold text-forest-900 dark:text-forest-100">{decodedData.date}</p>
                 </div>
                 <div>
-                  <p className="text-purple-700 dark:text-purple-300">Match Score</p>
-                  <p className="font-semibold text-purple-900 dark:text-purple-100">{decodedData.analysis.matchScore}%</p>
+                  <p className="text-forest-700 dark:text-forest-300">Match Score</p>
+                  <p className="font-semibold text-forest-900 dark:text-forest-100">{decodedData.analysis.matchScore}%</p>
                 </div>
                 <div>
-                  <p className="text-purple-700 dark:text-purple-300">Recommendation</p>
-                  <p className="font-semibold text-purple-900 dark:text-purple-100 capitalize">{decodedData.analysis.recommendation}</p>
+                  <p className="text-forest-700 dark:text-forest-300">Recommendation</p>
+                  <p className="font-semibold text-forest-900 dark:text-forest-100 capitalize">{decodedData.analysis.recommendation}</p>
                 </div>
                 <div>
-                  <p className="text-purple-700 dark:text-purple-300">Base Score</p>
-                  <p className="font-semibold text-purple-900 dark:text-purple-100">{decodedData.analysis.baseScore}%</p>
+                  <p className="text-forest-700 dark:text-forest-300">Base Score</p>
+                  <p className="font-semibold text-forest-900 dark:text-forest-100">{decodedData.analysis.baseScore}%</p>
                 </div>
               </div>
             </div>
@@ -155,26 +155,26 @@ export default function DecodePage() {
 
             {/* Scoring Breakdown */}
             {decodedData.scoring && (
-              <div className="card bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700">
-                <h3 className="text-lg font-semibold text-purple-900 dark:text-purple-100 mb-3">
+              <div className="card bg-forest-50 dark:bg-forest-900/20 border border-forest-200 dark:border-forest-700">
+                <h3 className="text-lg font-semibold text-forest-900 dark:text-forest-100 mb-3">
                   🔢 Scoring Breakdown
                 </h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <p className="text-purple-700 dark:text-purple-300">Required Skills (3x weight)</p>
-                    <p className="text-xl font-bold text-purple-900 dark:text-purple-100">
+                    <p className="text-forest-700 dark:text-forest-300">Required Skills (3x weight)</p>
+                    <p className="text-xl font-bold text-forest-900 dark:text-forest-100">
                       {decodedData.scoring.requiredMatched} / {decodedData.scoring.requiredTotal}
                     </p>
                   </div>
                   <div>
-                    <p className="text-purple-700 dark:text-purple-300">Preferred Skills (1x weight)</p>
-                    <p className="text-xl font-bold text-purple-900 dark:text-purple-100">
+                    <p className="text-forest-700 dark:text-forest-300">Preferred Skills (1x weight)</p>
+                    <p className="text-xl font-bold text-forest-900 dark:text-forest-100">
                       {decodedData.scoring.preferredMatched} / {decodedData.scoring.preferredTotal}
                     </p>
                   </div>
                   <div className="col-span-2">
-                    <p className="text-purple-700 dark:text-purple-300">Experience Bonus</p>
-                    <p className="text-xl font-bold text-purple-900 dark:text-purple-100">
+                    <p className="text-forest-700 dark:text-forest-300">Experience Bonus</p>
+                    <p className="text-xl font-bold text-forest-900 dark:text-forest-100">
                       +{decodedData.scoring.experienceBonus}
                     </p>
                   </div>
@@ -271,11 +271,11 @@ export default function DecodePage() {
 
         {/* Instructions */}
         {!decodedData && (
-          <div className="card bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700">
-            <h3 className="text-lg font-semibold text-purple-900 dark:text-purple-100 mb-3">
+          <div className="card bg-forest-50 dark:bg-forest-900/20 border border-forest-200 dark:border-forest-700">
+            <h3 className="text-lg font-semibold text-forest-900 dark:text-forest-100 mb-3">
               📖 How to Use
             </h3>
-            <ol className="space-y-2 text-sm text-purple-800 dark:text-purple-200">
+            <ol className="space-y-2 text-sm text-forest-800 dark:text-forest-200">
               <li className="flex items-start">
                 <span className="font-bold mr-2">1.</span>
                 <span>After analyzing a job, click the "Copy" button in the debug section</span>

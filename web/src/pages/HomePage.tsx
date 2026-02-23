@@ -244,7 +244,7 @@ export default function HomePage({
                 onClick={() => setCvTab('upload')}
                 className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
                   cvTab === 'upload'
-                    ? 'border-purple-600 text-purple-600 dark:text-purple-400'
+                    ? 'border-forest-600 text-forest-600 dark:text-forest-400'
                     : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
                 }`}
               >
@@ -254,7 +254,7 @@ export default function HomePage({
                 onClick={() => setCvTab('paste')}
                 className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
                   cvTab === 'paste'
-                    ? 'border-purple-600 text-purple-600 dark:text-purple-400'
+                    ? 'border-forest-600 text-forest-600 dark:text-forest-400'
                     : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
                 }`}
               >
@@ -357,7 +357,7 @@ export default function HomePage({
                     {cvProfile.skills.map(skill => (
                       <span
                         key={skill}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-sm bg-purple-100 dark:bg-purple-900/40 text-purple-800 dark:text-purple-200"
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-sm bg-forest-100 dark:bg-forest-900/40 text-forest-800 dark:text-forest-200"
                       >
                         {skill}
                         <button
@@ -541,7 +541,7 @@ export default function HomePage({
                       <div className="flex items-start gap-2 p-3">
                         <button
                           onClick={() => onViewHistory(entry)}
-                          className="text-left flex-1 min-w-0 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+                          className="text-left flex-1 min-w-0 hover:text-forest-600 dark:hover:text-forest-400 transition-colors"
                         >
                           <p className="font-medium text-gray-900 dark:text-white">{entry.jobTitle}</p>
                           <p className="text-sm text-gray-500 dark:text-gray-400">
