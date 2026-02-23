@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import type { CVProfile, JobData } from '../shared/types'
 import { parseCV, parseCVFromText } from '../shared/utils/cvParser'
@@ -86,6 +86,14 @@ export default function HomePage({
     if (jd) setJobDescription(decodeURIComponent(jd))
     if (t) setJobTitle(decodeURIComponent(t))
     if (c) setCompany(decodeURIComponent(c))
+  }, [])
+
+  // Bookmarklet: React blocks javascript: in href props, so we set it directly on the DOM element
+  const bookmarkletRef = useRef<HTMLAnchorElement>(null)
+  useEffect(() => {
+    if (bookmarkletRef.current) {
+      bookmarkletRef.current.href = `javascript:(function(){var d=window.getSelection().toString().trim();if(!d)d=prompt('Paste the job description:','');if(d)window.open('${window.location.origin}/?jd='+encodeURIComponent(d.slice(0,8000)),'_blank');})()`
+    }
   }, [])
 
   const filteredHistory = history
@@ -190,37 +198,35 @@ export default function HomePage({
       </div>
 
       {/* ── Bookmarklet ── */}
-      {(() => {
-        const bookmarkletCode = `javascript:(function(){var d=window.getSelection().toString().trim();if(!d)d=prompt('Paste the job description:','');if(d)window.open('${window.location.origin}/?jd='+encodeURIComponent(d.slice(0,8000)),'_blank');})()`
-        const copyBookmarklet = () => {
-          navigator.clipboard.writeText(bookmarkletCode)
-          setBookmarkletCopied(true)
-          setTimeout(() => setBookmarkletCopied(false), 2000)
-        }
-        return (
-          <div className="card">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">🔖 Browser Bookmarklet</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-              Drag the button below to your bookmarks bar. Then click it on any job listing page to open the analyser with the job description pre-filled.
-            </p>
-            <div className="flex flex-wrap items-center gap-3">
-              <a
-                href={bookmarkletCode}
-                onClick={e => e.preventDefault()}
-                draggable
-                className="btn-primary text-sm select-none cursor-grab active:cursor-grabbing"
-                title="Drag me to your bookmarks bar"
-              >
-                🔖 Analyse This Job
-              </a>
-              <button onClick={copyBookmarklet} className="btn-secondary text-sm">
-                {bookmarkletCopied ? '✓ Copied!' : '📋 Copy code'}
-              </button>
-              <span className="text-xs text-gray-400 dark:text-gray-500">← drag to bookmarks bar</span>
-            </div>
-          </div>
-        )
-      })()}
+      <div className="card">
+        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">🔖 Browser Bookmarklet</h3>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          Drag the button below to your bookmarks bar. Then click it on any job listing page to open the analyser with the job description pre-filled.
+        </p>
+        <div className="flex flex-wrap items-center gap-3">
+          <a
+            ref={bookmarkletRef}
+            draggable
+            className="btn-primary text-sm select-none cursor-grab active:cursor-grabbing"
+            title="Drag me to your bookmarks bar"
+          >
+            🔖 Analyse This Job
+          </a>
+          <button
+            onClick={() => {
+              if (bookmarkletRef.current) {
+                navigator.clipboard.writeText(bookmarkletRef.current.href)
+                setBookmarkletCopied(true)
+                setTimeout(() => setBookmarkletCopied(false), 2000)
+              }
+            }}
+            className="btn-secondary text-sm"
+          >
+            {bookmarkletCopied ? '✓ Copied!' : '📋 Copy code'}
+          </button>
+          <span className="text-xs text-gray-400 dark:text-gray-500">← drag to bookmarks bar</span>
+        </div>
+      </div>
 
       {/* ── Error ── */}
       {error && (
