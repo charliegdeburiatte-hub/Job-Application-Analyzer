@@ -78,6 +78,22 @@ export default function HomePage({
   const [statusFilter, setStatusFilter] = useState<'all' | ApplicationStatus>('all')
   const [noteEdit, setNoteEdit] = useState<{ id: string; value: string } | null>(null)
 
+  // AI Settings
+  const [showAISettings, setShowAISettings] = useState(false)
+  const [claudeApiKey, setClaudeApiKey] = useState(() => localStorage.getItem('claudeApiKey') || '')
+  const [apiKeySaved, setApiKeySaved] = useState(false)
+
+  const saveApiKey = () => {
+    localStorage.setItem('claudeApiKey', claudeApiKey.trim())
+    setApiKeySaved(true)
+    setTimeout(() => setApiKeySaved(false), 2000)
+  }
+
+  const clearApiKey = () => {
+    localStorage.removeItem('claudeApiKey')
+    setClaudeApiKey('')
+  }
+
   const [searchParams] = useSearchParams()
   useEffect(() => {
     const jd = searchParams.get('jd')
@@ -223,6 +239,40 @@ export default function HomePage({
           </button>
           <span className="text-xs text-gray-400 dark:text-gray-500">← drag to bookmarks bar</span>
         </div>
+      </div>
+
+      {/* ── AI Settings ── */}
+      <div className="border-t border-gray-100 dark:border-gray-800 pt-5">
+        <button
+          onClick={() => setShowAISettings(s => !s)}
+          className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+        >
+          <span>⚙️ AI Settings</span>
+          {claudeApiKey && <span className="text-forest-600 dark:text-forest-400 text-xs font-medium">● Active</span>}
+          <span className="text-xs">{showAISettings ? '▲' : '▼'}</span>
+        </button>
+
+        {showAISettings && (
+          <div className="mt-3 space-y-2">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Add your Claude API key to enable AI cover letters and CV suggestions on the results page.
+              Stored in your browser only — never sent anywhere except directly to Anthropic.
+            </p>
+            <div className="flex gap-2">
+              <input
+                type="password"
+                value={claudeApiKey}
+                onChange={e => setClaudeApiKey(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && saveApiKey()}
+                placeholder="sk-ant-..."
+                className="input-field text-sm flex-1 font-mono"
+              />
+              <button onClick={saveApiKey} className="btn-primary text-sm">Save</button>
+              {claudeApiKey && <button onClick={clearApiKey} className="btn-secondary text-sm">Clear</button>}
+            </div>
+            {apiKeySaved && <p className="text-xs text-forest-600 dark:text-forest-400">✓ Saved</p>}
+          </div>
+        )}
       </div>
 
       {/* ── Error ── */}

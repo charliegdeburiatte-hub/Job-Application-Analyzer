@@ -6,6 +6,12 @@ import MatchScore from '../components/MatchScore'
 import SkillsList from '../components/SkillsList'
 import { compressToEncodedURIComponent } from 'lz-string'
 
+interface AIResult {
+  coverLetter: string
+  addBullets: string[]
+  removeBullets: string[]
+}
+
 function buildRoleSummary(analysis: Analysis): string {
   const { matchDetails, scoringBreakdown, matchScore } = analysis
   const { missingSkills } = matchDetails
@@ -43,6 +49,14 @@ export default function ResultsPage({ analysis, jobData, cvProfile, onReset }: R
   const [copied, setCopied] = useState(false)
   const [shareCopied, setShareCopied] = useState(false)
   const [showDebug, setShowDebug] = useState(false)
+
+  // Claude AI
+  const [apiKey] = useState(() => localStorage.getItem('claudeApiKey') || '')
+  const [aiLoading, setAiLoading] = useState(false)
+  const [aiError, setAiError] = useState<string | null>(null)
+  const [aiResult, setAiResult] = useState<AIResult | null>(null)
+  const [coverLetterCopied, setCoverLetterCopied] = useState(false)
+  const [addBulletsCopied, setAddBulletsCopied] = useState(false)
 
   const copyShareLink = () => {
     const url = `${window.location.origin}/decode?data=${generateDebugString()}`
@@ -248,6 +262,117 @@ export default function ResultsPage({ analysis, jobData, cvProfile, onReset }: R
 
     const filename = `job-analysis-${jobData.title.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.pdf`
     doc.save(filename)
+  }
+
+  // ── Claude AI ──
+
+  const generateWithClaude = async () => {
+    if (!apiKey) return
+    setAiLoading(true)
+    setAiError(null)
+
+    const cvSummary = [
+      cvProfile.personalInfo?.name ? `Name: ${cvProfile.personalInfo.name}` : '',
+      `Skills: ${cvProfile.skills.join(', ')}`,
+      cvProfile.experience.length > 0
+        ? `Experience:\n${cvProfile.experience.map(e => `- ${e.title} at ${e.company} (${e.duration}): ${e.description}`).join('\n')}`
+        : '',
+      cvProfile.education.length > 0
+        ? `Education:\n${cvProfile.education.map(e => `- ${e.degree} from ${e.institution} (${e.year})`).join('\n')}`
+        : '',
+      cvProfile.certifications.length > 0 ? `Certifications: ${cvProfile.certifications.join(', ')}` : '',
+      cvProfile.totalExperienceYears ? `Total Experience: ${cvProfile.totalExperienceYears} years` : '',
+    ].filter(Boolean).join('\n')
+
+    const prompt = `You are a career coach. Given the CV and job details below, produce a tailored cover letter and specific CV editing suggestions.
+
+CV Profile:
+${cvSummary}
+
+Job: ${jobData.title} at ${jobData.company}${jobData.location ? ` (${jobData.location})` : ''}
+Description:
+${jobData.description.slice(0, 3000)}
+
+Match Analysis:
+- Score: ${matchScore}%
+- Matched skills: ${matchDetails.matchedSkills.join(', ')}
+- Missing skills: ${matchDetails.missingSkills.join(', ')}
+
+Instructions:
+1. Write a professional cover letter (3–4 paragraphs, British English, no placeholder text, ready to send)
+2. Suggest 3–5 bullet points to ADD to the CV — concrete, achievement-focused, specific to this role, phrased as they would appear on the CV
+3. Suggest 2–3 existing CV items to REMOVE or de-emphasise for this specific role, with a brief reason
+
+Respond ONLY with valid JSON, no markdown fences:
+{"coverLetter":"...","addBullets":["..."],"removeBullets":["..."]}`
+
+    try {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true',
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 2048,
+          messages: [{ role: 'user', content: prompt }],
+        }),
+      })
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({})) as { error?: { message?: string } }
+        throw new Error(err.error?.message || `API error ${response.status}`)
+      }
+
+      const data = await response.json() as { content: { text: string }[] }
+      let text = data.content[0].text.trim()
+      // Strip markdown fences if Claude wrapped the JSON
+      if (text.startsWith('```')) text = text.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '')
+      setAiResult(JSON.parse(text) as AIResult)
+    } catch (err) {
+      setAiError(err instanceof Error ? err.message : 'Something went wrong. Check your API key and try again.')
+    } finally {
+      setAiLoading(false)
+    }
+  }
+
+  const downloadCoverLetterPDF = () => {
+    if (!aiResult) return
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' })
+    const pageW = doc.internal.pageSize.getWidth()
+    const margin = 20
+    const contentW = pageW - margin * 2
+    let y = 25
+
+    if (cvProfile.personalInfo?.name) {
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(14)
+      doc.setTextColor(45, 106, 79)
+      doc.text(cvProfile.personalInfo.name, margin, y)
+      y += 7
+    }
+
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(10)
+    doc.setTextColor(107, 114, 128)
+    doc.text(new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }), margin, y)
+    y += 5
+    doc.text(`Re: ${jobData.title} — ${jobData.company}`, margin, y)
+    y += 10
+
+    doc.setTextColor(17, 24, 39)
+    doc.setFontSize(11)
+    const lines = doc.splitTextToSize(aiResult.coverLetter, contentW)
+    doc.text(lines, margin, y)
+
+    doc.setFontSize(8)
+    doc.setTextColor(156, 163, 175)
+    doc.text('Generated by Job Application Analyser', margin, 290)
+
+    doc.save(`cover-letter-${jobData.company.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.pdf`)
   }
 
   // Generate compressed debug string with ALL data including job description
@@ -476,6 +601,111 @@ export default function ResultsPage({ analysis, jobData, cvProfile, onReset }: R
           </p>
         </div>
       </div>
+
+      {/* Claude AI */}
+      {apiKey && (
+        <div className="border-t border-gray-100 dark:border-gray-700 pt-6">
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-forest-600 dark:text-forest-400">
+              AI Assistant
+            </h4>
+            {!aiResult && (
+              <button
+                onClick={generateWithClaude}
+                disabled={aiLoading}
+                className="btn-primary text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {aiLoading ? '⏳ Generating…' : '✨ Generate with Claude'}
+              </button>
+            )}
+          </div>
+
+          {aiError && (
+            <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-lg p-4 text-sm text-red-800 dark:text-red-200">
+              {aiError}
+            </div>
+          )}
+
+          {aiLoading && (
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Sending your CV and job description to Claude Sonnet…
+            </p>
+          )}
+
+          {aiResult && (
+            <div className="space-y-6">
+
+              {/* Cover Letter */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">Cover Letter</p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => { navigator.clipboard.writeText(aiResult.coverLetter); setCoverLetterCopied(true); setTimeout(() => setCoverLetterCopied(false), 2000) }}
+                      className="btn-secondary text-xs"
+                    >
+                      {coverLetterCopied ? '✓ Copied!' : '📋 Copy'}
+                    </button>
+                    <button onClick={downloadCoverLetterPDF} className="btn-secondary text-xs">
+                      📄 PDF
+                    </button>
+                  </div>
+                </div>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                  <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
+                    {aiResult.coverLetter}
+                  </p>
+                </div>
+              </div>
+
+              {/* Add to CV */}
+              {aiResult.addBullets.length > 0 && (
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">Add to your CV</p>
+                    <button
+                      onClick={() => { navigator.clipboard.writeText(aiResult.addBullets.map(b => `• ${b}`).join('\n')); setAddBulletsCopied(true); setTimeout(() => setAddBulletsCopied(false), 2000) }}
+                      className="btn-secondary text-xs"
+                    >
+                      {addBulletsCopied ? '✓ Copied!' : '📋 Copy all'}
+                    </button>
+                  </div>
+                  <ul className="space-y-2">
+                    {aiResult.addBullets.map((bullet, i) => (
+                      <li key={i} className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2">
+                        <span className="text-forest-500 mt-0.5 shrink-0">+</span>
+                        <span>{bullet}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Remove / de-emphasise */}
+              {aiResult.removeBullets.length > 0 && (
+                <div>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Consider removing or downplaying</p>
+                  <ul className="space-y-2">
+                    {aiResult.removeBullets.map((item, i) => (
+                      <li key={i} className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2">
+                        <span className="text-amber-500 mt-0.5 shrink-0">−</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <button
+                onClick={() => { setAiResult(null); setAiError(null) }}
+                className="btn-secondary text-xs"
+              >
+                ↺ Regenerate
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
