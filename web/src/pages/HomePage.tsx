@@ -173,35 +173,32 @@ export default function HomePage({
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-4xl mx-auto space-y-6">
 
       {/* ── How It Works ── */}
-      <div className="card text-center">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">How It Works</h2>
-        <div className="grid md:grid-cols-3 gap-6 text-left">
-          <div>
-            <div className="text-3xl mb-2">📂</div>
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">1. Upload Your CV</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Upload your CV (.docx or .pdf) or paste it as plain text</p>
-          </div>
-          <div>
-            <div className="text-3xl mb-2">📋</div>
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">2. Paste Job Description</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Copy and paste the full job description from any job posting</p>
-          </div>
-          <div>
-            <div className="text-3xl mb-2">🎯</div>
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">3. Get Your Match Score</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Instantly see how well you match and what skills you're missing</p>
-          </div>
+      <div className="grid md:grid-cols-3 gap-8 py-2">
+        <div>
+          <p className="text-2xl mb-2">📂</p>
+          <h3 className="font-semibold text-gray-900 dark:text-white mb-1 text-sm">Upload Your CV</h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400">.docx or .pdf, or paste plain text</p>
+        </div>
+        <div>
+          <p className="text-2xl mb-2">📋</p>
+          <h3 className="font-semibold text-gray-900 dark:text-white mb-1 text-sm">Paste Job Description</h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Copy from any job posting</p>
+        </div>
+        <div>
+          <p className="text-2xl mb-2">🎯</p>
+          <h3 className="font-semibold text-gray-900 dark:text-white mb-1 text-sm">Get Your Match Score</h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400">See your score and what skills you're missing</p>
         </div>
       </div>
 
       {/* ── Bookmarklet ── */}
-      <div className="card">
-        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">🔖 Browser Bookmarklet</h3>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-          Drag the button below to your bookmarks bar. Then click it on any job listing page to open the analyser with the job description pre-filled.
+      <div className="border-t border-gray-100 dark:border-gray-800 pt-5">
+        <p className="text-sm font-medium text-gray-900 dark:text-white mb-1">🔖 Bookmarklet</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+          Drag to your bookmarks bar — click on any job page to open the analyser with the description pre-filled.
         </p>
         <div className="flex flex-wrap items-center gap-3">
           <a
@@ -641,19 +638,10 @@ export default function HomePage({
         )
       })()}
 
-      {/* ── Privacy Notice ── */}
-      <div className="card bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-700">
-        <div className="flex items-start gap-3">
-          <div className="text-2xl">🔒</div>
-          <div>
-            <h4 className="font-semibold text-purple-900 dark:text-purple-100 mb-1">100% Private & Secure</h4>
-            <p className="text-sm text-purple-800 dark:text-purple-200">
-              All analysis happens in your browser. Your CV and job descriptions are never sent to any server.
-              No data is collected, stored, or shared.
-            </p>
-          </div>
-        </div>
-      </div>
+      {/* ── Privacy ── */}
+      <p className="text-center text-xs text-gray-400 dark:text-gray-500 pb-4">
+        🔒 All analysis runs in your browser — your CV and job descriptions are never sent anywhere.
+      </p>
 
     </div>
   )

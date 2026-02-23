@@ -276,7 +276,7 @@ export default function ResultsPage({ analysis, jobData, cvProfile, onReset }: R
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 pb-6">
+    <div className="max-w-4xl mx-auto space-y-6 pb-12">
       {/* Header with Back Button */}
       <div className="flex items-center justify-between flex-wrap gap-2">
         <button onClick={onReset} className="btn-secondary">
@@ -295,83 +295,56 @@ export default function ResultsPage({ analysis, jobData, cvProfile, onReset }: R
         </div>
       </div>
 
-      {/* Debug Summary - Collapsed by default */}
-      <div className="card bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+      {/* Debug — ultra-minimal, out of the way */}
+      <div className="text-center">
         <button
           onClick={() => setShowDebug(d => !d)}
-          className="w-full flex items-center justify-between text-left"
+          className="text-xs text-gray-300 dark:text-gray-600 hover:text-gray-500 dark:hover:text-gray-400 transition-colors"
         >
-          <p className="text-xs text-gray-500 dark:text-gray-400">🔬 Debug / Test Data</p>
-          <span className="text-gray-400 text-xs">{showDebug ? '▲ Hide' : '▼ Show'}</span>
+          🔬 {showDebug ? 'hide debug' : 'debug'}
         </button>
         {showDebug && (
-          <div className="mt-3 space-y-3">
-            <div className="flex items-center justify-between">
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                Compressed string (includes full job description)
-              </p>
-              <div className="flex gap-2">
-                <a
-                  href="/decode"
-                  className="btn-secondary text-xs"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  🔓 Decoder
-                </a>
-                <button
-                  onClick={() => navigator.clipboard.writeText(generateDebugString())}
-                  className="btn-secondary text-xs whitespace-nowrap"
-                >
-                  📋 Copy
-                </button>
-              </div>
+          <div className="mt-3 text-left space-y-2 p-4 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+            <div className="flex justify-end gap-2">
+              <a href="/decode" className="btn-secondary text-xs" target="_blank" rel="noopener noreferrer">🔓 Decoder</a>
+              <button onClick={() => navigator.clipboard.writeText(generateDebugString())} className="btn-secondary text-xs">📋 Copy</button>
             </div>
-            <div className="bg-white dark:bg-gray-900 p-3 rounded border border-gray-200 dark:border-gray-700">
-              <code className="text-xs text-gray-700 dark:text-gray-300 font-mono break-all">
-                {generateDebugString()}
-              </code>
-            </div>
+            <code className="text-xs text-gray-600 dark:text-gray-400 font-mono break-all block">
+              {generateDebugString()}
+            </code>
           </div>
         )}
       </div>
 
-      {/* Match Score Circle */}
-      <div className="card text-center">
+      {/* Score + Recommendation */}
+      <div className="text-center py-4">
         <MatchScore score={matchScore} />
       </div>
 
-      {/* Recommendation Card */}
-      <div
-        className={`
-          p-6 rounded-lg border-l-4
-          ${
+      <div className={`border-l-4 pl-5 py-1 ${
+        recommendation === 'apply'
+          ? 'border-green-500'
+          : recommendation === 'maybe'
+          ? 'border-yellow-500'
+          : 'border-red-500'
+      }`}>
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-2xl">{getRecommendationEmoji(recommendation)}</span>
+          <h3 className={`text-xl font-bold ${
             recommendation === 'apply'
-              ? 'bg-green-50 dark:bg-green-900/30 border-green-500'
+              ? 'text-green-700 dark:text-green-300'
               : recommendation === 'maybe'
-              ? 'bg-yellow-50 dark:bg-yellow-900/30 border-yellow-500'
-              : 'bg-red-50 dark:bg-red-900/30 border-red-500'
-          }
-        `}
-      >
-        <div className="flex items-center gap-3 mb-3">
-          <span className="text-4xl">{getRecommendationEmoji(recommendation)}</span>
-          <h3
-            className={`
-              text-2xl font-bold
-              ${
-                recommendation === 'apply'
-                  ? 'text-green-800 dark:text-green-200'
-                  : recommendation === 'maybe'
-                  ? 'text-yellow-800 dark:text-yellow-200'
-                  : 'text-red-800 dark:text-red-200'
-              }
-            `}
-          >
+              ? 'text-yellow-700 dark:text-yellow-300'
+              : 'text-red-700 dark:text-red-300'
+          }`}>
             {getRecommendationText(recommendation)}
           </h3>
         </div>
-        <p className={`text-sm ${
+        <p className="font-semibold text-gray-900 dark:text-gray-100">{jobData.title}</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          {jobData.company}{jobData.location ? ` · ${jobData.location}` : ''}
+        </p>
+        <p className={`text-sm mt-2 ${
           recommendation === 'apply'
             ? 'text-green-700 dark:text-green-300'
             : recommendation === 'maybe'
@@ -380,19 +353,6 @@ export default function ResultsPage({ analysis, jobData, cvProfile, onReset }: R
         }`}>
           {buildRoleSummary(analysis)}
         </p>
-      </div>
-
-      {/* Job Info */}
-      <div className="card">
-        <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-1">
-          {jobData.title}
-        </h4>
-        <p className="text-gray-600 dark:text-gray-400">{jobData.company}</p>
-        {jobData.location && (
-          <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
-            📍 {jobData.location}
-          </p>
-        )}
       </div>
 
       {/* Scoring Details */}
@@ -443,67 +403,42 @@ export default function ResultsPage({ analysis, jobData, cvProfile, onReset }: R
 
       {/* Matched Skills */}
       {matchDetails.matchedSkills.length > 0 && (
-        <div className="card">
-          <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">
-            ✓ Matched Skills ({matchDetails.matchedSkills.length})
+        <div className="border-t border-gray-100 dark:border-gray-700 pt-6">
+          <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-3">
+            Matched Skills ({matchDetails.matchedSkills.length})
           </h4>
           <SkillsList skills={matchDetails.matchedSkills} type="matched" />
         </div>
       )}
 
-      {/* Missing Skills */}
+      {/* Missing Skills + Keyword Suggestions */}
       {matchDetails.missingSkills.length > 0 && (
-        <div className="card">
-          <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">
-            ✗ Missing Skills ({matchDetails.missingSkills.length})
-          </h4>
-          <SkillsList skills={matchDetails.missingSkills} type="missing" />
-        </div>
-      )}
-
-      {/* Keyword Suggestions */}
-      {matchDetails.missingSkills.length > 0 && (
-        <div className="card bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700">
-          <div className="flex items-start justify-between gap-3 mb-3">
-            <h4 className="text-lg font-semibold text-blue-900 dark:text-blue-100">
-              💡 Add to Your CV
+        <div className="border-t border-gray-100 dark:border-gray-700 pt-6">
+          <div className="flex items-center justify-between gap-3 mb-3">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+              Missing Skills ({matchDetails.missingSkills.length})
             </h4>
-            <button
-              onClick={copyMissingSkills}
-              className="btn-secondary text-sm flex-shrink-0"
-            >
-              {copied ? '✓ Copied!' : '📋 Copy as list'}
+            <button onClick={copyMissingSkills} className="btn-secondary text-xs">
+              {copied ? '✓ Copied!' : '📋 Copy for CV'}
             </button>
           </div>
-          <p className="text-sm text-blue-700 dark:text-blue-300 mb-3">
-            These required skills aren't on your CV — consider adding them if you have the experience:
+          <SkillsList skills={matchDetails.missingSkills} type="missing" />
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-3">
+            Consider adding these to your CV if you have the experience.
           </p>
-          <div className="flex flex-wrap gap-2">
-            {matchDetails.missingSkills.map(skill => (
-              <span
-                key={skill}
-                className="inline-block px-3 py-1 text-sm font-medium rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200 border border-blue-300 dark:border-blue-600"
-              >
-                {skill}
-              </span>
-            ))}
-          </div>
         </div>
       )}
 
       {/* Strengths */}
       {matchDetails.strengthAreas.length > 0 && (
-        <div className="card bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700">
-          <h4 className="text-lg font-semibold text-green-900 dark:text-green-100 mb-3">
-            💪 Your Strengths
+        <div className="border-t border-gray-100 dark:border-gray-700 pt-6">
+          <h4 className="text-xs font-semibold uppercase tracking-wider text-green-600 dark:text-green-400 mb-3">
+            Your Strengths
           </h4>
           <ul className="space-y-2">
             {matchDetails.strengthAreas.map((strength, index) => (
-              <li
-                key={index}
-                className="text-sm text-green-800 dark:text-green-200 flex items-start"
-              >
-                <span className="mr-2">•</span>
+              <li key={index} className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2">
+                <span className="text-green-500 mt-0.5">✓</span>
                 <span>{strength}</span>
               </li>
             ))}
@@ -513,17 +448,14 @@ export default function ResultsPage({ analysis, jobData, cvProfile, onReset }: R
 
       {/* Gaps */}
       {matchDetails.weakAreas.length > 0 && (
-        <div className="card bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-700">
-          <h4 className="text-lg font-semibold text-yellow-900 dark:text-yellow-100 mb-3">
-            ⚠️ Areas for Improvement
+        <div className="border-t border-gray-100 dark:border-gray-700 pt-6">
+          <h4 className="text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400 mb-3">
+            Areas for Improvement
           </h4>
           <ul className="space-y-2">
             {matchDetails.weakAreas.map((weakness, index) => (
-              <li
-                key={index}
-                className="text-sm text-yellow-800 dark:text-yellow-200 flex items-start"
-              >
-                <span className="mr-2">•</span>
+              <li key={index} className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2">
+                <span className="text-amber-500 mt-0.5">→</span>
                 <span>{weakness}</span>
               </li>
             ))}
@@ -531,26 +463,17 @@ export default function ResultsPage({ analysis, jobData, cvProfile, onReset }: R
         </div>
       )}
 
-      {/* Your Profile Summary */}
-      <div className="card bg-gray-50 dark:bg-gray-800/50">
-        <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">
-          📊 Your Profile Summary
-        </h4>
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <p className="text-gray-600 dark:text-gray-400">Total Skills</p>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              {cvProfile.skills.length}
-            </p>
-          </div>
-          <div>
-            <p className="text-gray-600 dark:text-gray-400">Work Experience</p>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              {cvProfile.totalExperienceYears
-                ? `${cvProfile.totalExperienceYears} yrs`
-                : `${cvProfile.experience.length} roles`}
-            </p>
-          </div>
+      {/* Profile Summary */}
+      <div className="border-t border-gray-100 dark:border-gray-700 pt-6 flex gap-8">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-1">Skills on CV</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{cvProfile.skills.length}</p>
+        </div>
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-1">Experience</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            {cvProfile.totalExperienceYears ? `${cvProfile.totalExperienceYears} yrs` : `${cvProfile.experience.length} roles`}
+          </p>
         </div>
       </div>
     </div>
