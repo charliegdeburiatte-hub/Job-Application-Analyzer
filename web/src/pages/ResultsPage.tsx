@@ -313,6 +313,8 @@ VOICE AND STYLE:
 - First person, warm but professional — never stiff or formal
 - Zero buzzwords or corporate filler (no "leverage", "synergy", "passionate about", "team player", "proactive", "results-driven")
 - Never use em dashes (—). Use commas, colons, or rewrite the sentence instead.
+- Never use the word "genuinely" or any variant of it. If something is genuine, the writing should show it, not announce it.
+- No flattery about the company's reputation, reach, or public presence (e.g. never say things like "I have seen your app on the tube" or "I have noticed how popular you are"). Interest in the company must come from the nature of the work itself, not from how impressive they seem.
 - Specific: name real tools, systems, and job titles rather than vague claims
 - Honest about what he is still learning — does not overclaim
 - Shows reasoning and values, not just a list of achievements
