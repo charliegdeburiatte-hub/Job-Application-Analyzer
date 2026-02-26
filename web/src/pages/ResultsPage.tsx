@@ -57,6 +57,8 @@ export default function ResultsPage({ analysis, jobData, cvProfile, onReset }: R
   const [aiResult, setAiResult] = useState<AIResult | null>(null)
   const [coverLetterCopied, setCoverLetterCopied] = useState(false)
   const [addBulletsCopied, setAddBulletsCopied] = useState(false)
+  const [genCoverLetter, setGenCoverLetter] = useState(true)
+  const [genCvEdits, setGenCvEdits] = useState(true)
 
   const copyShareLink = () => {
     const url = `${window.location.origin}/decode?data=${generateDebugString()}`
@@ -284,18 +286,8 @@ export default function ResultsPage({ analysis, jobData, cvProfile, onReset }: R
       cvProfile.totalExperienceYears ? `Total Experience: ${cvProfile.totalExperienceYears} years` : '',
     ].filter(Boolean).join('\n')
 
-    const prompt = `You are writing a cover letter on behalf of Charlie De Buriatte, a UK-based IT support and customer service professional. Match his exact writing voice and structure precisely.
-
-VOICE AND STYLE:
-- British English throughout (practise, recognise, programme, etc.)
-- First person, warm but professional — never stiff or formal
-- Zero buzzwords or corporate filler (no "leverage", "synergy", "passionate about", "team player", "proactive", "results-driven")
-- Specific: name real tools, systems, and job titles rather than vague claims
-- Honest about what he is still learning — does not overclaim
-- Shows reasoning and values, not just a list of achievements
-- Target around 350–400 words
-
-STRUCTURE — follow this exactly, seven paragraphs:
+    const coverLetterBlock = genCoverLetter
+      ? `STRUCTURE — follow this exactly, seven paragraphs:
 1. Opening line: "Dear [extract the hiring manager's name from the job description if one is clearly present, otherwise "Hiring Manager"]," — then one sentence stating the role and company, then a genuine explanation of why this specific company or industry appeals to Charlie, connected to something real in the job description or the nature of the work.
 2. His most relevant past experience mapped directly to the key requirements of this role. Name the actual job title(s) and what he did. Be specific about tasks and skills.
 3. A second complementary angle — different experience or skills. Mention specific tools or systems by name (e.g. Freshdesk, Active Directory, Outlook, Windows 10/11, Starlink). Describe his end-to-end approach and attention to quality.
@@ -305,7 +297,28 @@ STRUCTURE — follow this exactly, seven paragraphs:
 7. Sign-off: "Thank you for considering my application. I would be happy to discuss how I can contribute to [say something specific about the team or company's goal]." then a blank line, then "Kind regards," then a blank line, then "Charlie De Buriatte"
 
 VOICE REFERENCE — do not copy this, use it only to calibrate tone:
-"In my previous role as an IT Technician I provided remote support to a small but busy user base on Windows 10 and 11, handling day to day issues such as Outlook problems, hardware faults and basic connectivity issues. I am comfortable working as a first point of contact, asking the right questions, and either resolving issues myself or collecting clear information for the next line of support. I like the idea of supporting users whose work has a direct impact on clients, and I am very aware that reliable IT can be the difference between them being able to help someone or not."
+"In my previous role as an IT Technician I provided remote support to a small but busy user base on Windows 10 and 11, handling day to day issues such as Outlook problems, hardware faults and basic connectivity issues. I am comfortable working as a first point of contact, asking the right questions, and either resolving issues myself or collecting clear information for the next line of support. I like the idea of supporting users whose work has a direct impact on clients, and I am very aware that reliable IT can be the difference between them being able to help someone or not."`
+      : `Set "coverLetter" to an empty string.`
+
+    const cvEditsBlock = genCvEdits
+      ? `Also suggest CV edits specific to this role:
+- 3–5 bullet points to ADD, phrased exactly as they would appear on the CV (concise, past-tense action phrases)
+- 2–3 existing items to REMOVE or de-emphasise, each with a brief reason`
+      : `Set "addBullets" and "removeBullets" to empty arrays.`
+
+    const prompt = `You are writing a cover letter on behalf of Charlie De Buriatte, a UK-based IT support and customer service professional. Match his exact writing voice and structure precisely.
+
+VOICE AND STYLE:
+- British English throughout (practise, recognise, programme, etc.)
+- First person, warm but professional — never stiff or formal
+- Zero buzzwords or corporate filler (no "leverage", "synergy", "passionate about", "team player", "proactive", "results-driven")
+- Never use em dashes (—). Use commas, colons, or rewrite the sentence instead.
+- Specific: name real tools, systems, and job titles rather than vague claims
+- Honest about what he is still learning — does not overclaim
+- Shows reasoning and values, not just a list of achievements
+- Target around 350–400 words
+
+${coverLetterBlock}
 
 CV Profile:
 ${cvSummary}
@@ -318,9 +331,7 @@ Match Analysis:
 - Matched skills: ${matchDetails.matchedSkills.join(', ') || 'none identified'}
 - Missing skills: ${matchDetails.missingSkills.join(', ') || 'none identified'}
 
-Also suggest CV edits specific to this role:
-- 3–5 bullet points to ADD, phrased exactly as they would appear on the CV (concise, past-tense action phrases)
-- 2–3 existing items to REMOVE or de-emphasise, each with a brief reason
+${cvEditsBlock}
 
 Respond ONLY with valid JSON, no markdown fences:
 {"coverLetter":"...","addBullets":["..."],"removeBullets":["..."]}`
@@ -624,18 +635,38 @@ Respond ONLY with valid JSON, no markdown fences:
       {/* Claude AI */}
       {apiKey && (
         <div className="border-t border-gray-100 dark:border-gray-700 pt-6">
-          <div className="flex items-center justify-between mb-3">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-forest-600 dark:text-forest-400">
+          <div className="mb-3">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-forest-600 dark:text-forest-400 mb-3">
               AI Assistant
             </h4>
             {!aiResult && (
-              <button
-                onClick={generateWithClaude}
-                disabled={aiLoading}
-                className="btn-primary text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {aiLoading ? '⏳ Generating…' : '✨ Generate with Claude'}
-              </button>
+              <div className="flex flex-wrap items-center gap-4">
+                <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={genCoverLetter}
+                    onChange={e => setGenCoverLetter(e.target.checked)}
+                    className="accent-forest-600"
+                  />
+                  Cover letter
+                </label>
+                <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={genCvEdits}
+                    onChange={e => setGenCvEdits(e.target.checked)}
+                    className="accent-forest-600"
+                  />
+                  CV suggestions
+                </label>
+                <button
+                  onClick={generateWithClaude}
+                  disabled={aiLoading || (!genCoverLetter && !genCvEdits)}
+                  className="btn-primary text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {aiLoading ? '⏳ Generating…' : '✨ Generate with Claude'}
+                </button>
+              </div>
             )}
           </div>
 
