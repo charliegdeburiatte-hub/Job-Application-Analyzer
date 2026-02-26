@@ -284,7 +284,28 @@ export default function ResultsPage({ analysis, jobData, cvProfile, onReset }: R
       cvProfile.totalExperienceYears ? `Total Experience: ${cvProfile.totalExperienceYears} years` : '',
     ].filter(Boolean).join('\n')
 
-    const prompt = `You are a career coach. Given the CV and job details below, produce a tailored cover letter and specific CV editing suggestions.
+    const prompt = `You are writing a cover letter on behalf of Charlie De Buriatte, a UK-based IT support and customer service professional. Match his exact writing voice and structure precisely.
+
+VOICE AND STYLE:
+- British English throughout (practise, recognise, programme, etc.)
+- First person, warm but professional — never stiff or formal
+- Zero buzzwords or corporate filler (no "leverage", "synergy", "passionate about", "team player", "proactive", "results-driven")
+- Specific: name real tools, systems, and job titles rather than vague claims
+- Honest about what he is still learning — does not overclaim
+- Shows reasoning and values, not just a list of achievements
+- Target around 350–400 words
+
+STRUCTURE — follow this exactly, seven paragraphs:
+1. Opening line: "Dear [extract the hiring manager's name from the job description if one is clearly present, otherwise "Hiring Manager"]," — then one sentence stating the role and company, then a genuine explanation of why this specific company or industry appeals to Charlie, connected to something real in the job description or the nature of the work.
+2. His most relevant past experience mapped directly to the key requirements of this role. Name the actual job title(s) and what he did. Be specific about tasks and skills.
+3. A second complementary angle — different experience or skills. Mention specific tools or systems by name (e.g. Freshdesk, Active Directory, Outlook, Windows 10/11, Starlink). Describe his end-to-end approach and attention to quality.
+4. Soft skills under pressure — staying calm, reassuring users or customers, escalating appropriately rather than passing stress on. Grounded and specific, not generic.
+5. Short paragraph: a genuine personal interest showing he cares about this space outside of work. Charlie maintains a homelab where he practises Active Directory tasks (creating accounts, managing groups, resetting passwords), general Windows and networking tasks, and has set up his own Starlink connection. Pick whichever aspects are most relevant to the role and keep it natural, not performative.
+6. Practical logistics: confirm availability and flexibility, then a sentence about wanting to grow his career specifically within this company or team.
+7. Sign-off: "Thank you for considering my application. I would be happy to discuss how I can contribute to [say something specific about the team or company's goal]." then a blank line, then "Kind regards," then a blank line, then "Charlie De Buriatte"
+
+VOICE REFERENCE — do not copy this, use it only to calibrate tone:
+"In my previous role as an IT Technician I provided remote support to a small but busy user base on Windows 10 and 11, handling day to day issues such as Outlook problems, hardware faults and basic connectivity issues. I am comfortable working as a first point of contact, asking the right questions, and either resolving issues myself or collecting clear information for the next line of support. I like the idea of supporting users whose work has a direct impact on clients, and I am very aware that reliable IT can be the difference between them being able to help someone or not."
 
 CV Profile:
 ${cvSummary}
@@ -294,14 +315,12 @@ Description:
 ${jobData.description.slice(0, 3000)}
 
 Match Analysis:
-- Score: ${matchScore}%
-- Matched skills: ${matchDetails.matchedSkills.join(', ')}
-- Missing skills: ${matchDetails.missingSkills.join(', ')}
+- Matched skills: ${matchDetails.matchedSkills.join(', ') || 'none identified'}
+- Missing skills: ${matchDetails.missingSkills.join(', ') || 'none identified'}
 
-Instructions:
-1. Write a professional cover letter (3–4 paragraphs, British English, no placeholder text, ready to send)
-2. Suggest 3–5 bullet points to ADD to the CV — concrete, achievement-focused, specific to this role, phrased as they would appear on the CV
-3. Suggest 2–3 existing CV items to REMOVE or de-emphasise for this specific role, with a brief reason
+Also suggest CV edits specific to this role:
+- 3–5 bullet points to ADD, phrased exactly as they would appear on the CV (concise, past-tense action phrases)
+- 2–3 existing items to REMOVE or de-emphasise, each with a brief reason
 
 Respond ONLY with valid JSON, no markdown fences:
 {"coverLetter":"...","addBullets":["..."],"removeBullets":["..."]}`
