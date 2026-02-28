@@ -302,8 +302,8 @@ VOICE REFERENCE — do not copy this, use it only to calibrate tone:
 
     const cvEditsBlock = genCvEdits
       ? `Also suggest CV edits specific to this role:
-- 3–5 bullet points to ADD, phrased exactly as they would appear on the CV (concise, past-tense action phrases)
-- 2–3 existing items to REMOVE or de-emphasise, each with a brief reason`
+- 3–5 bullet points to ADD. For each one, start with the role or section it belongs under in square brackets, then the bullet text. Example format: "[IT Technician at Acme Ltd] Resolved hardware faults across a remote Windows 10/11 user base". Phrase the bullet exactly as it would appear on the CV (concise, past-tense action phrase).
+- 2–3 existing items to REMOVE or de-emphasise, each with a brief reason why they are less relevant for this specific role.`
       : `Set "addBullets" and "removeBullets" to empty arrays.`
 
     const prompt = `You are writing a cover letter on behalf of Charlie De Buriatte, a UK-based IT support and customer service professional. Match his exact writing voice and structure precisely.
