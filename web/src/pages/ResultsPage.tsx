@@ -12,6 +12,19 @@ interface AIResult {
   removeBullets: string[]
 }
 
+function groupAddBullets(bullets: string[]): { section: string; items: string[] }[] {
+  const map = new Map<string, string[]>()
+  const order: string[] = []
+  for (const bullet of bullets) {
+    const match = bullet.match(/^\[([^\]]+)\]\s*(.+)/)
+    const section = match ? match[1].trim() : ''
+    const text = match ? match[2].trim() : bullet
+    if (!map.has(section)) { map.set(section, []); order.push(section) }
+    map.get(section)!.push(text)
+  }
+  return order.map(section => ({ section, items: map.get(section)! }))
+}
+
 function buildRoleSummary(analysis: Analysis): string {
   const { matchDetails, scoringBreakdown, matchScore } = analysis
   const { missingSkills } = matchDetails
@@ -711,27 +724,44 @@ Respond ONLY with valid JSON, no markdown fences:
               </div>
 
               {/* Add to CV */}
-              {aiResult.addBullets.length > 0 && (
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">Add to your CV</p>
-                    <button
-                      onClick={() => { navigator.clipboard.writeText(aiResult.addBullets.map(b => `• ${b}`).join('\n')); setAddBulletsCopied(true); setTimeout(() => setAddBulletsCopied(false), 2000) }}
-                      className="btn-secondary text-xs"
-                    >
-                      {addBulletsCopied ? '✓ Copied!' : '📋 Copy all'}
-                    </button>
+              {aiResult.addBullets.length > 0 && (() => {
+                const groups = groupAddBullets(aiResult.addBullets)
+                const copyText = groups
+                  .map(({ section, items }) => (section ? `${section}:\n` : '') + items.map(i => `• ${i}`).join('\n'))
+                  .join('\n\n')
+                return (
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">Add to your CV</p>
+                      <button
+                        onClick={() => { navigator.clipboard.writeText(copyText); setAddBulletsCopied(true); setTimeout(() => setAddBulletsCopied(false), 2000) }}
+                        className="btn-secondary text-xs"
+                      >
+                        {addBulletsCopied ? '✓ Copied!' : '📋 Copy all'}
+                      </button>
+                    </div>
+                    <div className="space-y-4">
+                      {groups.map(({ section, items }) => (
+                        <div key={section || '__ungrouped'}>
+                          {section && (
+                            <p className="text-xs font-semibold uppercase tracking-wider text-forest-700 dark:text-forest-300 mb-2">
+                              {section}
+                            </p>
+                          )}
+                          <ul className={`space-y-1.5 ${section ? 'pl-3 border-l-2 border-forest-200 dark:border-forest-800' : ''}`}>
+                            {items.map((item, i) => (
+                              <li key={i} className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2">
+                                <span className="text-forest-500 mt-0.5 shrink-0">+</span>
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <ul className="space-y-2">
-                    {aiResult.addBullets.map((bullet, i) => (
-                      <li key={i} className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2">
-                        <span className="text-forest-500 mt-0.5 shrink-0">+</span>
-                        <span>{bullet}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+                )
+              })()}
 
               {/* Remove / de-emphasise */}
               {aiResult.removeBullets.length > 0 && (

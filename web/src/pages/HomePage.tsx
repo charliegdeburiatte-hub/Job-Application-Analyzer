@@ -99,9 +99,9 @@ export default function HomePage({
     const jd = searchParams.get('jd')
     const t = searchParams.get('title')
     const c = searchParams.get('company')
-    if (jd) setJobDescription(decodeURIComponent(jd))
-    if (t) setJobTitle(decodeURIComponent(t))
-    if (c) setCompany(decodeURIComponent(c))
+    if (jd) setJobDescription(jd)
+    if (t) setJobTitle(t)
+    if (c) setCompany(c)
   }, [])
 
   // Bookmarklet: React 19 blocks javascript: URLs even via ref, so we build the
