@@ -110,7 +110,7 @@ export default function HomePage({
   const bookmarkletHref = useRef<string>('')
   useEffect(() => {
     if (!bookmarkletContainerRef.current) return
-    const href = `javascript:(function(){var d=window.getSelection().toString().trim();if(!d)d=prompt('Paste the job description:','');if(d)window.open('${window.location.origin}/?jd='+encodeURIComponent(d.slice(0,8000)),'_blank');})()`
+    const href = `javascript:(function(){var d=window.getSelection().toString().trim()||document.body.innerText.trim();if(d)window.open('${window.location.origin}/?jd='+encodeURIComponent(d.slice(0,8000)),'_blank');})()`
     bookmarkletHref.current = href
     const a = document.createElement('a')
     a.href = href
@@ -224,7 +224,7 @@ export default function HomePage({
       <div className="border-t border-gray-100 dark:border-gray-800 pt-5">
         <p className="text-sm font-medium text-gray-900 dark:text-white mb-1">🔖 Bookmarklet</p>
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
-          Drag to your bookmarks bar — click on any job page to open the analyser with the description pre-filled.
+          Drag to your bookmarks bar — click it on any job page and it grabs the text automatically.
         </p>
         <div className="flex flex-wrap items-center gap-3">
           <span ref={bookmarkletContainerRef} />
