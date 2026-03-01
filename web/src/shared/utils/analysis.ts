@@ -91,8 +91,36 @@ export function extractPreferredSkills(text: string): string[] {
 // Skill Matching
 // ============================================================================
 
+// Tools grouped by category — knowing one counts as transferable experience for any other in the group.
+// Skills are stored in normalised form (lowercase, no spaces/dots/dashes).
+const EQUIVALENCY_GROUPS: string[][] = [
+  // Helpdesk / ticketing platforms
+  ['freshdesk', 'zendesk', 'servicenow', 'jiraservicemanagement', 'jiraservicedesk', 'spiceworks', 'kayako', 'helpscout', 'intercom', 'remedy', 'topdesk', 'cherwell', 'ivanti', 'sysaid'],
+  // Project management / issue tracking
+  ['jira', 'trello', 'asana', 'monday', 'linear', 'clickup', 'basecamp', 'azuredevops', 'youtrack'],
+  // CRM systems
+  ['salesforce', 'hubspot', 'dynamics365', 'dynamics', 'zoho', 'pipedrive', 'freshsales'],
+  // Office suites
+  ['microsoft365', 'office365', 'microsoftoffice', 'googleworkspace', 'gsuite'],
+  // Communication / video conferencing
+  ['zoom', 'teams', 'microsoftteams', 'googlemeet', 'webex', 'slack'],
+  // Cloud providers
+  ['aws', 'azure', 'gcp', 'googlecloud'],
+  // Version control
+  ['git', 'github', 'gitlab', 'bitbucket'],
+  // Directory / identity services
+  ['activedirectory', 'azuread', 'okta', 'ldap', 'entraid'],
+  // Remote support tools
+  ['teamviewer', 'anydesk', 'logmein', 'bomgar', 'rdp', 'remotedesktop', 'splashtop'],
+  // Monitoring / observability
+  ['nagios', 'zabbix', 'prtg', 'solarwinds', 'datadog', 'grafana'],
+  // Linux distros — knowing any one means knowing Linux
+  ['linux', 'ubuntu', 'debian', 'centos', 'rhel', 'redhat', 'fedora'],
+];
+
 /**
- * Fuzzy match two skill strings (handles variations like "React" vs "React.js")
+ * Fuzzy match two skill strings (handles variations like "React" vs "React.js",
+ * and transferable equivalents like "Freshdesk" vs "Zendesk")
  */
 export function fuzzyMatchSkill(skill1: string, skill2: string): boolean {
   const s1 = skill1.toLowerCase().replace(/[.\-_\s]/g, '');
@@ -104,7 +132,7 @@ export function fuzzyMatchSkill(skill1: string, skill2: string): boolean {
   // One contains the other
   if (s1.includes(s2) || s2.includes(s1)) return true;
 
-  // Common variations
+  // Common name variations
   const variations: Record<string, string[]> = {
     javascript: ['js', 'ecmascript'],
     typescript: ['ts'],
@@ -120,6 +148,11 @@ export function fuzzyMatchSkill(skill1: string, skill2: string): boolean {
     if ((s1 === base && vars.includes(s2)) || (s2 === base && vars.includes(s1))) {
       return true;
     }
+  }
+
+  // Transferable equivalents — same category of tool counts as relevant experience
+  for (const group of EQUIVALENCY_GROUPS) {
+    if (group.includes(s1) && group.includes(s2)) return true;
   }
 
   return false;
