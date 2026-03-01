@@ -116,7 +116,7 @@ export default function HomePage({
     a.href = href
     a.draggable = true
     a.title = 'Drag me to your bookmarks bar'
-    a.className = 'btn-primary text-sm select-none cursor-grab active:cursor-grabbing inline-block'
+    a.className = 'btn-primary text-sm select-none cursor-grab active:cursor-grabbing inline-flex items-center gap-1.5'
     a.textContent = '🔖 Analyse This Job'
     bookmarkletContainerRef.current.innerHTML = ''
     bookmarkletContainerRef.current.appendChild(a)
