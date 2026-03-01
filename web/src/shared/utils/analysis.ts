@@ -94,6 +94,8 @@ export function extractPreferredSkills(text: string): string[] {
 // Tools grouped by category — knowing one counts as transferable experience for any other in the group.
 // Skills are stored in normalised form (lowercase, no spaces/dots/dashes).
 const EQUIVALENCY_GROUPS: string[][] = [
+  // ITSM / service management methodology — doing service desk work = practising ITSM
+  ['itsm', 'itil', 'servicedesk', 'helpdesk', 'incidentmanagement', 'itsupport', 'servicemgmt'],
   // Helpdesk / ticketing platforms
   ['freshdesk', 'zendesk', 'servicenow', 'jiraservicemanagement', 'jiraservicedesk', 'spiceworks', 'kayako', 'helpscout', 'intercom', 'remedy', 'topdesk', 'cherwell', 'ivanti', 'sysaid'],
   // Project management / issue tracking
