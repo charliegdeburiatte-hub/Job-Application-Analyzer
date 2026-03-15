@@ -73,6 +73,11 @@ export default function ResultsPage({ analysis, jobData, cvProfile, onReset }: R
   const [genCoverLetter, setGenCoverLetter] = useState(true)
   const [genCvEdits, setGenCvEdits] = useState(true)
 
+  const handleExportDocx = async () => {
+    const { exportAnalysisDocx } = await import('../shared/utils/exportDocx')
+    await exportAnalysisDocx({ jobData, analysis, aiResult })
+  }
+
   const copyShareLink = () => {
     const url = `${window.location.origin}/decode?data=${generateDebugString()}`
     navigator.clipboard.writeText(url)
@@ -453,6 +458,9 @@ Respond ONLY with valid JSON, no markdown fences:
           ← Analyse Another Job
         </button>
         <div className="flex gap-2 flex-wrap">
+          <button onClick={handleExportDocx} className="btn-primary">
+            📝 Export DOCX
+          </button>
           <button onClick={downloadPDF} className="btn-primary">
             📄 Download PDF
           </button>

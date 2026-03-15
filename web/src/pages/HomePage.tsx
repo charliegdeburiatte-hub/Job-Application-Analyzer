@@ -122,6 +122,11 @@ export default function HomePage({
     bookmarkletContainerRef.current.appendChild(a)
   }, [])
 
+  const handleExportXlsx = async () => {
+    const { exportHistoryXlsx } = await import('../shared/utils/exportXlsx')
+    exportHistoryXlsx(history)
+  }
+
   const filteredHistory = history
     .filter(e => {
       const term = searchTerm.toLowerCase()
@@ -545,6 +550,13 @@ export default function HomePage({
                 🕒 Recent Analyses ({history.length})
               </h3>
               <span className="text-gray-500 dark:text-gray-400 text-sm">{showHistory ? '▲' : '▼'}</span>
+            </button>
+            <button
+              onClick={handleExportXlsx}
+              className="btn-secondary text-sm flex-shrink-0"
+              title="Export all applications as Excel spreadsheet"
+            >
+              📊 Export Excel
             </button>
             <button
               onClick={() => exportHistoryToCSV(history)}
